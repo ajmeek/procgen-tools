@@ -797,7 +797,7 @@ class ActivationsPlotter:
         if self.coords_enabled:
             col, row = self.col_slider.value, self.row_slider.value
             activations = self.activ_gen(
-                row, col, label, self.hook, **self.act_kwargs
+                col, row, label, self.hook, **self.act_kwargs
             )
         else:
             activations = self.activ_gen(
