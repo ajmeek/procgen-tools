@@ -1320,7 +1320,21 @@ def mpp(unit_arrows: List[str], grid, legal_mouse_positions, arrows):
     while grid_with_directions[current_position[0]][current_position[1]][2] == True:
         new_position = get_next_position(current_position[0], current_position[1], grid_with_directions[current_position[0]][current_position[1]][1])
         visited_positions.add(current_position)
-        path.append((current_position, grid_with_directions[current_position[0]][current_position[1]][3], grid_with_directions[current_position[0]][current_position[1]][4]))
+
+        #rescale arrows to look uniform based on direction. This is optional
+        direction = grid_with_directions[current_position[0]][current_position[1]][1]
+        scale = 18
+        if direction == 'right':
+            arrow = (0, scale)
+        elif direction == 'left':
+            arrow = (0, -scale)
+        elif direction == 'up':
+            arrow = (scale, 0)
+        elif direction == 'down':
+            arrow = (-scale, 0)
+
+        path.append((current_position, grid_with_directions[current_position[0]][current_position[1]][3], arrow))
+        #path.append((current_position, grid_with_directions[current_position[0]][current_position[1]][3], grid_with_directions[current_position[0]][current_position[1]][4]))
         current_position = new_position
 
         if current_position in visited_positions:
@@ -1392,6 +1406,10 @@ def render_arrows_mpp(
     legal_mouse_positions_path = [x[1] for x in path]
     arrows_path = [x[2] for x in path]
 
+    #remove very last position, since it points to wall or loops back
+    legal_mouse_positions_path = legal_mouse_positions_path[:-1]
+    arrows_path = arrows_path[:-1]
+
     ax.quiver(
         [pos[1] for pos in legal_mouse_positions_path],
         [pos[0] for pos in legal_mouse_positions_path],
@@ -1439,8 +1457,8 @@ def plot_vf_mpp(
 
 # Testing, script for debugger.
 
-seed = 0
+seed = 2
 venv = maze.create_venv(1, seed, 1)
-visualize_venv(venv, render_padding=False, show_plot=True)
+#visualize_venv(venv, render_padding=False, show_plot=True)
 vf = vector_field(venv, policy)
 plot_vf_mpp(vf)
