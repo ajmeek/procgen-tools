@@ -5,6 +5,7 @@ import PIL
 from warnings import warn
 from torch import nn
 import torch
+import math
 
 # Getting an image from figures
 def img_from_fig(
@@ -1260,3 +1261,141 @@ def plot_vfs(
         )
         axs[idx].set_xlabel("Patched vfield minus original", fontsize=fontsize)
     return fig, axs, (vf_diff if show_diff else None)
+
+def mpp(unit_arrows: List[str], grid):
+    """
+    Get the most probable path through the maze, given the vector field.
+
+    So the way copilot recommended is to just go from mouse to cheese.
+    I can't find the mouse in the grid as it is right now. However, we know it starts with
+    the lower left corner every time, so that's no problem.
+
+    I think I should combine the grid and unit arrows into a single thing.
+    So have a new grid, with every element (position = (x,y), direction, feasible: bool = True if grid(pos) = 100 or 2)
+    Elements are tuples.
+
+    The current grid structure (and I don't know why it's like this), but open spaces are 100,
+    goal is 2 (which is also an open space), and walls are 51.
+    """
+
+    # get mouse position
+    mouse_pos = (0, 0)
+    grid_with_directions = []
+
+    for position in grid:
+
+
+    # get path
+    path = []
+
+
+
+    return path
+
+def render_arrows_mpp(
+    vf: dict,
+    ax=None,
+    human_render: bool = True,
+    render_padding: bool = False,
+    color: str = "white",
+    show_components: bool = False,
+    mouse_render: bool = True
+):
+    """Render the most probable path in the vector field.
+
+    args:
+        vf: The vector field dict
+        ax: The matplotlib axis to render on
+        human_render: Whether to render the grid in a human-readable way (high-res pixel view) or a machine-readable way (grid view)
+        render_padding: Whether to render the padding around the grid
+        color: The color of the arrows
+        show_components: Whether to show one arrow for each cardinal action. If False, show one arrow for each action.
+    """
+    ax = ax or plt.gca()
+
+    arrows, legal_mouse_positions, grid = (
+        vf["arrows"],
+        vf["legal_mouse_positions"],
+        vf["grid"],
+    )
+
+    inner_size = grid.shape[0]  # The size of the inner grid
+    arrow_rescale = maze.WORLD_DIM / (
+        inner_size * 1.8
+    )  # Rescale arrow width and other properties to be relative to the size of the maze
+    width = 0.005 * arrow_rescale
+
+    arrows = [
+        _tadd(*arr_list) for arr_list in arrows
+    ]  # Add the arrows together to get a total vector for each mouse position
+
+
+    # need to just get arrows pointed in a direction. scale shouldn't matter for MPP, just
+    # absolute direction in any one square
+    unit_arrows = []
+    for arrow in arrows:
+        print("arrow: ", arrow)
+        x, y = arrow[1], arrow[0]
+
+        if abs(x) > abs(y) and x > 0:
+            unit_arrows.append('right')
+        elif abs(x) > abs(y) and x < 0:
+            unit_arrows.append('left')
+        elif abs(y) > abs(x) and y > 0:
+            unit_arrows.append('up')
+        elif abs(y) > abs(x) and y < 0:
+            unit_arrows.append('down')
+
+    path = mpp(unit_arrows, grid)
+
+    ax.quiver(
+        [pos[1] for pos in legal_mouse_positions],
+        [pos[0] for pos in legal_mouse_positions],
+        [arr[1] for arr in arrows],
+        [arr[0] for arr in arrows],
+        color=color,
+        scale=1,
+        scale_units="xy",
+        width=width,
+    )
+
+    venv = maze.venv_from_grid(grid)
+    visualize_venv(
+        venv,
+        ax=ax,
+        mode="human" if human_render else "numpy",
+        render_padding=render_padding,
+        render_mouse=mouse_render,
+        show_plot=True,
+    )
+
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+
+def plot_vf_mpp(
+    vf: dict,
+    ax=None,
+    human_render: bool = True,
+    render_padding: bool = False,
+    show_components: bool = False,
+):
+    "Plots the most probable path through the vector field. By"
+    render_arrows_mpp(
+        map_vf_to_human(vf, account_for_padding=render_padding)
+        if human_render
+        else vf,
+        ax=ax,
+        human_render=human_render,
+        render_padding=render_padding,
+        color="white" if human_render else "red",
+        show_components=show_components,
+    )
+
+
+# Testing, script for debugger.
+
+seed = 0
+venv = maze.create_venv(1, seed, 1)
+vf = vector_field(venv, policy)
+plot_vf_mpp(vf)
