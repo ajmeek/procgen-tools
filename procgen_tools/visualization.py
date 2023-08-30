@@ -1262,7 +1262,7 @@ def plot_vfs(
         axs[idx].set_xlabel("Patched vfield minus original", fontsize=fontsize)
     return fig, axs, (vf_diff if show_diff else None)
 
-def mpp(unit_arrows: List[str], grid):
+def mpp(unit_arrows: List[str], grid, legal_mouse_positions, arrows):
     """
     Get the most probable path through the maze, given the vector field.
 
@@ -1272,6 +1272,8 @@ def mpp(unit_arrows: List[str], grid):
 
     I think I should combine the grid and unit arrows into a single thing.
     So have a new grid, with every element (position = (x,y), direction, feasible: bool = True if grid(pos) = 100 or 2)
+    Plus their old legal_mouse_position (absolute value for matplotlib) and arrow.
+
     Elements are tuples.
 
     The current grid structure (and I don't know why it's like this), but open spaces are 100,
@@ -1282,12 +1284,51 @@ def mpp(unit_arrows: List[str], grid):
     mouse_pos = (0, 0)
     grid_with_directions = []
 
-    for position in grid:
+    unit_arrows = unit_arrows[::-1]
+    legal_mouse_positions = legal_mouse_positions[::-1]
+    arrows = arrows[::-1]
+
+    for row in range(len(grid)):
+        #maintain same structure as grid
+        row_mpp = []
+        for col in range(len(grid)):
+
+            #actually cheese square is invalid. no arrow stemming from that, seems like a bug.
+            if grid[row][col] == 100:# or grid[row][col] == 2:
+                print("position, row, col: ", grid[row][col], row, col)
+                row_mpp.append(((row, col), unit_arrows.pop(), True, legal_mouse_positions.pop(), arrows.pop()))
+            else:
+                row_mpp.append(((row, col), None, False, None, None))
+        grid_with_directions.append(row_mpp)
+
+    def get_next_position(row, col, direction):
+        if direction == 'right':
+            return (row, col + 1)
+        elif direction == 'left':
+            return (row, col - 1)
+        elif direction == 'up':
+            return (row + 1, col)
+        elif direction == 'down':
+            return (row - 1, col)
 
 
     # get path
-    path = []
+    path = [] #paths contain coordinates of path, their abs position, and arrow
 
+    visited_positions = set()
+    current_position = (0,0)
+    while grid_with_directions[current_position[0]][current_position[1]][2] == True:
+        new_position = get_next_position(current_position[0], current_position[1], grid_with_directions[current_position[0]][current_position[1]][1])
+        visited_positions.add(current_position)
+        path.append((current_position, grid_with_directions[current_position[0]][current_position[1]][3], grid_with_directions[current_position[0]][current_position[1]][4]))
+        current_position = new_position
+
+        if current_position in visited_positions:
+            #print("loop detected")
+            break
+
+    #Should also return the new legal mouse positions and arrows.
+    #This will be for plotting with matplotlib's quiver function.
 
 
     return path
@@ -1334,7 +1375,7 @@ def render_arrows_mpp(
     # absolute direction in any one square
     unit_arrows = []
     for arrow in arrows:
-        print("arrow: ", arrow)
+        #print("arrow: ", arrow)
         x, y = arrow[1], arrow[0]
 
         if abs(x) > abs(y) and x > 0:
@@ -1346,13 +1387,16 @@ def render_arrows_mpp(
         elif abs(y) > abs(x) and y < 0:
             unit_arrows.append('down')
 
-    path = mpp(unit_arrows, grid)
+    path = mpp(unit_arrows, grid, legal_mouse_positions, arrows)
+
+    legal_mouse_positions_path = [x[1] for x in path]
+    arrows_path = [x[2] for x in path]
 
     ax.quiver(
-        [pos[1] for pos in legal_mouse_positions],
-        [pos[0] for pos in legal_mouse_positions],
-        [arr[1] for arr in arrows],
-        [arr[0] for arr in arrows],
+        [pos[1] for pos in legal_mouse_positions_path],
+        [pos[0] for pos in legal_mouse_positions_path],
+        [arr[1] for arr in arrows_path],
+        [arr[0] for arr in arrows_path],
         color=color,
         scale=1,
         scale_units="xy",
@@ -1397,5 +1441,6 @@ def plot_vf_mpp(
 
 seed = 0
 venv = maze.create_venv(1, seed, 1)
+visualize_venv(venv, render_padding=False, show_plot=True)
 vf = vector_field(venv, policy)
 plot_vf_mpp(vf)
