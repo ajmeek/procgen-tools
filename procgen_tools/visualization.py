@@ -6,6 +6,7 @@ from warnings import warn
 from torch import nn
 import torch
 import math
+import datetime
 
 # Getting an image from figures
 def img_from_fig(
@@ -357,6 +358,8 @@ def visualize_venv(
     flip_numpy: bool = True,
     render_padding: bool = True,
     render_mouse: bool = True,
+    save_img: bool = False,
+    save_img_dir: str = "playground/paper_graphics/visualizations"
 ):
     """Visualize the environment. Returns an img if show_plot is false.
 
@@ -419,6 +422,11 @@ def visualize_venv(
     ax.imshow(img)
     if show_plot:
         plt.show()
+
+    date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+    if save_img:
+        plt.savefig(save_img_dir + f"/{date}.png", bbox_inches="tight")
     return img
 
 
@@ -1295,7 +1303,7 @@ def mpp(unit_arrows: List[str], grid, legal_mouse_positions, arrows):
 
             #actually cheese square is invalid. no arrow stemming from that, seems like a bug.
             if grid[row][col] == 100:# or grid[row][col] == 2:
-                print("position, row, col: ", grid[row][col], row, col)
+                #print("position, row, col: ", grid[row][col], row, col)
                 row_mpp.append(((row, col), unit_arrows.pop(), True, legal_mouse_positions.pop(), arrows.pop()))
             else:
                 row_mpp.append(((row, col), None, False, None, None))
@@ -1354,7 +1362,8 @@ def render_arrows_mpp(
     render_padding: bool = False,
     color: str = "white",
     show_components: bool = False,
-    mouse_render: bool = True
+    mouse_render: bool = True,
+    save_img = True,
 ):
     """Render the most probable path in the vector field.
 
@@ -1428,11 +1437,13 @@ def render_arrows_mpp(
         mode="human" if human_render else "numpy",
         render_padding=render_padding,
         render_mouse=mouse_render,
-        show_plot=True,
+        show_plot=False,
+        save_img=save_img,
     )
 
     ax.set_xticks([])
     ax.set_yticks([])
+
 
 
 def plot_vf_mpp(
@@ -1441,6 +1452,7 @@ def plot_vf_mpp(
     human_render: bool = True,
     render_padding: bool = False,
     show_components: bool = False,
+    save_img: bool = True,
 ):
     "Plots the most probable path through the vector field. By"
     render_arrows_mpp(
@@ -1452,13 +1464,102 @@ def plot_vf_mpp(
         render_padding=render_padding,
         color="white" if human_render else "red",
         show_components=show_components,
+        save_img = save_img,
     )
 
 
 # Testing, script for debugger.
 
-seed = 2
+# seed = 0
+# venv = maze.create_venv(1, seed, 1)
+# #visualize_venv(venv, render_padding=False, show_plot=True)
+# vf = vector_field(venv, policy)
+# plot_vf_mpp(vf)
+
+# TODO - plot red dot as well. This will require new parameters all the way up to visualize_from_venv, with coordinates as well
+# perhaps a Union(Tuple[int, int], None) for the red dot positions and none if no red dot visualization desired
+
+def plot_vfs_mpp(
+    vf1: dict,
+    vf2: dict,
+    human_render: bool = True,
+    render_padding: bool = False,
+    ax_size: int = 5,
+    show_diff: bool = True,
+    show_original: bool = True,
+    show_components: bool = False,
+):
+    """Plot two vector fields and, if show_diff is True, their difference vf2 - vf1. Plots three axes in total. Returns the figure, axes, and the difference vector field. If show_original is False, don't plot the original vector field.
+    """
+    num_cols = 1 + show_diff + show_original
+    fontsize = 16
+    fig, axs = plt.subplots(1, num_cols, figsize=(ax_size * num_cols, ax_size))
+
+    idx = 0
+    if show_original:
+        plot_vf_mpp(
+            vf1,
+            ax=axs[idx],
+            human_render=human_render,
+            render_padding=render_padding,
+            show_components=show_components,
+            save_img=False,
+        )
+        axs[idx].set_xlabel("Original", fontsize=fontsize)
+        idx += 1
+
+    plot_vf_mpp(
+        vf2,
+        ax=axs[idx],
+        human_render=human_render,
+        render_padding=render_padding,
+        show_components=show_components,
+    )
+    axs[idx].set_xlabel("Patched", fontsize=fontsize)
+    idx += 1
+
+    if show_diff:
+        # Pass in vf2 first so that the difference is vf2 - vf1, or the difference between the patched and original vector fields
+        vf_diff = plot_vf_diff(
+            vf2,
+            vf1,
+            ax=axs[idx],
+            human_render=human_render,
+            render_padding=render_padding,
+            show_components=show_components,
+        )
+        axs[idx].set_xlabel("Patched vfield minus original", fontsize=fontsize)
+    return fig, axs, (vf_diff if show_diff else None)
+
+
+"""
+Trying to get activations with their code. How to get an obs to pass in?
+
+def get_activations(obs: np.ndarray, hook: cmh.ModuleHook, layer_name: str):
+    hook.run_with_input(obs)  # run the model with the given obs
+    return hook.get_value_by_label(
+        layer_name
+    )  # shape is (b, c, h, w) at conv layers, (b, activations) at linear layers
+    
+from patch_utils
+def values_from_venv(
+    layer_name: str, hook: cmh.ModuleHook, venv: ProcgenGym3Env
+):
+    "Get the values of the activations at the layer for the given venv."
+    obs = venv.reset().astype(np.float32)
+    hook.run_with_input(obs, func=forward_func_policy)
+    return hook.get_value_by_label(layer_name)
+"""
+
+seed = 0
 venv = maze.create_venv(1, seed, 1)
-#visualize_venv(venv, render_padding=False, show_plot=True)
-vf = vector_field(venv, policy)
-plot_vf_mpp(vf)
+# #visualize_venv(venv, render_padding=False, show_plot=True)
+# vf = vector_field(venv, policy)
+# plot_vf_mpp(vf)
+
+#check imports.py for more on this
+#policy, hook = load_model(rand_region=5) #this gives me the hook I need. For the given model, loaded in trained_models/
+
+#where to get the obs? I know the layer name. venv.reset
+#obs = venv.reset() #scratch this, use the patch_utils func in the comment block above
+#activations = get_activations(obs, hook, 'block2.res1.resadd_out')

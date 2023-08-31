@@ -395,3 +395,93 @@ def plot_patched_vfields(
         )
 
     return fig, axs, obj
+
+
+#new funcs
+
+def compare_patched_vfields_mpp(
+    venv: ProcgenGym3Env,
+    patches: dict,
+    hook: cmh.ModuleHook,
+    render_padding: bool = False,
+    ax_size: int = 4,
+    reuse_first: bool = True,
+    show_diff: bool = True,
+    show_original: bool = True,
+    show_components: bool = False,
+):
+    """Takes as input a venv with one or two maze environments. If one and reuse_first is true, we compare vfields for original/patched on that fixed venv. If two, we show the vfield for the original on the first venv environment, and the patched on the second, and the difference between the two.
+
+    Args:
+        venv: The venv to use for the vector field.
+        patches: A dictionary of patches to apply to the network.
+        hook: The hook to use to get the activations.
+        render_padding: Whether to render the padding around the maze.
+        ax_size: The size of each axis in the plot.
+        reuse_first: Whether to reuse the first environment in the venv for the patched vfield.
+
+        show_diff: Whether to show the difference between the two vector fields.
+        show_original: Whether to show the original vector field.
+        show_components: Whether to show the action-based components of the vector field.
+    """
+
+    assert (
+        1 <= venv.num_envs <= 2
+    ), "Needs one or environments to compare the vector fields"
+    venv1, venv2 = maze.copy_venv(venv, 0), maze.copy_venv(
+        venv, 0 if venv.num_envs == 1 or reuse_first else 1
+    )
+
+    original_vfield = viz.vector_field(venv1, hook.network)
+    with hook.use_patches(patches):
+        patched_vfield = viz.vector_field(venv2, hook.network)
+
+    fig, axs, vf_diff = viz.plot_vfs_mpp(
+        original_vfield,
+        patched_vfield,
+        render_padding=render_padding,
+        ax_size=ax_size,
+        show_diff=show_diff,
+        show_original=show_original,
+        show_components=show_components,
+    )
+
+    obj = {
+        "patches": patches,
+        "original_vfield": original_vfield,
+        "patched_vfield": patched_vfield,
+        "diff_vfield": vf_diff,
+    }
+
+    return fig, axs, obj
+
+# script to test patching with mpp visualization. Default settings from channel_55.ipynb
+
+"""
+This creates a maze at seed 0. Then patches coord row = 5, col = 6 to have value 5.6 at channel 55 in layer 'block2.res1.resadd_out'
+"""
+venv = get_cheese_venv_pair(seed=0)
+patches = get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=(5,6))
+
+# this saves it to playground/paper_graphics/visualizations
+fig, axs, info = compare_patched_vfields_mpp(venv, patches, hook, render_padding=False, ax_size=6)
+
+# integrate this into
+viz.plot_dots(axs[1:], (5, 6), color='red')
+
+"""
+Getting activations
+
+use values_from_venv to get activations from a venv. Will need a hook beforehand.
+Then use plot_activations(activations, fig) to plot the activations.
+"""
+
+#activations = values_from_venv(default_layer, hook, venv)
+viz.plot_patch(patches, hook, bounds=(13, 13))
+
+"""
+So matplotlib and plotly's graphic objects (go) are two different things. The current method to plot activations is all interactive,
+so I need to switch some things to using matplotlib figures instead of go.FigureWidgets. This shouldn't take too long but
+there are quite a few functions I'll need to make alternates of, same as I did for the MPP.
+
+"""
