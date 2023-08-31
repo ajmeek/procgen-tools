@@ -484,4 +484,8 @@ So matplotlib and plotly's graphic objects (go) are two different things. The cu
 so I need to switch some things to using matplotlib figures instead of go.FigureWidgets. This shouldn't take too long but
 there are quite a few functions I'll need to make alternates of, same as I did for the MPP.
 
+Actually I may be an idiot - they obviously saved these before for the LessWrong post.
+I'll use his activations plotter and then just apply patches to different venv before passing them in.
+
+Check my notes in this file above to see how to plot the patches.
 """
