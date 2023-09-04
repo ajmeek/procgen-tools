@@ -267,6 +267,15 @@ def values_from_venv(
     hook.run_with_input(obs, func=forward_func_policy)
     return hook.get_value_by_label(layer_name)
 
+def values_from_venv_patched(
+    layer_name: str, hook: cmh.ModuleHook, venv: ProcgenGym3Env, patches: dict
+):
+    """Get the values of the activations at the layer for the given venv."""
+    with hook.use_patches(patches):
+        obs = venv.reset().astype(np.float32)
+        hook.run_with_input(obs, func=forward_func_policy)
+    return hook.get_value_by_label(layer_name)
+
 
 def patch_from_venv_pair(
     venv: ProcgenGym3Env,
