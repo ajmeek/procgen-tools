@@ -1551,8 +1551,8 @@ def values_from_venv(
     return hook.get_value_by_label(layer_name)
 """
 
-seed = 0
-venv = maze.create_venv(1, seed, 1)
+#seed = 0
+#venv = maze.create_venv(1, seed, 1)
 # #visualize_venv(venv, render_padding=False, show_plot=True)
 # vf = vector_field(venv, policy)
 # plot_vf_mpp(vf)

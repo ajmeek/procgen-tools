@@ -460,14 +460,14 @@ def compare_patched_vfields_mpp(
 """
 This creates a maze at seed 0. Then patches coord row = 5, col = 6 to have value 5.6 at channel 55 in layer 'block2.res1.resadd_out'
 """
-venv = get_cheese_venv_pair(seed=0)
-patches = get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=(5,6))
+#venv = get_cheese_venv_pair(seed=0)
+#patches = get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=(5,6))
 
 # this saves it to playground/paper_graphics/visualizations
-fig, axs, info = compare_patched_vfields_mpp(venv, patches, hook, render_padding=False, ax_size=6)
+#fig, axs, info = compare_patched_vfields_mpp(venv, patches, hook, render_padding=False, ax_size=6)
 
 # integrate this into
-viz.plot_dots(axs[1:], (5, 6), color='red')
+#viz.plot_dots(axs[1:], (5, 6), color='red')
 
 """
 Getting activations
@@ -477,7 +477,7 @@ Then use plot_activations(activations, fig) to plot the activations.
 """
 
 #activations = values_from_venv(default_layer, hook, venv)
-viz.plot_patch(patches, hook, bounds=(13, 13))
+#viz.plot_patch(patches, hook, bounds=(13, 13))
 
 """
 So matplotlib and plotly's graphic objects (go) are two different things. The current method to plot activations is all interactive,
