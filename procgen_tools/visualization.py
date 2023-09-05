@@ -359,7 +359,8 @@ def visualize_venv(
     render_padding: bool = True,
     render_mouse: bool = True,
     save_img: bool = False,
-    save_img_dir: str = "playground/paper_graphics/visualizations"
+    save_img_dir: str = "playground/paper_graphics/visualizations",
+    top_right: bool = False,
 ):
     """Visualize the environment. Returns an img if show_plot is false.
 
@@ -373,6 +374,9 @@ def visualize_venv(
     flip_numpy: Whether to vertically flip the numpy view.
     render_padding: Whether to render the padding in the human or numpy view.
     render_mouse: Whether to render the mouse in the human view.
+    save_img: Whether to save the image.
+    save_img_dir: The directory to save the image in.
+    top_right: Whether to show a border in the top right part of the plot.
     """
     assert not (mode == "agent" and not render_padding), (
         "This parameter combination is unsupported; must render padding in"
@@ -414,6 +418,37 @@ def visualize_venv(
         ]  # Flip the numpy view vertically
     else:
         raise ValueError(f"Invalid mode {mode}")
+
+
+    # Add this code to draw a red border around the top right 5x5 square
+    if top_right:
+        border_size = 5  # Size of the border
+        h, w = inner_grid.shape
+
+        h, w = float(h), float(w)
+
+        if h >= border_size and w >= border_size:
+            border_width = 2 #pixels
+            border_color = [255, 0, 0]  # Red color (from 0 to 256)
+            #x_intersect
+            x_intersect = img.shape[0] / h
+            x_intersect = img.shape[0] - (h-5)*x_intersect
+
+            y_intersect = img.shape[1] / w
+            y_intersect = img.shape[1] - 5*y_intersect
+
+            x_intersect, y_intersect = int(x_intersect), int(y_intersect)
+
+            border_color_at_target = img[x_intersect, y_intersect, :]
+
+            #note - coordinates start from the top
+
+            #img[:x_intersect, y_intersect:, :] = border_color - black out the whole top right square
+            img[x_intersect-border_width:x_intersect+border_width, y_intersect:, :] = border_color # left side square
+            img[:x_intersect, y_intersect-border_width:y_intersect+border_width, :] = border_color # bottom side square
+            img[0:border_width*2, y_intersect:, :] = border_color # top side square
+            img[:x_intersect, img.shape[1]-1-border_width*2:img.shape[1]-1, :] = border_color # right side square
+
 
     # Remove x and y ticks
     ax.set_xticks([])
@@ -1551,11 +1586,11 @@ def values_from_venv(
     return hook.get_value_by_label(layer_name)
 """
 
-#seed = 0
-#venv = maze.create_venv(1, seed, 1)
-# #visualize_venv(venv, render_padding=False, show_plot=True)
-# vf = vector_field(venv, policy)
-# plot_vf_mpp(vf)
+seed = 64000
+venv = maze.create_venv(1, seed, 1)
+visualize_venv(venv, render_padding=False, show_plot=True, top_right=True)
+#vf = vector_field(venv, policy)
+#plot_vf_mpp(vf) #forgot that this saves, not visualizes
 
 #check imports.py for more on this
 #policy, hook = load_model(rand_region=5) #this gives me the hook I need. For the given model, loaded in trained_models/
