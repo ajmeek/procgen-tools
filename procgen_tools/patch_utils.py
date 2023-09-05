@@ -415,7 +415,7 @@ def compare_patched_vfields_mpp(
     render_padding: bool = False,
     ax_size: int = 4,
     reuse_first: bool = True,
-    show_diff: bool = True,
+    show_diff: bool = False,
     show_original: bool = True,
     show_components: bool = False,
 ):
@@ -445,24 +445,34 @@ def compare_patched_vfields_mpp(
     with hook.use_patches(patches):
         patched_vfield = viz.vector_field(venv2, hook.network)
 
-    fig, axs, vf_diff = viz.plot_vfs_mpp(
+    viz.plot_vf_mpp(
         original_vfield,
-        patched_vfield,
-        render_padding=render_padding,
-        ax_size=ax_size,
-        show_diff=show_diff,
-        show_original=show_original,
-        show_components=show_components,
+        filename='original_mpp.svg'
     )
+
+    viz.plot_vf_mpp(
+        patched_vfield,
+        filename='patched_mpp.svg'
+    )
+
+    # fig, axs, vf_diff = viz.plot_vfs_mpp(
+    #     original_vfield,
+    #     patched_vfield,
+    #     render_padding=render_padding,
+    #     ax_size=ax_size,
+    #     show_diff=show_diff,
+    #     show_original=show_original,
+    #     show_components=show_components,
+    # )
 
     obj = {
         "patches": patches,
         "original_vfield": original_vfield,
         "patched_vfield": patched_vfield,
-        "diff_vfield": vf_diff,
+#        "diff_vfield": vf_diff,
     }
 
-    return fig, axs, obj
+    return #fig, axs, obj
 
 # script to test patching with mpp visualization. Default settings from channel_55.ipynb
 
@@ -470,10 +480,16 @@ def compare_patched_vfields_mpp(
 This creates a maze at seed 0. Then patches coord row = 5, col = 6 to have value 5.6 at channel 55 in layer 'block2.res1.resadd_out'
 """
 #venv = get_cheese_venv_pair(seed=0)
-#patches = get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=(5,6))
+#patch_coords = (12,12)
+
+# TODO - the patch coords don't follow the inner grid coordinate system. Find out how to convert and then have option
+# to draw a red circle, similar to the decision square one
+
+#patches = get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=patch_coords)
 
 # this saves it to playground/paper_graphics/visualizations
-#fig, axs, info = compare_patched_vfields_mpp(venv, patches, hook, render_padding=False, ax_size=6)
+#fig, axs, info =
+#compare_patched_vfields_mpp(venv, patches, hook, render_padding=False, ax_size=6)
 
 # integrate this into
 #viz.plot_dots(axs[1:], (5, 6), color='red')

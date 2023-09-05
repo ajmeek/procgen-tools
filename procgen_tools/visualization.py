@@ -1,3 +1,5 @@
+import matplotlib.patches
+
 from procgen_tools.imports import *
 from procgen_tools import maze
 from typing import Dict
@@ -361,6 +363,9 @@ def visualize_venv(
     save_img: bool = False,
     save_img_dir: str = "playground/paper_graphics/visualizations",
     top_right: bool = False,
+    decision_square: bool = True,
+    fudge: float = 0.0,
+    filename: str = None
 ):
     """Visualize the environment. Returns an img if show_plot is false.
 
@@ -377,6 +382,7 @@ def visualize_venv(
     save_img: Whether to save the image.
     save_img_dir: The directory to save the image in.
     top_right: Whether to show a border in the top right part of the plot.
+    decision_square: Whether or not to draw a circle on the decision square, iff exists.
     """
     assert not (mode == "agent" and not render_padding), (
         "This parameter combination is unsupported; must render padding in"
@@ -391,6 +397,9 @@ def visualize_venv(
     env_state = maze.state_from_venv(venv, idx=idx)
     full_grid = env_state.full_grid()
     inner_grid = env_state.inner_grid()
+
+    #see about decision square
+    square = maze.get_decision_square_from_maze_state(env_state)
 
     if mode == "human":
         if render_padding:
@@ -418,6 +427,26 @@ def visualize_venv(
         ]  # Flip the numpy view vertically
     else:
         raise ValueError(f"Invalid mode {mode}")
+
+    if decision_square:
+        square = maze.get_decision_square_from_maze_state(env_state) #what does this return if there is no square?
+
+        inner_grid_size = inner_grid.shape[0]
+        #inner_grid_size = float(inner_grid_size)
+        step_in_pixels = img.shape[0] // inner_grid_size
+        step_in_pixels = float(step_in_pixels)
+
+        #adjust the coordinate placement ever so slightly
+        fudge = 3.5
+
+        y_coord = square[0] * step_in_pixels + step_in_pixels//2 + fudge
+        x_coord = square[1] * step_in_pixels + step_in_pixels//2 + fudge
+
+        y_coord = int(y_coord)
+        x_coord = int(x_coord)
+
+        circle = matplotlib.patches.Circle((x_coord, y_coord), step_in_pixels//3, color='r', fill=True)
+        ax.add_patch(circle)
 
 
     # Add this code to draw a red border around the top right 5x5 square
@@ -458,10 +487,14 @@ def visualize_venv(
     if show_plot:
         plt.show()
 
-    date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     if save_img:
-        plt.savefig(save_img_dir + f"/{date}.png", bbox_inches="tight")
+        if filename is None:
+            date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            plt.savefig(save_img_dir + f"/{date}.png", bbox_inches="tight", format='svg')
+        else:
+            plt.savefig(save_img_dir + "/" + filename, bbox_inches="tight", format='svg')
+    plt.clf()
     return img
 
 
@@ -889,6 +922,7 @@ def render_arrows(
     render_padding: bool = False,
     color: str = "white",
     show_components: bool = False,
+    filename: str = None,
 ):
     """Render the arrows in the vector field.
 
@@ -950,6 +984,7 @@ def render_arrows(
         render_padding=render_padding,
         render_mouse=False,
         show_plot=False,
+        filename=filename,
     )
 
     ax.set_xticks([])
@@ -1399,6 +1434,7 @@ def render_arrows_mpp(
     show_components: bool = False,
     mouse_render: bool = True,
     save_img = True,
+    filename: str = None,
 ):
     """Render the most probable path in the vector field.
 
@@ -1474,6 +1510,7 @@ def render_arrows_mpp(
         render_mouse=mouse_render,
         show_plot=False,
         save_img=save_img,
+        filename=filename,
     )
 
     ax.set_xticks([])
@@ -1488,6 +1525,7 @@ def plot_vf_mpp(
     render_padding: bool = False,
     show_components: bool = False,
     save_img: bool = True,
+    filename: str = None,
 ):
     "Plots the most probable path through the vector field. By"
     render_arrows_mpp(
@@ -1500,6 +1538,7 @@ def plot_vf_mpp(
         color="white" if human_render else "red",
         show_components=show_components,
         save_img = save_img,
+        filename = filename,
     )
 
 
@@ -1520,7 +1559,7 @@ def plot_vfs_mpp(
     human_render: bool = True,
     render_padding: bool = False,
     ax_size: int = 5,
-    show_diff: bool = True,
+    show_diff: bool = False,
     show_original: bool = True,
     show_components: bool = False,
 ):
@@ -1586,7 +1625,7 @@ def values_from_venv(
     return hook.get_value_by_label(layer_name)
 """
 
-seed = 64000
+seed = 0
 venv = maze.create_venv(1, seed, 1)
 visualize_venv(venv, render_padding=False, show_plot=True, top_right=True)
 #vf = vector_field(venv, policy)
