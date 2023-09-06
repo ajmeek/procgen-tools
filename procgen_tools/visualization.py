@@ -383,6 +383,8 @@ def visualize_venv(
     save_img_dir: The directory to save the image in.
     top_right: Whether to show a border in the top right part of the plot.
     decision_square: Whether or not to draw a circle on the decision square, iff exists.
+    fudge: How many pixels to move the circle by. Int/float info loss means that coordinates not always exact.
+    filename: A particular filename. If passed, image saved as this. Specify the directory too (for colab etc).
     """
     assert not (mode == "agent" and not render_padding), (
         "This parameter combination is unsupported; must render padding in"
@@ -493,7 +495,7 @@ def visualize_venv(
             date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
             plt.savefig(save_img_dir + f"/{date}.png", bbox_inches="tight", format='svg')
         else:
-            plt.savefig(save_img_dir + "/" + filename, bbox_inches="tight", format='svg')
+            plt.savefig(filename, bbox_inches="tight", format='svg')
     plt.clf()
     return img
 
