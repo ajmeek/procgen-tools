@@ -418,6 +418,8 @@ def compare_patched_vfields_mpp(
     show_diff: bool = False,
     show_original: bool = True,
     show_components: bool = False,
+    original_filename: str = None,
+    patched_filename: str = None,
 ):
     """Takes as input a venv with one or two maze environments. If one and reuse_first is true, we compare vfields for original/patched on that fixed venv. If two, we show the vfield for the original on the first venv environment, and the patched on the second, and the difference between the two.
 
@@ -447,12 +449,12 @@ def compare_patched_vfields_mpp(
 
     viz.plot_vf_mpp(
         original_vfield,
-        filename='original_mpp.svg'
+        filename='original_mpp.svg' if original_filename is None else original_filename
     )
 
     viz.plot_vf_mpp(
         patched_vfield,
-        filename='patched_mpp.svg'
+        filename='patched_mpp.svg' if patched_filename is None else patched_filename
     )
 
     # fig, axs, vf_diff = viz.plot_vfs_mpp(
