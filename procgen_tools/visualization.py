@@ -496,7 +496,7 @@ def visualize_venv(
             plt.savefig(save_img_dir + f"/{date}.png", bbox_inches="tight", format='svg')
         else:
             plt.savefig(filename, bbox_inches="tight", format='svg')
-    plt.clf()
+    #plt.clf()
     return img
 
 
@@ -1504,7 +1504,7 @@ def render_arrows_mpp(
     )
 
     venv = maze.venv_from_grid(grid)
-    visualize_venv(
+    img = visualize_venv(
         venv,
         ax=ax,
         mode="human" if human_render else "numpy",
@@ -1518,6 +1518,7 @@ def render_arrows_mpp(
     ax.set_xticks([])
     ax.set_yticks([])
 
+    return img
 
 
 def plot_vf_mpp(
@@ -1530,7 +1531,7 @@ def plot_vf_mpp(
     filename: str = None,
 ):
     "Plots the most probable path through the vector field. By"
-    render_arrows_mpp(
+    img = render_arrows_mpp(
         map_vf_to_human(vf, account_for_padding=render_padding)
         if human_render
         else vf,
@@ -1542,6 +1543,8 @@ def plot_vf_mpp(
         save_img = save_img,
         filename = filename,
     )
+
+    return img
 
 
 # Testing, script for debugger.
