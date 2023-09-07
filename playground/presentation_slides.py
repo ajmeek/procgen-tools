@@ -8,6 +8,7 @@ import numpy as np
 import torch as t
 import procgen_tools.patch_utils as pu
 from procgen_tools.imports import hook, default_layer
+import os
 
 AX_SIZE = 3.5
 
@@ -85,7 +86,7 @@ for i, cheese_pos in enumerate(random.sample(empty_space, 5)):
 import imageio
 from glob import glob
 filenames = sorted(glob('maze-*.png'), key=lambda x: int(x.split('-')[1].split('.')[0]))
-with imageio.get_writer('maze.gif', mode="I", fps=1) as writer:
+with imageio.get_writer('maze.gif', mode="I", duration=1000) as writer:
     for filename in filenames:
         image = imageio.imread(filename)
         writer.append_data(image)

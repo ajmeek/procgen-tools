@@ -457,7 +457,7 @@ def compare_patched_vfields_mpp(
         filename='patched_mpp.svg' if patched_filename is None else patched_filename
     )
 
-    # fig, axs, vf_diff = viz.plot_vfs_mpp(
+    # fig, axs, vf_diff = viz.plot_vfs_mpp(=
     #     original_vfield,
     #     patched_vfield,
     #     render_padding=render_padding,
