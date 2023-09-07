@@ -184,5 +184,5 @@ def fig_4():
     axd4['fail'].imshow(img)
 
     #plt.show()
-    plt.savefig('playground/paper_graphics/visualizations/fig_3.svg', bbox_inches="tight", format='svg')
+    plt.savefig('playground/paper_graphics/visualizations/fig_4.svg', bbox_inches="tight", format='svg')
 fig_4()
