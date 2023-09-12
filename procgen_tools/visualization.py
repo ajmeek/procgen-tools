@@ -369,7 +369,7 @@ def visualize_venv(
     save_img: bool = False,
     save_img_dir: str = "playground/paper_graphics/visualizations",
     top_right: bool = False,
-    decision_square: bool = False,
+    decision_square: bool = True,
     fudge: float = 0.0,
     filename: str = None
 ):
@@ -407,7 +407,7 @@ def visualize_venv(
     inner_grid = env_state.inner_grid()
 
     #see about decision square
-    square = maze.get_decision_square_from_maze_state(env_state)
+    #square = maze.get_decision_square_from_maze_state(env_state)
 
     if mode == "human":
         if render_padding:

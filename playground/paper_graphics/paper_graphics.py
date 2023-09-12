@@ -48,11 +48,27 @@ def fig_1():
     img = viz.plot_vf_mpp(vf, ax=axd1['orig_mpp'], save_img=False)
     axd1['orig_mpp'].imshow(img)
 
+    patch_coords = (3, 12)
     patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=patch_coords)
     #patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=(17,17)) # to test that this is on a 16x16 grid - yes it is
+
+    # creating a new venv unnecessary. the reason why I see the original cheese's activations too is becaue I'm not zeroing out
+    # the original activations. I can do that, but it looks worse. Best to just have the cheese graphic. Showing this to Alex
+    # might make him change his mind.
+    # venv = create_venv(1,seed,1)
+    # state = maze.EnvState(venv.env.callmethod('get_state')[0])
+    #
+    # obs = t.tensor(venv.reset(), dtype=t.float32)
+    #
+    # # with hook.set_hook_should_get_custom_data():
+    # #     hook.network(obs)
+
+    # alright the below works to visualize the activations, finally. But, it still
+
     with hook.use_patches(patches):
-        patched_vfield = viz.vector_field(venv, hook.network)
         hook.network(obs) # trying before asking Uli
+        patched_vfield = viz.vector_field(venv, hook.network)
+        #hook.network(obs) # trying before asking Uli
     img = viz.plot_vf_mpp(patched_vfield, ax=axd1['patch_mpp'], save_img=False)
     axd1['patch_mpp'].imshow(img)
 
@@ -81,13 +97,14 @@ def fig_1():
     #print(os.getcwd())
     plt.savefig('playground/paper_graphics/visualizations/fig_1.svg', bbox_inches="tight", format='svg')
 
-fig_1()
+#fig_1()
 
 # ---------------------------------------------------- fig 2 ----------------------------------------------------
 def fig_2():
-    cheese_a_pos = (5,6)
-    cheese_b_pos = (12,12)
-    cheese_c_pos = (9,9)
+    #move cheese in state uses full grid. use padding manually to get right grid coords
+    #cheese_a_pos = ()
+    cheese_b_pos = (18, 18) #top right
+    cheese_c_pos = (6, 18) #bottom right
 
     fig2, axd2 = plt.subplot_mosaic(
         [['reg_venv', 'cheese_a', 'cheese_b', 'cheese_c']],
@@ -101,8 +118,9 @@ def fig_2():
     img = viz.visualize_venv(venv, ax=axd2['reg_venv'], render_padding=False)
     axd2['reg_venv'].imshow(img)
 
-    maze.move_cheese_in_state(state, cheese_a_pos)
-    venv.env.callmethod('set_state', [state.state_bytes])
+    # want to show activations from first cheese
+    # maze.move_cheese_in_state(state, cheese_a_pos)
+    # venv.env.callmethod('set_state', [state.state_bytes])
     obs = t.tensor(venv.reset(), dtype=t.float32)
 
     with hook.set_hook_should_get_custom_data():
@@ -119,6 +137,7 @@ def fig_2():
     with hook.set_hook_should_get_custom_data():
         hook.network(obs)
 
+    #img = viz.visualize_venv(venv, render_padding=False, show_plot=True) #checking cheese coords, it is top right
     activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
     axd2['cheese_b'].imshow(activ)
     axd2['cheese_b'].imshow(activ, cmap='RdBu', vmin=-1, vmax=1)
@@ -130,6 +149,7 @@ def fig_2():
     with hook.set_hook_should_get_custom_data():
         hook.network(obs)
 
+    #img = viz.visualize_venv(venv, render_padding=False, show_plot=True) #checking cheese coords, it is bottom right
     activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
     axd2['cheese_c'].imshow(activ)
     axd2['cheese_c'].imshow(activ, cmap='RdBu', vmin=-1, vmax=1)
@@ -138,7 +158,7 @@ def fig_2():
     #plt.show()
     plt.savefig('playground/paper_graphics/visualizations/fig_2.svg', bbox_inches="tight", format='svg')
 
-#fig_2()
+fig_2()
 
 # ---------------------------------------------------- fig 3 ----------------------------------------------------
 
