@@ -39,6 +39,9 @@ def fig_1():
     axd1['orig_act'].imshow(activ)
     axd1['orig_act'].imshow(activ, cmap='RdBu', vmin=-1, vmax=1)
 
+    axd1['orig_act'].set_xticks([])
+    axd1['orig_act'].set_yticks([])
+
     #orig_mpp = viz.visualize_venv(venv, render_padding=False)
     vf = viz.vector_field(venv, policy)
 
@@ -46,28 +49,39 @@ def fig_1():
     axd1['orig_mpp'].imshow(img)
 
     patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=patch_coords)
+    #patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=(17,17)) # to test that this is on a 16x16 grid - yes it is
     with hook.use_patches(patches):
         patched_vfield = viz.vector_field(venv, hook.network)
+        hook.network(obs) # trying before asking Uli
     img = viz.plot_vf_mpp(patched_vfield, ax=axd1['patch_mpp'], save_img=False)
     axd1['patch_mpp'].imshow(img)
 
     # TODO - I think the activations for seed = 0 get vertically flipped somehow in the display
-    maze.move_cheese_in_state(state, patch_coords)
+    # actually, it's that the coordinates for the below function use the full grid, not the inner grid.
+    # and, the axes count from the standard origin. not flipped.
+    #maze.move_cheese_in_state(state, patch_coords)
+    maze.move_cheese_in_state(state, (18, 18))
     venv.env.callmethod('set_state', [state.state_bytes])
     obs = t.tensor(venv.reset(), dtype=t.float32)
 
-    with hook.set_hook_should_get_custom_data():
-        hook.network(obs)
+    # with hook.set_hook_should_get_custom_data():
+    #     hook.network(obs)
+
+    # with hook.use_patches(patches):
+    #     hook.network(obs)
 
     activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
     axd1['patch_act'].imshow(activ)
     axd1['patch_act'].imshow(activ, cmap='RdBu', vmin=-1, vmax=1)
 
+    axd1['patch_act'].set_xticks([])
+    axd1['patch_act'].set_yticks([])
+
     #plt.show()
     #print(os.getcwd())
     plt.savefig('playground/paper_graphics/visualizations/fig_1.svg', bbox_inches="tight", format='svg')
 
-#fig_1()
+fig_1()
 
 # ---------------------------------------------------- fig 2 ----------------------------------------------------
 def fig_2():
@@ -188,4 +202,4 @@ def fig_4():
 
     #plt.show()
     plt.savefig('playground/paper_graphics/visualizations/fig_4.svg', bbox_inches="tight", format='svg')
-fig_4()
+#fig_4()
