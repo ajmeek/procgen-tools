@@ -190,7 +190,12 @@ def get_stride(label: str):
 
 dummy_venv = maze.get_cheese_venv_pair(seed=0)
 human_view = dummy_venv.env.get_info()[0]["rgb"]
-PIXEL_SIZE = human_view.shape[0]  # width of the human view input image
+
+env_state = maze.state_from_venv(dummy_venv, 0)
+full_grid = env_state.full_grid()
+inner_grid = env_state.inner_grid()
+img = maze.render_inner_grid(inner_grid)
+PIXEL_SIZE = img.shape[0]  # width of the human view input image
 
 
 def get_pixel_loc(val: int, channel_size: int = 16):
@@ -206,7 +211,7 @@ def get_pixel_loc(val: int, channel_size: int = 16):
 
 
 def get_pixel_coords(
-    channel_pos: Tuple[int, int], channel_size: int = 16, flip_y: bool = True
+    channel_pos: Tuple[int, int], channel_size: int = 13, flip_y: bool = True #try channel size 13 for inner grid
 ):
     """Given a channel position, find the pixel location that corresponds to that channel. If flip_y is True, the y-axis will be flipped from the underlying numpy coords to the conventional human rendering format.
     """
@@ -232,8 +237,9 @@ def plot_pixel_dot(
 ):
     """Plot a dot on the pixel grid at the given row and column of the block2.res1.resadd_out channel. hidden_padding is the number of tiles which are not shown in the human view, presumably due to render_padding being False in some external call.
     """
-    px_row, px_col = get_pixel_coords((row, col))
-    padding_offset = (PIXEL_SIZE / maze.WORLD_DIM) * hidden_padding
+    px_row, px_col = get_pixel_coords((row, col), flip_y=False) #changed flip y for paper graphics
+    #padding_offset = (PIXEL_SIZE / maze.WORLD_DIM) * hidden_padding
+    padding_offset = 0
     dot_rescale_from_padding = maze.WORLD_DIM / (
         maze.WORLD_DIM - hidden_padding
     )
@@ -242,7 +248,7 @@ def plot_pixel_dot(
     new_row, new_col = (coord - padding_offset for coord in (px_row, px_col))
     if 0 <= new_row <= PIXEL_SIZE and 0 <= new_col <= PIXEL_SIZE:
         ax.scatter(
-            y=new_row, x=new_col, c=color, s=size * dot_rescale_from_padding
+            y=new_row, x=new_col, c=color, s=size# * dot_rescale_from_padding
         )
 
 
@@ -363,7 +369,7 @@ def visualize_venv(
     save_img: bool = False,
     save_img_dir: str = "playground/paper_graphics/visualizations",
     top_right: bool = False,
-    decision_square: bool = True,
+    decision_square: bool = False,
     fudge: float = 0.0,
     filename: str = None
 ):
@@ -1642,3 +1648,30 @@ def values_from_venv(
 #where to get the obs? I know the layer name. venv.reset
 #obs = venv.reset() #scratch this, use the patch_utils func in the comment block above
 #activations = get_activations(obs, hook, 'block2.res1.resadd_out')
+
+def plot_red_dot(venv, ax, row, col):
+    env_state = maze.state_from_venv(venv, idx=0)
+    full_grid = env_state.full_grid()
+    inner_grid = env_state.inner_grid()
+
+    img = venv.env.get_info()[0]["rgb"]
+
+    #see about decision square
+    square = maze.get_decision_square_from_maze_state(env_state)
+
+    inner_grid_size = inner_grid.shape[0]
+    # inner_grid_size = float(inner_grid_size)
+    step_in_pixels = img.shape[0] // inner_grid_size
+    step_in_pixels = float(step_in_pixels)
+
+    # adjust the coordinate placement ever so slightly
+    fudge = 3.5
+
+    y_coord = col * step_in_pixels + step_in_pixels // 2 + fudge
+    x_coord = row * step_in_pixels + step_in_pixels // 2 + fudge
+
+    y_coord = int(y_coord)
+    x_coord = int(x_coord)
+
+    circle = matplotlib.patches.Circle((x_coord, y_coord), step_in_pixels // 3, color='r', fill=True)
+    ax.add_patch(circle)

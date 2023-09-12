@@ -135,8 +135,8 @@ def fig_2():
 def fig_4():
     success_a_pos = (5,6)
     success_b_pos = (12,12)
-    success_c_pos = (9,9)
-    fail = (2,3)
+    success_c_pos = (0,0) #(8,9) - too close to original mpp location
+    fail = (0,12) #(2,3) - fail, but so is everything
 
     fig4, axd4 = plt.subplot_mosaic(
         [['success_a', 'success_b', 'success_c', 'fail']],
@@ -147,16 +147,19 @@ def fig_4():
     venv = create_venv(1,seed,1)
     state = maze.EnvState(venv.env.callmethod('get_state')[0])
 
-    patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=success_a_pos)
+    patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=success_a_pos)
     with hook.use_patches(patches):
         patched_vfield = viz.vector_field(venv, hook.network)
     img = viz.plot_vf_mpp(patched_vfield, ax=axd4['success_a'], save_img=False)
 
+    #viz.visualize_venv(venv, show_plot=True, render_padding=False)
+
     padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
     viz.plot_pixel_dot(axd4['success_a'], success_a_pos[0], success_a_pos[1], hidden_padding=padding)
+    #viz.plot_red_dot(venv, axd4['success_a'], success_a_pos[0], success_a_pos[1])
     axd4['success_a'].imshow(img)
 
-    patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=success_b_pos)
+    patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=success_b_pos)
     with hook.use_patches(patches):
         patched_vfield = viz.vector_field(venv, hook.network)
     img = viz.plot_vf_mpp(patched_vfield, ax=axd4['success_b'], save_img=False)
@@ -165,7 +168,7 @@ def fig_4():
     viz.plot_pixel_dot(axd4['success_b'], success_b_pos[0], success_b_pos[1], hidden_padding=padding)
     axd4['success_b'].imshow(img)
 
-    patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=success_c_pos)
+    patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=success_c_pos)
     with hook.use_patches(patches):
         patched_vfield = viz.vector_field(venv, hook.network)
     img = viz.plot_vf_mpp(patched_vfield, ax=axd4['success_c'], save_img=False)
@@ -174,7 +177,7 @@ def fig_4():
     viz.plot_pixel_dot(axd4['success_c'], success_c_pos[0], success_c_pos[1], hidden_padding=padding)
     axd4['success_c'].imshow(img)
 
-    patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=fail)
+    patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=fail)
     with hook.use_patches(patches):
         patched_vfield = viz.vector_field(venv, hook.network)
     img = viz.plot_vf_mpp(patched_vfield, ax=axd4['fail'], save_img=False)
