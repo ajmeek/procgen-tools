@@ -67,6 +67,57 @@ def inner_grid_coords_from_full_grid_coords(coords):
         raise ValueError(f"y value of {coords[1]} is not in the inner grid")
     return coords[0] - 6, coords[1] - 6
 
+def return_seeds_with_inner_grid_size(size = (13,13)):
+    """
+    How many possible seeds are there? Let me check openAI docs to try and find this.
+
+    didn't see it. Trial and error below
+    alright, tried seeds up to 10 mil. All pass.
+    So at what point do we stop? This would be important for calculating statistics.
+    """
+
+
+    seeds = []
+    for seed in range(10000):
+        venv = create_venv(1,seed,1)
+        inner_grid = maze.get_inner_grid_from_seed(seed)
+        if inner_grid.shape == size:
+            seeds.append(seed)
+        if len(seeds) >= 1000:
+            return seeds
+    return seeds
+
+def mass_display(seeds):
+    """
+    Displays 16 seeds at a time from the list of seeds.
+    """
+    fig, axd = plt.subplot_mosaic(
+        [
+            ['1', '2', '3', '4'],
+            ['5', '6', '7', '8'],
+            ['9', '10', '11', '12'],
+            ['13', '14', '15', '16'],
+        ],
+        figsize=(AX_SIZE * 4, AX_SIZE * 3),
+        tight_layout=True,
+    )
+
+    #now grab 16 seeds at a time in a for loop
+    for i in range(0, 1000, 16):
+        for j in range(16):
+            seed = seeds[i+j]
+            venv = create_venv(1,seed,1)
+            state = maze.EnvState(venv.env.callmethod('get_state')[0])
+            img = viz.visualize_venv(venv, ax=axd[str(j+1)], render_padding=False)
+
+            axd[str(j+1)].imshow(img)
+            axd[str(j+1)].set_xticks([])
+            axd[str(j+1)].set_yticks([])
+            axd.set_title(f'Seed {seed}', fontsize=18)
+
+        plt.show()
+
+
 
 # ---------------------------------------------------- fig 1 ----------------------------------------------------
 
@@ -297,4 +348,60 @@ def fig_4():
 
     #plt.show()
     plt.savefig('playground/paper_graphics/visualizations/fig_4.svg', bbox_inches="tight", format='svg')
-fig_4()
+#fig_4()
+
+
+# ---------------------------------------------------- fig 5 ----------------------------------------------------
+# This figure is from Mrinank's slack request. He wants a 1x4 example of 2 times where the policy routes to the goal,
+# and 2 times where the policy routes to the historic cheese location. Flick through different seeds to find these.
+# What util functions would be helpful here?
+# I want a function to flick through different seeds and display many of them at a time.
+# I want a function that gives me all seeds of a certain size inner grid.
+
+# # find largest seed starting at seed = 100k with a step size of 1k
+# for seed in range(100000, 10000000, 1000):
+#     try:
+#         venv = create_venv(1,seed,1)
+#         # inner_grid = maze.get_inner_grid_from_seed(seed)
+#         # if inner_grid.shape == (13,13):
+#         #     print(seed)
+#         #     break
+#         print("seed passed! : ", seed)
+#     except:
+#         print("seed broke! : ", seed)
+# # seed = 100000
+# # venv = create_venv(1,seed,1)
+
+# seeds with inner grid 13x13
+# seeds = return_seeds_with_inner_grid_size()
+#
+# #save seeds to a file
+# with open('playground/paper_graphics/visualizations/seeds_13x13.txt', 'w') as f:
+#     for item in seeds:
+#         f.write("%s\n" % item)
+
+
+#mass_display(seeds)
+
+fig, axd = plt.subplot_mosaic(
+    [
+        ['1', '2', '3', '4'],
+        ['5', '6', '7', '8'],
+        ['9', '10', '11', '12'],
+        ['13', '14', '15', '16'],
+    ],
+    figsize=(AX_SIZE * 4, AX_SIZE * 3),
+    tight_layout=True,
+)
+seeds = []
+for i, seed in enumerate(seeds):
+    venv = create_venv(1,seed,1)
+    state = maze.EnvState(venv.env.callmethod('get_state')[0])
+    img = viz.visualize_venv(venv, ax=axd[str(j+1)], render_padding=False)
+
+    axd[str(i+1)].imshow(img)
+    axd[str(i+1)].set_xticks([])
+    axd[str(i+1)].set_yticks([])
+    axd.set_title(f'Seed {seed}', fontsize=18)
+
+plt.show()
