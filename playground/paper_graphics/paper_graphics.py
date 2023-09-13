@@ -43,18 +43,30 @@ def linear_mapping(coords):
     v_rounded = np.round(v).astype(int)
 
     if not 6 <= u_rounded <= 18:
-        print("u rounded is not in the inner grid")
+        print(f"u value of {u_rounded} and x value of {coords[0]} is not in the inner grid")
     if not 6 <= v_rounded <= 18:
-        print("v rounded is not in the inner grid")
+        print(f"v value of {v_rounded} and y value of {coords[1]} is not in the inner grid")
 
     return u_rounded, v_rounded
 
 
 # test the above
-print(linear_mapping((0,0)))
-print(linear_mapping((15,15)))
-print(linear_mapping((8,8)))
-print(linear_mapping((5,10)))
+#print(linear_mapping((0,0)))
+#print(linear_mapping((15,15)))
+#print(linear_mapping((8,8)))
+#print(linear_mapping((5,10)))
+
+def inner_grid_coords_from_full_grid_coords(coords):
+    """
+    This function takes in coords for a 25x25 grid and outputs coords for a 13x13 grid.
+    Will need modification if we move to different seeds.
+    """
+    if not 6 <= coords[0] <= 18:
+        raise ValueError(f"x value of {coords[0]} is not in the inner grid")
+    if not 6 <= coords[1] <= 18:
+        raise ValueError(f"y value of {coords[1]} is not in the inner grid")
+    return coords[0] - 6, coords[1] - 6
+
 
 # ---------------------------------------------------- fig 1 ----------------------------------------------------
 
@@ -222,10 +234,10 @@ def fig_4():
     # Mrinank wants this done with a linear mapping from 16x16 to 25x25.
 
     #These are done with the 16x16 grid. Check the resulting 25x25 coordinates afterwards too.
-    success_a_pos = (0, 15)
-    success_b_pos = (15, 15)
-    success_c_pos = (3, 3) #(8,9) - too close to original mpp location
-    fail = (4, 12) #(2,3) - fail, but so is everything
+    success_a_pos = (5, 5) # top left
+    success_b_pos = (8, 4) # bottom right
+    success_c_pos = (5, 11) # bottom left
+    fail = (10, 4) #
 
     fig4, axd4 = plt.subplot_mosaic(
         [['success_a', 'success_b', 'success_c', 'fail']],
@@ -244,6 +256,7 @@ def fig_4():
     #viz.visualize_venv(venv, show_plot=True, render_padding=False)
 
     u, v = linear_mapping(success_a_pos)
+    u, v = inner_grid_coords_from_full_grid_coords((u,v))
     padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
     viz.plot_pixel_dot(axd4['success_a'], u, v, hidden_padding=padding)
     #viz.plot_red_dot(venv, axd4['success_a'], success_a_pos[0], success_a_pos[1])
@@ -255,6 +268,7 @@ def fig_4():
     img = viz.plot_vf_mpp(patched_vfield, ax=axd4['success_b'], save_img=False)
 
     u, v = linear_mapping(success_b_pos)
+    u, v = inner_grid_coords_from_full_grid_coords((u,v))
     padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
     viz.plot_pixel_dot(axd4['success_b'], u, v, hidden_padding=padding)
     axd4['success_b'].imshow(img)
@@ -265,6 +279,7 @@ def fig_4():
     img = viz.plot_vf_mpp(patched_vfield, ax=axd4['success_c'], save_img=False)
 
     u, v = linear_mapping(success_c_pos)
+    u, v = inner_grid_coords_from_full_grid_coords((u,v))
     padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
     viz.plot_pixel_dot(axd4['success_c'], u, v, hidden_padding=padding)
     axd4['success_c'].imshow(img)
@@ -275,6 +290,7 @@ def fig_4():
     img = viz.plot_vf_mpp(patched_vfield, ax=axd4['fail'], save_img=False)
 
     u, v = linear_mapping(fail)
+    u, v = inner_grid_coords_from_full_grid_coords((u,v))
     padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
     viz.plot_pixel_dot(axd4['fail'], u, v, hidden_padding=padding)
     axd4['fail'].imshow(img)
