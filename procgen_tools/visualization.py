@@ -1440,7 +1440,7 @@ def render_arrows_mpp(
     render_padding: bool = False,
     color: str = "white",
     show_components: bool = False,
-    mouse_render: bool = True,
+    #mouse_render: bool = True,
     save_img = True,
     filename: str = None,
 ):
@@ -1515,7 +1515,7 @@ def render_arrows_mpp(
         ax=ax,
         mode="human" if human_render else "numpy",
         render_padding=render_padding,
-        render_mouse=mouse_render,
+        #render_mouse=mouse_render,
         show_plot=False,
         save_img=save_img,
         filename=filename,
