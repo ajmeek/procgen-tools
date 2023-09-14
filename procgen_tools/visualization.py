@@ -365,7 +365,7 @@ def visualize_venv(
     show_plot: bool = False,
     flip_numpy: bool = True,
     render_padding: bool = True,
-    render_mouse: bool = False,
+    render_mouse: bool = True,
     save_img: bool = False,
     save_img_dir: str = "playground/paper_graphics/visualizations",
     top_right: bool = False,

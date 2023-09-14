@@ -419,3 +419,50 @@ def fig_4():
 # alright, after all the above flicking through a ton of seeds, I found two good ones in each category.
 # one - mouse fails to go to cheese and instead goes to historic goal location - seeds 2 and 543
 # two - mouse properly generalizes and goes to the cheese - seeds 128 and 167
+
+def fig_5():
+    """
+
+    """
+
+    success_a = 2
+    success_b = 543
+    fail_a = 128
+    fail_b = 167
+
+    fig5, axd5 = plt.subplot_mosaic(
+        [['success_a', 'success_b', 'fail_a', 'fail_b']],
+        figsize=(AX_SIZE * 4, AX_SIZE),
+        tight_layout=True,
+    )
+
+    venv = create_venv(1,success_a,1)
+    vf = viz.vector_field(venv, policy)
+
+    img = viz.plot_vf_mpp(vf, ax=axd5['success_a'], save_img=False)
+    axd5['success_a'].imshow(img)
+
+
+    venv = create_venv(1,success_b,1)
+    vf = viz.vector_field(venv, policy)
+
+    img = viz.plot_vf_mpp(vf, ax=axd5['success_b'], save_img=False)
+    axd5['success_b'].imshow(img)
+
+
+    venv = create_venv(1,fail_a,1)
+    vf = viz.vector_field(venv, policy)
+
+    img = viz.plot_vf_mpp(vf, ax=axd5['fail_a'], save_img=False)
+    axd5['fail_a'].imshow(img)
+
+
+    venv = create_venv(1,fail_b,1)
+    vf = viz.vector_field(venv, policy)
+
+    img = viz.plot_vf_mpp(vf, ax=axd5['fail_b'], save_img=False)
+    axd5['fail_b'].imshow(img)
+
+    plt.savefig('playground/paper_graphics/visualizations/fig_5.svg', bbox_inches="tight", format='svg')
+
+fig_5()
