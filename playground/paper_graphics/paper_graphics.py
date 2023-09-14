@@ -358,50 +358,64 @@ def fig_4():
 # I want a function to flick through different seeds and display many of them at a time.
 # I want a function that gives me all seeds of a certain size inner grid.
 
-# # find largest seed starting at seed = 100k with a step size of 1k
-# for seed in range(100000, 10000000, 1000):
-#     try:
-#         venv = create_venv(1,seed,1)
-#         # inner_grid = maze.get_inner_grid_from_seed(seed)
-#         # if inner_grid.shape == (13,13):
-#         #     print(seed)
-#         #     break
-#         print("seed passed! : ", seed)
-#     except:
-#         print("seed broke! : ", seed)
-# # seed = 100000
-# # venv = create_venv(1,seed,1)
-
-# seeds with inner grid 13x13
-# seeds = return_seeds_with_inner_grid_size()
+# # # find largest seed starting at seed = 100k with a step size of 1k
+# # for seed in range(100000, 10000000, 1000):
+# #     try:
+# #         venv = create_venv(1,seed,1)
+# #         # inner_grid = maze.get_inner_grid_from_seed(seed)
+# #         # if inner_grid.shape == (13,13):
+# #         #     print(seed)
+# #         #     break
+# #         print("seed passed! : ", seed)
+# #     except:
+# #         print("seed broke! : ", seed)
+# # # seed = 100000
+# # # venv = create_venv(1,seed,1)
 #
-# #save seeds to a file
-# with open('playground/paper_graphics/visualizations/seeds_13x13.txt', 'w') as f:
-#     for item in seeds:
-#         f.write("%s\n" % item)
+# # seeds with inner grid 13x13
+# # seeds = return_seeds_with_inner_grid_size()
+# #
+# # #save seeds to a file
+# # with open('playground/paper_graphics/visualizations/seeds_13x13.txt', 'w') as f:
+# #     for item in seeds:
+# #         f.write("%s\n" % item)
+#
+#
+# #mass_display(seeds)
+#
+# fig, axd = plt.subplot_mosaic(
+#     [
+#         ['1', '2', '3', '4'],
+#         ['5', '6', '7', '8'],
+#         ['9', '10', '11', '12'],
+#         ['13', '14', '15', '16'],
+#     ],
+#     figsize=(AX_SIZE * 4, AX_SIZE * 4),
+#     tight_layout=True,
+# )
+# # venv = create_venv(1, 166, 1)
+# # state = maze.EnvState(venv.env.callmethod('get_state')[0])
+# # img = viz.visualize_venv(venv, render_padding=False)
+#
+# seeds = [344, 346, 385, 389, 392, 414, 433, 435, 449, 455, 470, 516, 517, 543, 555, 559]
+# for i, seed in enumerate(seeds):
+#     venv = create_venv(1,seed,1)
+#     state = maze.EnvState(venv.env.callmethod('get_state')[0])
+#
+#     vf = viz.vector_field(venv, policy)
+#     print(str(i))
+#     print(f"{i}")
+#     img = viz.plot_vf_mpp(vf, ax=axd[str(i+1)], save_img=False)
+#
+#     axd[str(i+1)].imshow(img)
+#     axd[str(i+1)].set_xticks([])
+#     axd[str(i+1)].set_yticks([])
+#     axd[str(i+1)].set_title(f'Seed {seed}', fontsize=18)
+#
+# #plt.show()
+# plt.savefig('playground/paper_graphics/visualizations/13x13_group_3.svg', bbox_inches="tight", format='svg')
 
 
-#mass_display(seeds)
-
-fig, axd = plt.subplot_mosaic(
-    [
-        ['1', '2', '3', '4'],
-        ['5', '6', '7', '8'],
-        ['9', '10', '11', '12'],
-        ['13', '14', '15', '16'],
-    ],
-    figsize=(AX_SIZE * 4, AX_SIZE * 3),
-    tight_layout=True,
-)
-seeds = []
-for i, seed in enumerate(seeds):
-    venv = create_venv(1,seed,1)
-    state = maze.EnvState(venv.env.callmethod('get_state')[0])
-    img = viz.visualize_venv(venv, ax=axd[str(j+1)], render_padding=False)
-
-    axd[str(i+1)].imshow(img)
-    axd[str(i+1)].set_xticks([])
-    axd[str(i+1)].set_yticks([])
-    axd.set_title(f'Seed {seed}', fontsize=18)
-
-plt.show()
+# alright, after all the above flicking through a ton of seeds, I found two good ones in each category.
+# one - mouse fails to go to cheese and instead goes to historic goal location - seeds 2 and 543
+# two - mouse properly generalizes and goes to the cheese - seeds 128 and 167
