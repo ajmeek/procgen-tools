@@ -24,6 +24,7 @@ from ipywidgets import GridspecLayout, Button, Layout, HBox, Output
 from IPython.display import display
 
 from procgen import ProcgenGym3Env
+from procgen_tools import models
 
 # Constants in numeric maze representation
 CHEESE = 2
@@ -425,7 +426,8 @@ def state_from_venv(venv, idx: int = 0) -> EnvState:
 def get_cheese_pos(grid: np.ndarray, flip_y: bool = False) -> Square:
     "Get (row, col) position of the cheese in the grid. Note that the numpy grid is flipped along the y-axis, relative to rendered images."
     num_cheeses = (grid == CHEESE).sum()
-    assert num_cheeses == 1, f"num_cheeses={num_cheeses} should be 1"
+    if num_cheeses == 0:
+        return None
     row, col = np.where(grid == CHEESE)
     row, col = row[0], col[0]
     return ((WORLD_DIM - 1) - row if flip_y else row), col
@@ -441,6 +443,25 @@ def remove_cheese(venv, idx: int = 0):
     # TODO(uli): The multiple sources of truth here suck. Ideally one object linked to venv auto-updates(?)
     grid = state.full_grid()
     grid[grid == CHEESE] = EMPTY
+    state.set_grid(grid)
+    state_bytes_list[idx] = state.state_bytes
+    venv.env.callmethod("set_state", state_bytes_list)
+    return venv
+
+
+def move_cheese(venv, new_pos: Tuple[int, int], idx: int = 0):
+    """
+    Move the cheese to the given position, modifying venv in-place.
+    """
+    assert (
+        0 <= new_pos[0] < WORLD_DIM and 0 <= new_pos[1] < WORLD_DIM
+    ), f"new_pos={new_pos} out of bounds"
+    state_bytes_list = venv.env.callmethod("get_state")
+    state = state_from_venv(venv, idx)
+
+    grid = state.full_grid()
+    grid[grid == CHEESE] = EMPTY
+    grid[new_pos] = CHEESE
     state.set_grid(grid)
     state_bytes_list[idx] = state.state_bytes
     venv.env.callmethod("set_state", state_bytes_list)
@@ -547,9 +568,9 @@ def shortest_path(
     - default heuristic is euclidian distance to cheese
     """
     # assert (grid==MOUSE).sum() == 1, f'grid has {(grid==MOUSE).sum()} mice' # relaxed by start param
-    assert (
-        grid == CHEESE
-    ).sum() == 1, f"grid has {(grid==CHEESE).sum()} cheeses"
+    # assert (
+    #     grid == CHEESE
+    # ).sum() == 1, f"grid has {(grid==CHEESE).sum()} cheeses"
 
     grid = inner_grid(grid).copy()
 
@@ -929,6 +950,56 @@ def pathfind(grid: np.ndarray, start, end):
         grid, start, stop_condition=lambda _, sq: sq == end
     )
     return reconstruct_path(came_from, extra["last_square"])
+
+
+def geometric_probability_path(
+    start: Tuple[int, int], end: Tuple[int, int], vf: Dict
+) -> float:
+    """Returns the geometric mean of `vf`'s probability of the path from
+    `start` to `end` in the maze. If the path contains the cheese, the
+    cheese is ignored in the mean."""
+    for coord in (start, end):
+        assert (coord[i] >= 0 and coord[i] < MAZE_SIZE for i in (0, 1))
+    if start == end:
+        idx: int = vf["legal_mouse_positions"].index(start)
+        return vf["probs"][idx][4]  # The no-op probability
+
+    path = pathfind(vf["grid"], start, end)
+    cheese_loc: Tuple[int, int] = get_cheese_pos(vf["grid"])
+
+    zipped_list = zip(vf["legal_mouse_positions"], vf["probs"])
+    prob_dict: Dict[Tuple[int, int], float] = dict(zipped_list)
+
+    sum_log_prob: float = 0.0
+    for idx, coord in enumerate(path[:-1]):
+        if coord == cheese_loc:
+            continue
+        action: str = None
+
+        # Get the action by looking at the next coord
+        for key, delta in models.MAZE_ACTION_DELTAS.items():
+            if (
+                coord[0] + delta[0] == path[idx + 1][0]
+                and coord[1] + delta[1] == path[idx + 1][1]
+            ):
+                action = key
+                break
+
+        if action is None:
+            raise ValueError(
+                "Invalid path; cannot find action which leads to next"
+                " coordinate"
+            )
+
+        # Get the probability of the action
+        action_index: int = list(models.MAZE_ACTION_INDICES.keys()).index(
+            action
+        )
+        sum_log_prob += np.log(prob_dict[coord][action_index])
+
+    divisor: int = len(path) - (2 if cheese_loc in path[:-1] else 1)
+    geom_mean_prob: float = np.exp(sum_log_prob / divisor)
+    return geom_mean_prob
 
 
 def deltas_from(grid: np.ndarray, sq):
