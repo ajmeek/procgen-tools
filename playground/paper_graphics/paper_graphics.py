@@ -278,6 +278,12 @@ def fig_2():
 # want to ask Mrinank what he means by 'ghost cheese' really, and how they may substantially differ from fig 4.
 # computing it will be quite easy though
 
+# just found and retrieved the actual cheese graphic from OpenAI repo. Now can make it blue / red in photoshop as
+# Mrinank suggested for this figure.
+
+# plan for this figure:
+#
+
 # ---------------------------------------------------- fig 4 ----------------------------------------------------
 def fig_4():
     #patching works on a 16x16 grid. Putting the dot near there on a 25x25 grid requires some massaging.
@@ -465,4 +471,4 @@ def fig_5():
 
     plt.savefig('playground/paper_graphics/visualizations/fig_5.svg', bbox_inches="tight", format='svg')
 
-fig_5()
+#fig_5()
