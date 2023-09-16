@@ -424,6 +424,7 @@ def state_from_venv(venv, idx: int = 0) -> EnvState:
 
 def get_cheese_pos(grid: np.ndarray, flip_y: bool = False) -> Square:
     "Get (row, col) position of the cheese in the grid. Note that the numpy grid is flipped along the y-axis, relative to rendered images."
+    "The grid taken in here is the inner grid. Can be accessed with inner_grid = maze_env_state.inner_grid()"
     num_cheeses = (grid == CHEESE).sum()
     assert num_cheeses == 1, f"num_cheeses={num_cheeses} should be 1"
     row, col = np.where(grid == CHEESE)

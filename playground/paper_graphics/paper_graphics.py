@@ -281,8 +281,44 @@ def fig_2():
 # just found and retrieved the actual cheese graphic from OpenAI repo. Now can make it blue / red in photoshop as
 # Mrinank suggested for this figure.
 
+# keep track of all seeds that we are resampling from and into. This'll be important information for reproducibility.
+
 # plan for this figure:
-#
+# part a should be an agent moving to the cheese. Not the same seed as fig 1 since the MPP there is away from the cheese.
+# part b should be from activations sampled from another 13x13 seed with the cheese at the same location.
+# part c should be from activations sampled from another 13x13 seed with the cheese at a different location, with successful retargeting
+# part d should be from activations sampled from another 13x13 seed with the cheese at a different location, with succesful
+#   retargeting in a different location, towards the bottom right.
+
+# I want to keep these all 13x13 images as well. That way we can show in an appendix where the cheese was coming from.
+# This may not be a major point, since we'll want to give examples of the different views, but for now I'll do it like so.
+
+# Glad I saved those mass displays of the 13x13 seeds! Found some good ones.
+# part a - seed 433
+# part b - find seed with cheese same location as 433
+# part c - seed 435
+# part d - seed 516
+
+# To resample, I just need to replace the activations from one with another. easy peasy.
+
+# venv = create_venv(1, 433, 1)
+# state = maze.EnvState(venv.env.callmethod('get_state')[0])
+# inner_grid = state.inner_grid()
+# print(maze.get_cheese_pos(inner_grid)) # this is (4,5). zero indexed from standard origin, y column on the left for some reason.
+
+# so, I want to find a seed with the cheese at (4,5). I'll just flick through the seeds I have and find one.
+# for seed in range(10000):
+#     venv = create_venv(1,seed,1)
+#     state = maze.EnvState(venv.env.callmethod('get_state')[0])
+#     inner_grid = state.inner_grid()
+#     if maze.get_cheese_pos(inner_grid) == (4,5) and inner_grid[0].size > 10:
+#         print(seed, inner_grid, type(inner_grid))
+#         viz.visualize_venv(venv, show_plot=True, render_padding=False)
+#         break
+
+# okay, good seed found at 142
+
+
 
 # ---------------------------------------------------- fig 4 ----------------------------------------------------
 def fig_4():
