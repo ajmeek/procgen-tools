@@ -338,23 +338,26 @@ def fig_3():
 
     # part c
 
-    venv_b = create_venv(1,435,1)
-    obs = t.tensor(venv_b.reset(), dtype=t.float32)
-
-    with hook.set_hook_should_get_custom_data():
-        hook.network(obs)
-    b_activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
+    # venv_c = create_venv(1,516,1)
+    # obs = t.tensor(venv_c.reset(), dtype=t.float32)
+    #
+    # with hook.set_hook_should_get_custom_data():
+    #     hook.network(obs)
+    # c_activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
+    #
+    # np.save("playground/paper_graphics/visualizations/fig_3_516_activ.npy", c_activ)
+    c_activ = np.load("playground/paper_graphics/visualizations/fig_3_516_activ.npy")
 
     # patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=success_a_pos)
     # with hook.use_patches(patches):
     #     patched_vfield = viz.vector_field(venv, hook.network)
     # img = viz.plot_vf_mpp(patched_vfield, ax=axd4['success_a'], save_img=False)
 
-    obs = t.tensor(venv_a.reset(), dtype=t.float32)
-
-    with hook.set_hook_should_get_custom_data():
-        hook.network(obs)
-    patches = patch_utils.get_channel_whole_patch_replace(layer_name=default_layer,channel=55, activations=b_activ)
+    # obs = t.tensor(venv_a.reset(), dtype=t.float32)
+    #
+    # with hook.set_hook_should_get_custom_data():
+    #     hook.network(obs)
+    patches = patch_utils.get_channel_whole_patch_replace(layer_name=default_layer,channel=55, activations=c_activ)
     with hook.use_patches(patches):
         patched_vfield = viz.vector_field(venv_a, hook.network)
     img = viz.plot_vf_mpp(patched_vfield, ax=axd3['dif_loc_historic'], save_img=False)

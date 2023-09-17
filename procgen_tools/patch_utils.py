@@ -235,7 +235,8 @@ def get_channel_whole_patch_replace(
             if default is not None
             else outp[0, ...].clone()
         )
-        new_features = activations
+        #new_features = activations
+        new_features = t.tensor(activations)
         outp[:, ...] = new_features
         return outp
 
