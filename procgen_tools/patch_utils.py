@@ -556,3 +556,59 @@ I'll use his activations plotter and then just apply patches to different venv b
 
 Check my notes in this file above to see how to plot the patches.
 """
+
+def get_specific_patch(
+    layer_name: str,
+    hook: cmh.ModuleHook,
+    resampling_seed: int,
+    channel: int = -1,
+    cheese_loc: Tuple[int, int] = None,
+    num_obs: int = 1,
+):
+    """
+    Get a patch that replaces the activations at layer_name with a random sample from the activations at that layer. If channel is specified (>= 0), only patch that channel, leaving the rest of the layer's activations unchanged. If cheese_loc is specified, sample random observations with cheese at that location. Cycle through num_obs random observations, randomly generating the index of the observation to use at every invocation of the random patch.
+
+    This is a modified version of get_random_patch
+    Looked into how it's called from random obs. Essentially that seems to be a func that takes a set of criteria and will
+    return a bunch of random observations. I just want one obs from one seed.
+    The crucial point is to make sure hook.run_with_input can take a single obs, not a batch.
+
+    If so, just create a new venv here with the specific seed and then .reset it I believe.
+
+    """
+    assert num_obs > 0, "Must sample at least one observation"
+    assert cheese_loc is None or (
+        0 <= cheese_loc[0] < maze.WORLD_DIM
+        and 0 <= cheese_loc[1] < maze.WORLD_DIM
+    ), "Cheese location is out of bounds."
+
+    patch_single_channel = channel >= 0
+
+    # Get activations at this layer and channel for a randomly sampled observation
+    # rand_obs = maze.get_random_obs_opts(
+    #     num_obs=num_obs, on_training=False, cheese_pos_outer=cheese_loc
+    # )
+    venv = maze.create_venv(1, resampling_seed, 1)
+    obs = venv.reset().astype(np.float32)
+    hook.run_with_input(obs, func=forward_func_policy)
+    values = hook.get_value_by_label(
+        layer_name
+    )  # shape (batch, channels, ...)
+    if patch_single_channel:
+        values = values[:, channel, ...]  # shape (batch, ...)
+    random_vals = t.from_numpy(values)  # shape (batch, ...)
+
+    print("shape of values: ", values.shape)
+
+    #the below function should also be changed I think.
+    def patch_fn(outp):
+        random_idx = np.random.randint(
+            0, num_obs
+        )  # TODO i think this only invokes once
+        new_vals = random_vals[random_idx, ...]
+        return new_vals
+
+    # If patch_single_channel, this will be applied to the channel dimension; otherwise, it will be applied to the entire output
+    return channel_patch_or_broadcast(
+        layer_name, channel=channel, patch_fn=patch_fn
+    )

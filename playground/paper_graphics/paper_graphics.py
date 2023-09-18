@@ -117,7 +117,42 @@ def mass_display(seeds):
 
         plt.show()
 
+def combined_px_patch(layer_name : str, resampling_seed: int, channels : List[int], cheese_loc : Tuple[int, int] = None):
+    """
+    Get a combined patch which randomly replaces channel activations with other activations from different levels.
 
+    Instead change to not be random. Use modified version of patch_utils.get_random_patch.
+    """
+    patches = [patch_utils.get_specific_patch(layer_name=layer_name, hook=hook, channel=channel, cheese_loc=cheese_loc, resampling_seed=resampling_seed) for channel in channels]
+    print(patches)
+    combined_patch = patch_utils.compose_patches(*patches)
+    return combined_patch # NOTE we're resampling from a fixed maze for all target forward passes
+
+def resample_activations(original_seed, channels, resampling_seed):
+    """
+    This function is to resample the activations from one seed to another.
+
+    original_seed is the seed whose activations we want to change.
+    channels is a list of channels from the new maze that we wish to combine and overwrite channel 55 with.
+    resampling_seed is the seed whose activations we want to sample from.
+
+    Returns an image of the new vector field.
+    """
+
+    venv = patch_utils.get_cheese_venv_pair(seed=original_seed)
+    patches = combined_px_patch(layer_name=default_layer, resampling_seed=resampling_seed, channels=channels)
+
+    with hook.use_patches(patches):
+        patched_vfield = viz.vector_field(venv, hook.network)
+    img = viz.plot_vf_mpp(patched_vfield, save_img=False)
+
+    patch_utils.compare_patched_vfields_mpp(venv, patches, hook, default_layer)#, show_plot=True, save_img=False)
+    pass
+
+# sanity check
+# list of cheese channels
+cheese_channels = [7, 8, 42, 44, 55, 77, 82, 88, 89, 99, 113]
+resample_activations(433, cheese_channels, 516) # - no errors! at least neutral sign :)
 
 # ---------------------------------------------------- fig 1 ----------------------------------------------------
 
@@ -318,6 +353,18 @@ def fig_2():
 
 # okay, good seed found at 142
 
+"""
+Thoughts on how to get a proper resampling. Check out their resampling code in reverse_c55.py.
+How they're currently doing it is to take activations from all the cheese samples and combine them together, then
+replace the activations of the original maze.
+So for ex, take all the cheese channels of some alternate maze, combine them, then overwrite channel 55 with those values.
+
+Their code there should be fine, but the random resample from patch_utils needs to be modified so that it only
+samples from the specific seed I want. I could alternatively ask for any seed with the cheese at some loc, but I think
+it's better for reproducibility if I just specifiy a seed though.
+
+"""
+
 def fig_3():
     fig3, axd3 = plt.subplot_mosaic(
         [['original', 'same_loc', 'dif_loc_historic', 'dif_loc_bottom_right']],
@@ -366,7 +413,7 @@ def fig_3():
     plt.show()
     print()
 
-fig_3()
+#fig_3()
 
 
 # ---------------------------------------------------- fig 4 ----------------------------------------------------

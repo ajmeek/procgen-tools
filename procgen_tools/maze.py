@@ -1374,7 +1374,7 @@ def get_random_obs_opts(
     rng = np.random.default_rng(random_seed)
     with tqdm(total=num_obs, disable=not show_pbar) as pbar:
         while len(state_bytes_list) < num_obs:
-            venv, this_level = next(venv_gen)
+            venv, this_level = next(venv_gen) #MODIFY THIS TO ENFORCE SAMPLING FROM A SPECIFIC SEED
             env_state = state_from_venv(venv, idx=0)
             full_grid = env_state.full_grid(with_mouse=False)
             inner_grid = env_state.inner_grid(with_mouse=False)
@@ -1586,3 +1586,203 @@ def venv_with_all_mouse_positions(venv):
     )
     venv_all.env.callmethod("set_state", state_bytes_list)
     return venv_all, (legal_mouse_positions, grid)
+
+
+def get_obs_opts_by_seed(
+    num_obs: int = 1,
+    on_training: bool = True,
+    rand_region: int = 5,
+    spawn_cheese: bool = True,
+    maze_dim: Optional[int] = None,
+    mouse_pos_inner: Optional[Tuple[int, int]] = None,
+    cheese_pos_inner: Optional[Tuple[int, int]] = None,
+    mouse_pos_outer: Optional[Tuple[int, int]] = None,
+    cheese_pos_outer: Optional[Tuple[int, int]] = None,
+    must_be_dec_square: bool = False,
+    start_level: int = 0,
+    return_metadata: bool = False,
+    random_seed: Optional[int] = None,
+    deterministic_levels: bool = False,
+    show_pbar: bool = False,
+):
+    """Get num_obs observations from the maze environment. If on_training is True, then the observation is
+    from a training level where the cheese is in the top-right rand_region corner.
+    Can also optionally filter/force the resulting samples in various ways:
+    - maze_dim ensures a constant maze inner grid size
+    - mouse_pos_inner forces the mouse to a specific inner_grid location (skipping levels that aren't open on this location)
+    - cheese_pos_inner forces the cheese to a specific inner_grid location (skipping levels that aren't open on this location)
+    - cheese/mouse_pos_outer as above, only one of inner or outer should be provided
+    - must_be_dec_square ensures that the next step to cheese and top-right-corner are different at the mouse location
+
+
+    Note from Austin - this is a modification of Monte's function. I'm using this for a very specific purpose so I won't
+    take the time to put in all the normal error checking stuff. It's up to you to choose the exact seed that you want.
+    """
+    assert (
+        rand_region <= WORLD_DIM
+    ), "rand_region must be less than or equal to WORLD_DIM."
+    assert rand_region > 0, "rand_region must be greater than 0."
+    assert num_obs > 0, "num_obs must be greater than 0."
+    assert (
+        maze_dim is None or maze_dim <= WORLD_DIM
+    ), "maze_dim must be less than or equal to WORLD_DIM."
+    assert maze_dim is None or maze_dim > 0, "maze_dim must be greater than 0."
+    assert (
+        mouse_pos_inner is None or mouse_pos_outer is None
+    ), "only specify one of mouse_pos_inner, mouse_pos_outer"
+    assert (
+        cheese_pos_inner is None or cheese_pos_outer is None
+    ), "only specify one of cheese_pos_inner, cheese_pos_outer"
+
+    # venvs = create_venv(num_obs, start_level=0, num_levels=0)
+    # TODO ensure that if on_training is True, then the cheese is in the top-right rand_region corner
+
+    def venv_gen_func():
+        last_start_level = start_level
+        while True:
+            yield (
+                create_venv(
+                    1,
+                    start_level=last_start_level,
+                    num_levels=1 if deterministic_levels else 0,
+                ),
+                last_start_level,
+            )
+            last_start_level += 1
+
+    venv_gen = venv_gen_func()
+
+    # Create N random observations, customizing and skipping as needed based on constraints
+    state_bytes_list = []
+    metadata_list = []
+    rng = np.random.default_rng(random_seed)
+    with tqdm(total=num_obs, disable=not show_pbar) as pbar:
+        while len(state_bytes_list) < num_obs:
+            venv, this_level = next(venv_gen) #MODIFY THIS TO ENFORCE SAMPLING FROM A SPECIFIC SEED
+            env_state = state_from_venv(venv, idx=0)
+            full_grid = env_state.full_grid(with_mouse=False)
+            inner_grid = env_state.inner_grid(with_mouse=False)
+
+            # Skip this level if it isn't the right size
+            maze_dim_this = inner_grid.shape[0]
+            if maze_dim is not None and maze_dim_this != maze_dim:
+                continue
+
+            # Calculate mouse/cheese outer positions, if either inner or out is
+            # specified.
+            padding = (env_state.world_dim - maze_dim_this) // 2
+            if mouse_pos_inner is not None:
+                mouse_pos_outer = (
+                    mouse_pos_inner[0] + padding,
+                    mouse_pos_inner[1] + padding,
+                )
+            if cheese_pos_inner is not None:
+                cheese_pos_outer = (
+                    cheese_pos_inner[0] + padding,
+                    cheese_pos_inner[1] + padding,
+                )
+
+            if (
+                mouse_pos_outer is not None
+                and mouse_pos_outer == cheese_pos_outer
+            ):
+                warn("mouse and cheese positions must be different")
+
+            # Get legal mouse positions
+            legal_mouse_positions = get_legal_mouse_positions(full_grid)
+
+            # If mouse position is specified, set it if legal, otherwise skip
+            # If not specified, randomize
+            if mouse_pos_outer is not None:
+                if mouse_pos_outer in legal_mouse_positions:
+                    mr, mc = mouse_pos_outer
+                else:
+                    continue
+            else:
+                mr, mc = legal_mouse_positions[
+                    rng.integers(len(legal_mouse_positions))
+                ]
+
+            # Set the mouse position
+            env_state.set_mouse_pos(mr, mc)
+
+            # Remove the cheese if required
+            if not spawn_cheese:
+                remove_cheese_from_state(env_state)
+                cheese_pos_outer_this = None
+            # Otherwise, force the cheese to a speciic location if provided,
+            # skipping if not valid
+            elif cheese_pos_outer is not None:
+                cheese_pos_outer_this = cheese_pos_outer
+                if (
+                    cheese_pos_outer in legal_mouse_positions
+                    or full_grid[cheese_pos_outer] == CHEESE
+                ):
+                    move_cheese_in_state(env_state, cheese_pos_outer)
+                else:
+                    continue
+            else:
+                # Store the cheese location for metadata later
+                cheese_pos_outer_this = get_cheese_pos(full_grid)
+
+            # Skip if the resulting mouse/cheese locations don't match the
+            # decision square requirement, if any
+            # print(mr, mc)
+            # print(legal_mouse_positions)
+            if must_be_dec_square or return_metadata:
+                graph = maze_grid_to_graph(inner_grid)
+                mr_inner, mc_inner = mr - padding, mc - padding
+                path_to_cheese = get_path_to_cheese(
+                    inner_grid, graph, (mr_inner, mc_inner)
+                )
+                path_to_corner = get_path_to_corner(
+                    inner_grid, graph, (mr_inner, mc_inner)
+                )
+
+                def path_step_inner_to_outer(path):
+                    return (
+                        (path[1][0] + padding, path[1][1] + padding)
+                        if len(path) > 1
+                        else (mr, mc)
+                    )
+
+                next_pos_cheese_outer = path_step_inner_to_outer(
+                    path_to_cheese
+                )
+                next_pos_corner_outer = path_step_inner_to_outer(
+                    path_to_corner
+                )
+                # print(path_to_cheese[1], path_to_corner[1])
+                if must_be_dec_square and (
+                    next_pos_cheese_outer == next_pos_corner_outer
+                ):
+                    continue
+
+            # If we get here, we're ready to use this state
+            state_bytes_list.append(env_state.state_bytes)
+            if return_metadata:
+                metadata_list.append(
+                    dict(
+                        level_seed=this_level,
+                        mouse_pos_outer=(mr, mc),
+                        cheese_pos_outer=cheese_pos_outer_this,
+                        next_pos_cheese_outer=next_pos_cheese_outer,
+                        next_pos_corner_outer=next_pos_corner_outer,
+                        path_to_cheese=path_to_cheese,
+                        path_to_corner=path_to_corner,
+                        maze_dim=maze_dim_this,
+                    )
+                )
+
+            pbar.update(1)
+
+    venvs = create_venv(num_obs, start_level=0, num_levels=0)
+    venvs.env.callmethod("set_state", state_bytes_list)
+    if return_metadata:
+        return (
+            venvs.reset().astype(np.float32),
+            metadata_list,
+            metadata_list[-1]["level_seed"] + 1,
+        )
+    else:
+        return venvs.reset().astype(np.float32)
