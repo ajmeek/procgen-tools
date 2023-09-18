@@ -3,19 +3,21 @@ import matplotlib.patches
 from procgen_tools.imports import *
 from procgen_tools import maze
 from typing import Dict
+from matplotlib.colors import LinearSegmentedColormap
 import PIL
 from warnings import warn
 from torch import nn
 import torch
 import math
 import datetime
+from tqdm import tqdm
+
 
 # Getting an image from figures
 def img_from_fig(
     fig: plt.Figure, palette: PIL.Image = None, tight_layout: bool = True
 ):
-    """Get an image from a matplotlib figure. If palette is not None, then the image is quantized to the palette.
-    """
+    """Get an image from a matplotlib figure. If palette is not None, then the image is quantized to the palette."""
     # Prepare the fig
     if tight_layout:
         fig.tight_layout()
@@ -72,8 +74,7 @@ def get_residual_num(label: str):
 
 # Plotting
 def is_internal_activation(label: str):
-    """Return True if the label is an internal activation, i.e. not an input or output.
-    """
+    """Return True if the label is an internal activation, i.e. not an input or output."""
     # Check if 'in' is in the label
     if "in" in label:
         return False
@@ -86,8 +87,7 @@ def is_internal_activation(label: str):
 def plot_layer_stats(
     hook: cmh.ModuleHook, mode: str = "activations", fig: go.Figure = None
 ):
-    """Create and show a plotly bar chart of the number of activations per layer of policy. The default mode is "activations", which plots the number of activations per layer. If mode is "parameters", then the number of parameters per layer is plotted.
-    """
+    """Create and show a plotly bar chart of the number of activations per layer of policy. The default mode is "activations", which plots the number of activations per layer. If mode is "parameters", then the number of parameters per layer is plotted."""
     if mode not in ("activations", "parameters"):
         raise ValueError(
             f"mode must be either 'activations' or 'parameters', got {mode}."
@@ -151,9 +151,9 @@ def plot_layer_stats(
             "xanchor": "center",
             "yanchor": "top",
         },
-        xaxis_title=mode.title()
-        if mode == "parameters"
-        else "Activation count",
+        xaxis_title=(
+            mode.title() if mode == "parameters" else "Activation count"
+        ),
         yaxis_title="Layer" if mode == "parameters" else "Activations",
     )
 
@@ -175,8 +175,7 @@ def plot_layer_stats(
 
 # Navigating the feature maps
 def get_stride(label: str):
-    """Get the stride of the layer referred to by label. How many pixels required to translate a single entry in the feature maps of label.
-    """
+    """Get the stride of the layer referred to by label. How many pixels required to translate a single entry in the feature maps of label."""
     if not label.startswith("embedder.block"):
         raise ValueError(f"Not in the Impala blocks.")
 
@@ -199,8 +198,7 @@ PIXEL_SIZE = img.shape[0]  # width of the human view input image
 
 
 def get_pixel_loc(val: int, channel_size: int = 16):
-    """Given a single channel position value, find the pixel location that corresponds to that channel.
-    """
+    """Given a single channel position value, find the pixel location that corresponds to that channel."""
     assert (
         val < channel_size
     ), f"channel_pos {val} must be less than channel_size {channel_size}"
@@ -213,8 +211,7 @@ def get_pixel_loc(val: int, channel_size: int = 16):
 def get_pixel_coords(
     channel_pos: Tuple[int, int], channel_size: int = 13, flip_y: bool = True #try channel size 13 for inner grid
 ):
-    """Given a channel position, find the pixel location that corresponds to that channel. If flip_y is True, the y-axis will be flipped from the underlying numpy coords to the conventional human rendering format.
-    """
+    """Given a channel position, find the pixel location that corresponds to that channel. If flip_y is True, the y-axis will be flipped from the underlying numpy coords to the conventional human rendering format."""
     row, col = channel_pos
     assert 0 <= row < channel_size and 0 <= col < channel_size, (
         f"channel_pos {channel_pos} must be within the channel_size"
@@ -234,7 +231,18 @@ def plot_pixel_dot(
     color: str = "r",
     size: int = 50,
     hidden_padding: int = 0,
+    input_grid_coords: bool = True,
 ):
+    """Plot a dot on the pixel grid at the given row and column of the block2.res1.resadd_out channel. hidden_padding is the number of tiles which are not shown in the human view, presumably due to render_padding being False in some external call."""
+    px_row, px_col = (
+        get_pixel_coords((row, col))
+        if input_grid_coords
+        else (
+            row,
+            col,
+        )
+    )
+    padding_offset = (PIXEL_SIZE / maze.WORLD_DIM) * hidden_padding
     """Plot a dot on the pixel grid at the given row and column of the block2.res1.resadd_out channel. hidden_padding is the number of tiles which are not shown in the human view, presumably due to render_padding being False in some external call.
     """
     px_row, px_col = get_pixel_coords((row, col), flip_y=False) #changed flip y for paper graphics
@@ -280,15 +288,17 @@ def plot_dots(
 
 
 def get_channel_from_grid_pos(
-    pos: Tuple[int, int], layer: str = default_layer
+    pos: Tuple[int, int], layer: str = default_layer, flip_y: bool = False
 ):
-    """Given a grid position, find the channel location that corresponds to that position.
-    """
+    """Given a grid position, find the channel location that corresponds to that position."""
     # Ensure cheese_pos is valid
     row, col = pos
     assert (
         0 <= row < maze.WORLD_DIM and 0 <= col < maze.WORLD_DIM
     ), f"Invalid position: {pos}"
+
+    if flip_y:
+        row = (maze.WORLD_DIM - 1) - row
 
     # Convert to pixel location
     px_row, px_col = (
@@ -304,20 +314,28 @@ def get_channel_from_grid_pos(
     return (int(chan_row), int(chan_col))
 
 
-def pixels_at_grid(
+def pixel_slices_from_grid(
     row: int,
     col: int,
     img: np.ndarray,
     removed_padding: int = 0,
+    extra_adjustment: bool = True,
     flip_y: bool = True,
-):
-    """Get the pixels in the image corresponding to the given grid position.
+) -> Tuple[slice, slice]:
+    """Get the pixel slices in the image corresponding to the given
+    grid position.
 
     Args:
         row: The row of the grid position.
         col: The column of the grid position.
-        img: The image to get the pixels from, assumed to be rendered from the human view.
-        removed_padding: The number of tiles which are not shown in the human view, presumably due to render_padding being False in some external call.
+        img: The image to get the pixels from, assumed to be rendered
+        from the human view.
+        extra_adjustment: Whether to account for the padding in the
+        human view.
+        removed_padding: The number of tiles which are not shown in the
+        human view, presumably due to render_padding being False in some
+        external call.
+
     """
     assert (
         0 <= row < maze.WORLD_DIM and 0 <= col < maze.WORLD_DIM
@@ -335,25 +353,58 @@ def pixels_at_grid(
         row = (maze.WORLD_DIM - 1) - row
     row, col = row - removed_padding, col - removed_padding
 
+    tile_px = (
+        maze.HUMAN_PX_PER_TILE
+        if extra_adjustment
+        else maze.HUMAN_PX_WIDTH / maze.WORLD_DIM
+    )
     row_lb, row_ub = (
-        row * maze.HUMAN_PX_PER_TILE,
-        (row + 1) * maze.HUMAN_PX_PER_TILE,
+        row * tile_px,
+        (row + 1) * tile_px,
     )
     col_lb, col_ub = (
-        col * maze.HUMAN_PX_PER_TILE,
-        (col + 1) * maze.HUMAN_PX_PER_TILE,
+        col * tile_px,
+        (col + 1) * tile_px,
     )
 
     # add 12 to the bounds to account for the 6 pixel border, and cast as ints
-    # FIXME 512x512 is only for full level; smaller levels are different (?!) Thus subtracting 12 can lead to row_ub being too large for img, leading to a ValueError from shape mismatch in parent.
-    row_lb, row_ub = (
-        int(coord + maze.HUMAN_PX_PADDING * 2) for coord in (row_lb, row_ub)
-    )
-    col_lb, col_ub = (
-        math.floor(coord + 1) for coord in (col_lb, col_ub)
-    )  # FIXME e.g. seed 19 still has a few pixels off
+    # FIXME 512x512 is only for full level; smaller levels are different
+    # (?!) Thus subtracting 12 can lead to row_ub being too large for
+    # img, leading to a ValueError from shape mismatch in parent.
+    if extra_adjustment:
+        row_lb, row_ub = (
+            int(coord + maze.HUMAN_PX_PADDING * 2)
+            for coord in (row_lb, row_ub)
+        )
+        col_lb, col_ub = (
+            math.floor(coord + 1) for coord in (col_lb, col_ub)
+        )  # FIXME e.g. seed 19 still has a few pixels off
+    else:
+        row_lb, row_ub = int(row_lb) + 2, int(row_ub) + 2
+        col_lb, col_ub = int(col_lb) + 1, int(col_ub) + 1
+    return slice(row_lb, row_ub), slice(col_lb, col_ub)
 
-    return img[row_lb:row_ub, col_lb:col_ub, :]
+
+def pixels_at_grid(
+    row: int,
+    col: int,
+    img: np.ndarray,
+    removed_padding: int = 0,
+    flip_y: bool = True,
+):
+    """Get the pixels in the image corresponding to the given grid position.
+
+    Args:
+        row: The row of the grid position.
+        col: The column of the grid position.
+        img: The image to get the pixels from, assumed to be rendered from the human view.
+        removed_padding: The number of tiles which are not shown in the human view, presumably due to render_padding being False in some external call.
+    """
+    slices = pixel_slices_from_grid(
+        row, col, img, removed_padding=removed_padding, flip_y=flip_y
+    )
+
+    return img[slices[0], slices[1], :]
 
 
 def visualize_venv(
@@ -361,7 +412,7 @@ def visualize_venv(
     idx: int = 0,
     mode: str = "human",
     ax: plt.Axes = None,
-    ax_size: int = 3,
+    ax_size: float = 3,
     show_plot: bool = False,
     flip_numpy: bool = True,
     render_padding: bool = True,
@@ -506,6 +557,183 @@ def visualize_venv(
     return img
 
 
+def vf_heatmap(
+    venv,
+    hook,
+) -> np.ndarray:
+    """Returns a heatmap of the geometric probabilities from the origin
+    to each square in the maze."""
+    vf: Dict = vector_field(venv, hook.network)
+    state: maze.EnvState = maze.state_from_venv(venv)
+    grid: np.ndarray = state.inner_grid()
+    heatmap: np.ndarray = np.zeros_like(grid, dtype=np.float32)
+    for coord in maze.get_legal_mouse_positions(grid) + [
+        maze.get_cheese_pos(grid)
+    ]:
+        heatmap[coord] = maze.geometric_probability_path((0, 0), coord, vf)
+    return heatmap
+
+
+def retarget_heatmap(
+    venv,
+    hook,
+    retargeting_fn: Optional[Callable],
+    **retargeting_fn_kwargs,
+) -> pd.DataFrame:
+    """Returns a DataFrame of retargeted probabilities for all squares in
+    the maze, where each row contains a geometric average of the
+    probabilities under retargeting the given channels to that square
+    using the given magnitude."""
+    if retargeting_fn is None:
+        with hook.use_patches({}):  # Remove all patches
+            vf: Dict = vector_field(venv, hook.network)
+
+    inner_grid: np.ndarray = maze.state_from_venv(venv).inner_grid()
+    padding: int = maze.get_padding(inner_grid)
+    reachable: List[Tuple[int, int]] = maze.get_legal_mouse_positions(
+        inner_grid
+    )  # NOTE not adding starting mouse position for now
+
+    # Get the probabilities for each square
+    data: Dict[str, List[float]] = defaultdict(list)
+    retargeting_cache: Dict[Tuple[int, int], float] = defaultdict(float)
+    for coord in tqdm(reachable):
+        # Add padding to the coordinate
+        padded_coord: Tuple[int, int] = (
+            coord[0] + padding,
+            coord[1] + padding,
+        )
+        # This locates the channel position to modify
+        filter_coord: Tuple[int, int] = get_channel_from_grid_pos(
+            padded_coord, layer=default_layer, flip_y=True
+        )
+
+        new_data = {
+            "row": coord[0],
+            "col": coord[1],
+            "filter_coord": filter_coord,
+            "maze_size": inner_grid.shape[0],
+            "d_to_coord": len(
+                maze.pathfind(grid=inner_grid, start=(0, 0), end=coord)
+            ),
+        }
+        if retargeting_fn is None:  # NOTE this is for the normal probability
+            channel_val = maze.geometric_probability_path((0, 0), coord, vf)
+        elif filter_coord in retargeting_cache:
+            channel_val = retargeting_cache[filter_coord]
+        else:
+            channel_val = retargeting_fn(
+                venv,
+                hook,
+                coord=filter_coord,
+                inner_coord=coord,
+                **retargeting_fn_kwargs,
+            )
+            retargeting_cache[filter_coord] = channel_val
+
+        new_data["probability"] = channel_val
+        for k, v in new_data.items():
+            data[k].append(v)
+
+    return pd.DataFrame(data)
+
+
+def show_grid_heatmap(
+    venv: ProcgenGym3Env,
+    heatmap: np.ndarray,
+    ax_size: float = 3,
+    mode: str = "numpy",
+    alpha: float = 0.7,
+    size: float = 1.0,
+) -> None:
+    """Show a heatmap over the maze using matplotlib.
+    Args:
+        venv: Vectorized environment
+        heatmap: 2D array of floats
+        ax_size: Size of the figure
+        mode: "human" or "numpy"
+        alpha: Transparency of the heatmap
+        size: Size of the heatmap squares
+    """
+    assert mode in ("human", "numpy")
+    assert 0 <= alpha <= 1
+    assert 0 <= size <= 1
+
+    env_state = maze.state_from_venv(venv, idx=0)
+    inner_grid = env_state.inner_grid()
+    assert inner_grid.shape == heatmap.shape
+
+    # Create a figure
+    _, ax = plt.subplots(1, 1, figsize=(ax_size, ax_size))
+
+    # Remove x and y ticks
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    # Display the underlying maze
+    img = visualize_venv(
+        venv,
+        ax=ax,
+        ax_size=ax_size,
+        mode=mode,
+        show_plot=False,
+        render_padding=False,
+    )
+
+    # Plot the heatmap transparently over the maze
+    # First, create a custom colormap from gray to red
+    colors = [
+        (1, 0, 0, 0),
+        (1, 0, 0, alpha),
+    ]  # Transparent to non-transparent red
+    cmap_name = "custom_div_cmap"
+    cm = LinearSegmentedColormap.from_list(cmap_name, colors, N=100)
+    if mode == "human":
+        heatmap_overlay: np.ndarray = np.zeros(
+            (img.shape[0], img.shape[1], 4), dtype=np.float32
+        )  # RGBA
+        reachable: List[Tuple[int, int]] = maze.get_legal_mouse_positions(
+            inner_grid
+        )
+        padding: int = (maze.WORLD_DIM - inner_grid.shape[0]) // 2
+
+        cheese_pos = maze.get_cheese_pos(inner_grid)
+        to_visualize = reachable + (
+            [cheese_pos] if cheese_pos is not None else []
+        )
+        for coord in to_visualize:
+            pixel_slices: Tuple[slice, slice] = pixel_slices_from_grid(
+                row=coord[0] + padding,  # Translate to full grid coordinates
+                col=coord[1] + padding,
+                img=img,
+                removed_padding=padding,
+                extra_adjustment=False,
+            )
+
+            # Get the center square of size size in the pixel slices
+            # center = (
+            #     (pixel_slices[0].stop - pixel_slices[0].start) // 2,
+            #     (pixel_slices[1].stop - pixel_slices[1].start) // 2,
+            # )
+            # pixel_slices = (
+            #     slice(
+            #         center[0] - int(size * center[0]),
+            #         center[0] + int(size * center[0]),
+            #     ),
+            #     slice(
+            #         center[1] - int(size * center[1]),
+            #         center[1] + int(size * center[1]),
+            #     ),
+            # )
+
+            heatmap_overlay[pixel_slices[0], pixel_slices[1]] = cm(
+                heatmap[coord]
+            )  # Flip because the rows are upside-down by default
+        im = ax.imshow(heatmap_overlay)
+    else:
+        im = ax.imshow(heatmap[::-1], vmin=0, vmax=1, cmap=cm)
+
+
 def custom_vfield(
     policy: t.nn.Module,
     venv: ProcgenGym3Env = None,
@@ -595,8 +823,7 @@ def custom_vfield(
 
 
 def custom_vfields(policy: t.nn.Module, venv: ProcgenGym3Env, **kwargs):
-    """Create a vector field plot for each maze in the environment, using policy to generate the vfields.
-    """
+    """Create a vector field plot for each maze in the environment, using policy to generate the vfields."""
     venvs = [maze.copy_venv(venv, idx=i) for i in range(venv.num_envs)]
     return VBox(
         [custom_vfield(venv=venv, policy=policy, **kwargs) for venv in venvs]
@@ -691,8 +918,7 @@ def plot_patch(
     bounds: Tuple[int, int] = None,
     px_dims: Tuple[int, int] = None,
 ):
-    """Plot the activations of a single patch, at the given layer and channel. Returns a figure.
-    """
+    """Plot the activations of a single patch, at the given layer and channel. Returns a figure."""
     assert layer in patch, f"Layer {layer} not in patch {patch}"
 
     if fig is None:
@@ -836,8 +1062,7 @@ class ActivationsPlotter:
         self.update_plotter()
 
     def display(self):
-        """Display the elements; this function separates functionality from display.
-        """
+        """Display the elements; this function separates functionality from display."""
         display(self.fig)
         display(
             VBox(self.widgets[1:-1])
@@ -1007,6 +1232,7 @@ def forward_func_policy(network: nn.Module, inp: torch.Tensor):
 
 # %%
 # Get vector field
+
 
 # FIXME really stupid way to do this tbh, should use numpy somehow
 def _tmul(tup: tuple, scalar: float):
@@ -1178,9 +1404,11 @@ def plot_vf(
 ):
     "Plot the vector field given by vf. If human_render is true, plot the human view instead of the raw grid np.ndarray."
     render_arrows(
-        map_vf_to_human(vf, account_for_padding=render_padding)
-        if human_render
-        else vf,
+        (
+            map_vf_to_human(vf, account_for_padding=render_padding)
+            if human_render
+            else vf
+        ),
         ax=ax,
         human_render=human_render,
         render_padding=render_padding,
@@ -1255,8 +1483,7 @@ def vf_diff_magnitude(vf_diff: dict) -> float:
 
 
 def vf_diff_magnitude_from_seed(seed: int, patches: dict):
-    """Return average per-location probability change due to the given patches.
-    """
+    """Return average per-location probability change due to the given patches."""
     venv = maze.create_venv(num=1, start_level=seed, num_levels=1)
     vf1 = vector_field(venv, policy)
     with hook.use_patches(patches):
@@ -1278,15 +1505,16 @@ def plot_vf_diff(
     render_padding: bool = False,
     show_components: bool = False,
 ):
-    """Render the difference "vf1 - vf2" between two vector fields, plotting only the difference.
-    """
+    """Render the difference "vf1 - vf2" between two vector fields, plotting only the difference."""
     # Remove cheese from the legal mouse positions and arrows, if levels are otherwise the same
     vf_diff = get_vf_diff(vf1, vf2)
 
     render_arrows(
-        map_vf_to_human(vf_diff, account_for_padding=render_padding)
-        if human_render
-        else vf_diff,
+        (
+            map_vf_to_human(vf_diff, account_for_padding=render_padding)
+            if human_render
+            else vf_diff
+        ),
         ax=ax,
         human_render=human_render,
         render_padding=render_padding,
@@ -1307,8 +1535,7 @@ def plot_vfs(
     show_original: bool = True,
     show_components: bool = False,
 ):
-    """Plot two vector fields and, if show_diff is True, their difference vf2 - vf1. Plots three axes in total. Returns the figure, axes, and the difference vector field. If show_original is False, don't plot the original vector field.
-    """
+    """Plot two vector fields and, if show_diff is True, their difference vf2 - vf1. Plots three axes in total. Returns the figure, axes, and the difference vector field. If show_original is False, don't plot the original vector field."""
     num_cols = 1 + show_diff + show_original
     fontsize = 16
     fig, axs = plt.subplots(1, num_cols, figsize=(ax_size * num_cols, ax_size))

@@ -24,6 +24,7 @@ from ipywidgets import GridspecLayout, Button, Layout, HBox, Output
 from IPython.display import display
 
 from procgen import ProcgenGym3Env
+from procgen_tools import models
 
 # Constants in numeric maze representation
 CHEESE = 2
@@ -426,7 +427,8 @@ def get_cheese_pos(grid: np.ndarray, flip_y: bool = False) -> Square:
     "Get (row, col) position of the cheese in the grid. Note that the numpy grid is flipped along the y-axis, relative to rendered images."
     "The grid taken in here is the inner grid. Can be accessed with inner_grid = maze_env_state.inner_grid()"
     num_cheeses = (grid == CHEESE).sum()
-    assert num_cheeses == 1, f"num_cheeses={num_cheeses} should be 1"
+    if num_cheeses == 0:
+        return None
     row, col = np.where(grid == CHEESE)
     row, col = row[0], col[0]
     return ((WORLD_DIM - 1) - row if flip_y else row), col
@@ -442,6 +444,25 @@ def remove_cheese(venv, idx: int = 0):
     # TODO(uli): The multiple sources of truth here suck. Ideally one object linked to venv auto-updates(?)
     grid = state.full_grid()
     grid[grid == CHEESE] = EMPTY
+    state.set_grid(grid)
+    state_bytes_list[idx] = state.state_bytes
+    venv.env.callmethod("set_state", state_bytes_list)
+    return venv
+
+
+def move_cheese(venv, new_pos: Tuple[int, int], idx: int = 0):
+    """
+    Move the cheese to the given position, modifying venv in-place.
+    """
+    assert (
+        0 <= new_pos[0] < WORLD_DIM and 0 <= new_pos[1] < WORLD_DIM
+    ), f"new_pos={new_pos} out of bounds"
+    state_bytes_list = venv.env.callmethod("get_state")
+    state = state_from_venv(venv, idx)
+
+    grid = state.full_grid()
+    grid[grid == CHEESE] = EMPTY
+    grid[new_pos] = CHEESE
     state.set_grid(grid)
     state_bytes_list[idx] = state.state_bytes
     venv.env.callmethod("set_state", state_bytes_list)
@@ -548,9 +569,9 @@ def shortest_path(
     - default heuristic is euclidian distance to cheese
     """
     # assert (grid==MOUSE).sum() == 1, f'grid has {(grid==MOUSE).sum()} mice' # relaxed by start param
-    assert (
-        grid == CHEESE
-    ).sum() == 1, f"grid has {(grid==CHEESE).sum()} cheeses"
+    # assert (
+    #     grid == CHEESE
+    # ).sum() == 1, f"grid has {(grid==CHEESE).sum()} cheeses"
 
     grid = inner_grid(grid).copy()
 
@@ -694,8 +715,7 @@ def venv_from_grid(grid: np.ndarray) -> ProcgenGym3Env:  #
 
 
 def get_filled_venv(fill_type: int = EMPTY) -> ProcgenGym3Env:
-    """Get a venv with a grid filled with fill_type (either EMPTY or CHEESE; BLOCKED throws an error for some reason).
-    """
+    """Get a venv with a grid filled with fill_type (either EMPTY or CHEESE; BLOCKED throws an error for some reason)."""
     assert fill_type in (CHEESE, EMPTY), "fill_type must be EMPTY or CHEESE"
     grid = get_full_grid_from_seed(seed=0)
     mouse_pos = get_mouse_pos(grid)
@@ -706,8 +726,7 @@ def get_filled_venv(fill_type: int = EMPTY) -> ProcgenGym3Env:
 
 
 def get_padding(grid: np.ndarray) -> int:
-    """Return the padding of the (inner) grid, i.e. the number of walls around the maze.
-    """
+    """Return the padding of the (inner) grid, i.e. the number of walls around the maze."""
     return (WORLD_DIM - grid.shape[0]) // 2
 
 
@@ -721,8 +740,7 @@ def inside_inner_grid(grid: np.ndarray, row: int, col: int) -> bool:
 
 
 def render_inner_grid(grid: np.ndarray):
-    """Extract the human-sensible view given grid, assumed to be an inner_grid. Return the human view.
-    """
+    """Extract the human-sensible view given grid, assumed to be an inner_grid. Return the human view."""
     venv = venv_from_grid(grid)
     human_view = venv.env.get_info()[0]["rgb"]
 
@@ -741,8 +759,7 @@ def render_inner_grid(grid: np.ndarray):
 
 
 def render_outer_grid(grid: np.ndarray):
-    """Extract the human-sensible view given grid, assumed to be an outer_grid. Return the human view.
-    """
+    """Extract the human-sensible view given grid, assumed to be an outer_grid. Return the human view."""
     venv = venv_from_grid(grid)
     return venv.env.get_info()[0]["rgb"]
 
@@ -929,6 +946,77 @@ def get_path_to_corner(inner_grid, graph, start_node=(0, 0)):
     return nx.shortest_path(graph, start_node, corner_node)
 
 
+def pathfind(grid: np.ndarray, start, end):
+    _, came_from, extra = shortest_path(
+        grid, start, stop_condition=lambda _, sq: sq == end
+    )
+    return reconstruct_path(came_from, extra["last_square"])
+
+
+def geometric_probability_path(
+    start: Tuple[int, int], end: Tuple[int, int], vf: Dict
+) -> float:
+    """Returns the geometric mean of `vf`'s probability of the path from
+    `start` to `end` in the maze. If the path contains the cheese, the
+    cheese is ignored in the mean."""
+    for coord in (start, end):
+        assert (coord[i] >= 0 and coord[i] < MAZE_SIZE for i in (0, 1))
+    if start == end:
+        idx: int = vf["legal_mouse_positions"].index(start)
+        return vf["probs"][idx][4]  # The no-op probability
+
+    path = pathfind(vf["grid"], start, end)
+    cheese_loc: Tuple[int, int] = get_cheese_pos(vf["grid"])
+
+    zipped_list = zip(vf["legal_mouse_positions"], vf["probs"])
+    prob_dict: Dict[Tuple[int, int], float] = dict(zipped_list)
+
+    sum_log_prob: float = 0.0
+    for idx, coord in enumerate(path[:-1]):
+        if coord == cheese_loc:
+            continue
+        action: str = None
+
+        # Get the action by looking at the next coord
+        for key, delta in models.MAZE_ACTION_DELTAS.items():
+            if (
+                coord[0] + delta[0] == path[idx + 1][0]
+                and coord[1] + delta[1] == path[idx + 1][1]
+            ):
+                action = key
+                break
+
+        if action is None:
+            raise ValueError(
+                "Invalid path; cannot find action which leads to next"
+                " coordinate"
+            )
+
+        # Get the probability of the action
+        action_index: int = list(models.MAZE_ACTION_INDICES.keys()).index(
+            action
+        )
+        sum_log_prob += np.log(prob_dict[coord][action_index])
+
+    divisor: int = len(path) - (2 if cheese_loc in path[:-1] else 1)
+    geom_mean_prob: float = np.exp(sum_log_prob / divisor)
+    return geom_mean_prob
+
+
+def deltas_from(grid: np.ndarray, sq):
+    """Returns the deltas between the decision square and the cheese, and the decision square and the top-right corner."""
+    path_to_cheese = maze.pathfind(grid, sq, maze.get_cheese_pos(grid))
+    path_to_top_right = maze.pathfind(
+        grid, sq, (grid.shape[0] - 1, grid.shape[1] - 1)
+    )
+    delta_cheese = (path_to_cheese[1][0] - sq[0], path_to_cheese[1][1] - sq[1])
+    delta_tr = (
+        path_to_top_right[1][0] - sq[0],
+        path_to_top_right[1][1] - sq[1],
+    )
+    return delta_cheese, delta_tr
+
+
 def get_decision_square_from_grid_graph(inner_grid, graph):
     path_to_cheese = get_path_to_cheese(inner_grid, graph)
     path_to_corner = get_path_to_corner(inner_grid, graph)
@@ -998,8 +1086,7 @@ def get_object_pos_in_grid(grid, obj_value):
 
 
 def get_legal_mouse_positions(grid: np.ndarray):
-    """Return a list of legal mouse positions in the grid, returned as a list of tuples.
-    """
+    """Return a list of legal mouse positions in the grid, returned as a list of tuples."""
     return [
         (x, y)
         for x in range(grid.shape[0])
@@ -1107,8 +1194,7 @@ def get_mazes_with_mouse_at_location(
 def generate_mazes_with_cheese_at_location(
     cheese_location: Tuple[int, int], num_mazes: int = 50, skip_seed: int = -1
 ):
-    """Generate the first num_mazes seeds which have an empty/cheese square at cheese_location, except the mazes are modified to instead have cheese at cheese_location. Returns a list of full grids.
-    """
+    """Generate the first num_mazes seeds which have an empty/cheese square at cheese_location, except the mazes are modified to instead have cheese at cheese_location. Returns a list of full grids."""
     assert (
         len(cheese_location) == 2
     ), "Cheese location must be a tuple of length 2."
@@ -1235,8 +1321,7 @@ def move_cheese_in_state(state, new_cheese_pos):
 
 
 def get_custom_venv_pair(seed: int, num_envs=2):
-    """Allow the user to edit num_envs levels from a seed. Return a venv containing both environments.
-    """
+    """Allow the user to edit num_envs levels from a seed. Return a venv containing both environments."""
     venv = create_venv(num=num_envs, start_level=seed, num_levels=1)
     display(HBox(venv_editor(venv, check_on_dist=False)))
     return venv
@@ -1510,8 +1595,7 @@ def get_random_obs(
     rand_region: int = 5,
     spawn_cheese: bool = True,
 ):
-    """Get num_obs observations from the maze environment. If on_training is True, then the observation is from a training level where the cheese is in the top-right rand_region corner.
-    """
+    """Get num_obs observations from the maze environment. If on_training is True, then the observation is from a training level where the cheese is in the top-right rand_region corner."""
     assert (
         rand_region <= WORLD_DIM
     ), "rand_region must be less than or equal to WORLD_DIM."

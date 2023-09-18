@@ -181,3 +181,6 @@ figs/*.png
 *~
 
 !README_files/*
+nohup.out
+*pdf
+playground/visualizations/*
