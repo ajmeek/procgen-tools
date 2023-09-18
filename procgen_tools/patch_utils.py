@@ -585,12 +585,12 @@ def get_specific_patch(
     patch_single_channel = channel >= 0
 
     # Get activations at this layer and channel for a randomly sampled observation
-    # rand_obs = maze.get_random_obs_opts(
-    #     num_obs=num_obs, on_training=False, cheese_pos_outer=cheese_loc
-    # )
-    venv = maze.create_venv(1, resampling_seed, 1)
-    obs = venv.reset().astype(np.float32)
-    hook.run_with_input(obs, func=forward_func_policy)
+    rand_obs = maze.get_random_obs_opts(
+        num_obs=num_obs, on_training=False, cheese_pos_outer=cheese_loc
+    )
+    # venv = maze.create_venv(1, resampling_seed, 1)
+    # obs = venv.reset().astype(np.float32)
+    hook.run_with_input(rand_obs, func=forward_func_policy)
     values = hook.get_value_by_label(
         layer_name
     )  # shape (batch, channels, ...)
