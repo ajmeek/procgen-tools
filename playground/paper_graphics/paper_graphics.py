@@ -203,6 +203,33 @@ def plot_heatmap(seed, prob_type, ax):
         alpha=0.9,
     )
 
+def heatmap_data_by_seed_and_prob_type(seed, prob_type):
+    cheese_channels = [7, 8, 42, 44, 55, 77, 82, 88, 89, 99, 113]
+    effective_channels = [8, 55, 77, 82, 88, 89, 113]
+
+    dfs = []
+    DATA_DIR = "experiments/statistics/data/retargeting"
+    # Find every CSV file
+    for file in os.listdir(DATA_DIR):
+        if file.endswith(".csv"):
+            df = pd.read_csv(os.path.join(DATA_DIR, file))
+            dfs.append(df)
+    data = pd.concat(dfs, ignore_index=True)
+
+    prob_type = prob_type
+    seed_data: pd.DataFrame = data[data["seed"] == seed]
+    label = prob_type
+    if prob_type == "all":
+        label = str(cheese_channels)
+    elif prob_type == "effective":
+        label = str(effective_channels)
+    elif prob_type == "55":
+        label = "[55]"
+
+    prob_data = seed_data[seed_data["intervention"] == label]
+
+    return prob_data
+
 # ---------------------------------------------------- fig 1 ----------------------------------------------------
 
 cheese_channel = 55
@@ -738,6 +765,7 @@ To quantify success, I'll just average over all the heatmaps. For the different 
 seeds and then quantify each. 
 
 For x2, I can do this as by just going through different seeds. I'll want X seeds from each size, etc.
+    NOTE - x2 calculated using all cheese channels
 For x3, this may require me to ask Alex. How did he generate the heatmap data? What value did he put in for that?
     We want to quantify how the activation value differs. How can I rerun this so that I can try diff ones?
 For x4, this is moderate. How can I tackle adding more channels? I can do this as a line plot, plotting versus
@@ -753,6 +781,7 @@ For x4, this is moderate. How can I tackle adding more channels? I can do this a
 # which is 12 total. that's not going to be too cluttered on the graph.
 seeds = {f'{i}x{i}': [] for i in range(3, 26)}
 heatmap_avg_per_size = [f'{i}x{i}' for i in range(3, 26, 2)]
+print(heatmap_avg_per_size)
 for i in range(100):
     seed = i
     venv = create_venv(1,seed,1)
@@ -762,7 +791,14 @@ for i in range(100):
     seeds[f'{size}x{size}'].append(seed)
 
 for key, value in seeds:
+    #get data for that seed and all cheese channels
 
+    per_seed_avg = 0
+    for i in value:
+        data = heatmap_data_by_seed_and_prob_type(seed, "all")
+
+
+    pass
 
 
 print(seeds)
