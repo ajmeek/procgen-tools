@@ -747,8 +747,12 @@ For x4, this is moderate. How can I tackle adding more channels? I can do this a
 
 #first, get the data for x2.
 # actually he's only got data for 100 diff seeds there. I need to bin them appropriately.
+
+# interesting ... only odd sizes are generated. didn't notice that before.
+# so that makes the bins easier. I'll just do 3x3, 5x5, 7x7, 9x9, 11x11, 13x13, 15x15, 17x17, 19x19, 21x21, 23x23, 25x25
+# which is 12 total. that's not going to be too cluttered on the graph.
 seeds = {f'{i}x{i}': [] for i in range(3, 26)}
-heatmap_avg_per_size = []
+heatmap_avg_per_size = [f'{i}x{i}' for i in range(3, 26, 2)]
 for i in range(100):
     seed = i
     venv = create_venv(1,seed,1)
@@ -756,5 +760,9 @@ for i in range(100):
     inner_grid = state.inner_grid()
     size = inner_grid.shape[0]
     seeds[f'{size}x{size}'].append(seed)
+
+for key, value in seeds:
+
+
 
 print(seeds)
