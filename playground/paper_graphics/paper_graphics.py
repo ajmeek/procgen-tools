@@ -159,6 +159,50 @@ def resample_activations(original_seed, channels, resampling_seed):
 # cheese_channels = [7, 8, 42, 44, 55, 77, 82, 88, 89, 99, 113]
 # resample_activations(0, cheese_channels, 435) # - no errors! at least neutral sign :)
 
+
+def plot_heatmap(seed, prob_type, ax):
+    cheese_channels = [7, 8, 42, 44, 55, 77, 82, 88, 89, 99, 113]
+    effective_channels = [8, 55, 77, 82, 88, 89, 113]
+
+    dfs = []
+    DATA_DIR = "experiments/statistics/data/retargeting"
+    # Find every CSV file
+    for file in os.listdir(DATA_DIR):
+        if file.endswith(".csv"):
+            df = pd.read_csv(os.path.join(DATA_DIR, file))
+            dfs.append(df)
+    data = pd.concat(dfs, ignore_index=True)
+
+
+    # creating heatmap part a
+    prob_type = prob_type
+    venv = maze.create_venv(num=1, start_level=seed, num_levels=1)
+    seed_data: pd.DataFrame = data[data["seed"] == seed]
+    label = prob_type
+    if prob_type == "all":
+        label = str(cheese_channels)
+    elif prob_type == "effective":
+        label = str(effective_channels)
+    elif prob_type == "55":
+        label = "[55]"
+
+    prob_data = seed_data[seed_data["intervention"] == label]
+    # Check if removed_cheese is true for prob_data's first row
+    if prob_data["removed_cheese"].iloc[0]:
+        venv = maze.remove_all_cheese(venv)
+
+    heatmap = prob_data.pivot(index="row", columns="col", values="probability")
+
+    viz.show_grid_heatmap(
+        venv=venv,
+        heatmap=heatmap.values,
+        ax = ax,
+        ax_size=AX_SIZE,
+        mode="human",
+        size=0.5,
+        alpha=0.9,
+    )
+
 # ---------------------------------------------------- fig 1 ----------------------------------------------------
 
 cheese_channel = 55
@@ -621,57 +665,67 @@ def fig_5():
 The idea for this figure is that not everything is going to be easily retargetable. 
 So we want to show a heatmap of retargetability. I'll do two different seeds showing the easiness of retargeting
 from just channel 55 versus all cheese channels. 
+
+So I'm not sure exactly how I'll set this up. Let me do two different configurations.
+config 1 : 0/55, 0/all, 48/55, 48/all
+config 2: 48/cheese, 48/55, 48/all, 48/none
 """
 
-def fig_x1():
-    cheese_channels = [7, 8, 42, 44, 55, 77, 82, 88, 89, 99, 113]
-    effective_channels = [8, 55, 77, 82, 88, 89, 113]
+def fig_x1a():
+
 
     figx1, axdx1 = plt.subplot_mosaic(
         [['seed_0_channel_55', 'seed_0_channel_all', 'seed_48_channel_55', 'seed_48_channel_all']],
-        figsize=(AX_SIZE * 4, AX_SIZE),
+        figsize=(AX_SIZE * 4, AX_SIZE*1.5), #increase y to fit titles
         tight_layout=True,
     )
 
     # loading the data
 
-    dfs = []
-    DATA_DIR = "experiments/statistics/data/retargeting"
-    # Find every CSV file
-    for file in os.listdir(DATA_DIR):
-        if file.endswith(".csv"):
-            df = pd.read_csv(os.path.join(DATA_DIR, file))
-            dfs.append(df)
-    data = pd.concat(dfs, ignore_index=True)
+    #give title to the axes
+    axdx1['seed_0_channel_55'].set_title("Seed 0, Channel 55", fontsize=14)#, font="Times New Roman")
+    plot_heatmap(0, "55", axdx1['seed_0_channel_55'])
+
+    axdx1['seed_0_channel_all'].set_title("Seed 0, All Cheese Channels", fontsize=14)#, font="Times New Roman")
+    plot_heatmap(0, "all", axdx1['seed_0_channel_all'])
+
+    axdx1['seed_48_channel_55'].set_title("Seed 48, Channel 55", fontsize=14)#, font="Times New Roman")
+    plot_heatmap(48, "55", axdx1['seed_48_channel_55'])
+
+    axdx1['seed_48_channel_all'].set_title("Seed 48, All Cheese Channels", fontsize=14)#, font="Times New Roman")
+    plot_heatmap(48, "all", axdx1['seed_48_channel_all'])
+    #plt.show()
+    plt.savefig('playground/paper_graphics/visualizations/fig_x1a.svg', bbox_inches="tight", format='svg')
 
 
-    # creating heatmap part a
-    seed = 0
-    prob_type = '55'
-    venv = maze.create_venv(num=1, start_level=seed, num_levels=1)
-    seed_data: pd.DataFrame = data[data["seed"] == seed]
-    label = prob_type
-    if prob_type == "all":
-        label = str(cheese_channels)
-    elif prob_type == "effective":
-        label = str(effective_channels)
-    elif prob_type == "55":
-        label = "[55]"
+fig_x1a()
 
-    prob_data = seed_data[seed_data["intervention"] == label]
-    # Check if removed_cheese is true for prob_data's first row
-    if prob_data["removed_cheese"].iloc[0]:
-        venv = maze.remove_all_cheese(venv)
+def fig_x1b():
 
-    heatmap = prob_data.pivot(index="row", columns="col", values="probability")
 
-    viz.show_grid_heatmap(
-        venv=venv,
-        heatmap=heatmap.values,
-        ax_size=AX_SIZE,
-        mode="human",
-        size=0.5,
-        alpha=0.9,
+    figx1, axdx1 = plt.subplot_mosaic(
+        [['seed_48_channel_cheese', 'seed_48_channel_55', 'seed_48_channel_all', 'seed_48_channel_none']],
+        figsize=(AX_SIZE * 4, AX_SIZE*1.5), #increase y to fit titles
+        tight_layout=True,
     )
 
-fig_x1()
+    # loading the data
+
+    #give title to the axes
+    axdx1['seed_48_channel_cheese'].set_title("Seed 48, Cheese", fontsize=14)#, font="Times New Roman")
+    plot_heatmap(48, "cheese", axdx1['seed_48_channel_cheese'])
+
+    axdx1['seed_48_channel_55'].set_title("Seed 0, Channel 55", fontsize=14)#, font="Times New Roman")
+    plot_heatmap(48, "55", axdx1['seed_48_channel_55'])
+
+    axdx1['seed_48_channel_all'].set_title("Seed 48, Channel All", fontsize=14)#, font="Times New Roman")
+    plot_heatmap(48, "all", axdx1['seed_48_channel_all'])
+
+    axdx1['seed_48_channel_none'].set_title("Seed 48, Base", fontsize=14)#, font="Times New Roman")
+    plot_heatmap(48, "normal", axdx1['seed_48_channel_none'])
+
+    #plt.show()
+    plt.savefig('playground/paper_graphics/visualizations/fig_x1b.svg', bbox_inches="tight", format='svg')
+
+
+fig_x1b()

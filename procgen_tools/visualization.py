@@ -641,12 +641,16 @@ def retarget_heatmap(
 def show_grid_heatmap(
     venv: ProcgenGym3Env,
     heatmap: np.ndarray,
+    ax,
     ax_size: float = 3,
     mode: str = "numpy",
     alpha: float = 0.7,
     size: float = 1.0,
 ) -> None:
-    """Show a heatmap over the maze using matplotlib.
+    """
+    CHANGE THIS TO VISUALIZE. need to havets ih plot it onto an axis of my own esidgn
+
+    Show a heatmap over the maze using matplotlib.
     Args:
         venv: Vectorized environment
         heatmap: 2D array of floats
@@ -663,12 +667,12 @@ def show_grid_heatmap(
     inner_grid = env_state.inner_grid()
     assert inner_grid.shape == heatmap.shape
 
-    # Create a figure
-    _, ax = plt.subplots(1, 1, figsize=(ax_size, ax_size))
-
-    # Remove x and y ticks
-    ax.set_xticks([])
-    ax.set_yticks([])
+    # # Create a figure
+    # _, ax = plt.subplots(1, 1, figsize=(ax_size, ax_size))
+    #
+    # # Remove x and y ticks
+    # ax.set_xticks([])
+    # ax.set_yticks([])
 
     # Display the underlying maze
     img = visualize_venv(
