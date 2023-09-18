@@ -698,7 +698,7 @@ def fig_x1a():
     plt.savefig('playground/paper_graphics/visualizations/fig_x1a.svg', bbox_inches="tight", format='svg')
 
 
-fig_x1a()
+#fig_x1a()
 
 def fig_x1b():
 
@@ -728,4 +728,33 @@ def fig_x1b():
     plt.savefig('playground/paper_graphics/visualizations/fig_x1b.svg', bbox_inches="tight", format='svg')
 
 
-fig_x1b()
+#fig_x1b()
+
+
+# ---------------------------------------------------- fig x2-4 ----------------------------------------------------
+"""
+These three figures will require me to do some analyses as well. 
+To quantify success, I'll just average over all the heatmaps. For the different variables, I need to loop over different
+seeds and then quantify each. 
+
+For x2, I can do this as by just going through different seeds. I'll want X seeds from each size, etc.
+For x3, this may require me to ask Alex. How did he generate the heatmap data? What value did he put in for that?
+    We want to quantify how the activation value differs. How can I rerun this so that I can try diff ones?
+For x4, this is moderate. How can I tackle adding more channels? I can do this as a line plot, plotting versus
+    just 55, then effective channels, then all channels. But would Mrinank & Alex want more granularity here?
+    Perhaps we should have all of the cheese channels ranked in effectiveness, then add them one by one.
+"""
+
+#first, get the data for x2.
+# actually he's only got data for 100 diff seeds there. I need to bin them appropriately.
+seeds = {f'{i}x{i}': [] for i in range(3, 26)}
+heatmap_avg_per_size = []
+for i in range(100):
+    seed = i
+    venv = create_venv(1,seed,1)
+    state = maze.EnvState(venv.env.callmethod('get_state')[0])
+    inner_grid = state.inner_grid()
+    size = inner_grid.shape[0]
+    seeds[f'{size}x{size}'].append(seed)
+
+print(seeds)
