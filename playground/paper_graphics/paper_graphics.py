@@ -779,9 +779,18 @@ For x4, this is moderate. How can I tackle adding more channels? I can do this a
 # interesting ... only odd sizes are generated. didn't notice that before.
 # so that makes the bins easier. I'll just do 3x3, 5x5, 7x7, 9x9, 11x11, 13x13, 15x15, 17x17, 19x19, 21x21, 23x23, 25x25
 # which is 12 total. that's not going to be too cluttered on the graph.
-seeds = {f'{i}x{i}': [] for i in range(3, 26)}
-heatmap_avg_per_size = [f'{i}x{i}' for i in range(3, 26, 2)]
-print(heatmap_avg_per_size)
+
+intervention_methods = ["cheese", "effective", "all", "normal", "55"]
+seeds = {f'{i}x{i}': [] for i in range(3, 26, 2)}
+data_by_intervention = {i: {k: {f'{j}x{j}': None for j in range(3, 26)} for k in ['probability', 'ratio']} for i in intervention_methods}
+heatmap_avg_per_size_all = {f'{i}x{i}': None for i in range(3, 26, 2)}
+heatmap_avg_per_size_effective = {f'{i}x{i}': None for i in range(3, 26, 2)}
+heatmap_avg_per_size_55 = {f'{i}x{i}': None for i in range(3, 26, 2)}
+ratio_avg_per_size_all = {f'{i}x{i}': None for i in range(3, 26, 2)}
+ratio_avg_per_size_effective = {f'{i}x{i}': None for i in range(3, 26, 2)}
+ratio_avg_per_size_55 = {f'{i}x{i}': None for i in range(3, 26, 2)}
+
+#print(heatmap_avg_per_size)
 for i in range(100):
     seed = i
     venv = create_venv(1,seed,1)
@@ -790,15 +799,61 @@ for i in range(100):
     size = inner_grid.shape[0]
     seeds[f'{size}x{size}'].append(seed)
 
-for key, value in seeds:
+for key, value in seeds.items():
     #get data for that seed and all cheese channels
 
-    per_seed_avg = 0
-    for i in value:
-        data = heatmap_data_by_seed_and_prob_type(seed, "all")
+    if len(value) != 0:
+        per_key_avg_all = 0
+        per_key_ratio_all = 0
 
+        per_key_avg_effective = 0
+        per_key_ratio_effective = 0
 
-    pass
+        per_key_avg_55 = 0
+        per_key_ratio_55 = 0
 
+        for i in value:
+            # for j in intervention_methods:
+            data = heatmap_data_by_seed_and_prob_type(i, "all")
+            # sum = data['probability'].sum()
+            # sum /= data['probability'].size
+            per_key_avg_all += data['probability'].mean()
 
-print(seeds)
+            # sum = data['ratio'].sum()
+            # sum /= data['ratio'].size
+            per_key_ratio_all += data['ratio'].mean()
+
+            data = heatmap_data_by_seed_and_prob_type(i, "effective")
+            per_key_avg_effective += data['probability'].mean()
+            per_key_ratio_effective += data['ratio'].mean()
+
+            data = heatmap_data_by_seed_and_prob_type(i, "55")
+            per_key_avg_55 += data['probability'].mean()
+            per_key_ratio_55 += data['ratio'].mean()
+
+        #         heatmap_avg_per_size[j][key] = per_key_avg# / len(value)
+        # for j in intervention_methods:
+        #     for key in heatmap_avg_per_size[j].keys():
+        heatmap_avg_per_size_all[key] = per_key_avg_all / len(value)
+        ratio_avg_per_size_all[key] = per_key_ratio_all / len(value)
+
+        heatmap_avg_per_size_effective[key] = per_key_avg_effective / len(value)
+        ratio_avg_per_size_effective[key] = per_key_ratio_effective / len(value)
+
+        heatmap_avg_per_size_55[key] = per_key_avg_55 / len(value)
+        ratio_avg_per_size_55[key] = per_key_ratio_55 / len(value)
+
+# after this divide heatmap_avg_per_size by len of # of seeds in "seeds" to get the average
+
+print(heatmap_avg_per_size_all)
+print(ratio_avg_per_size_all)
+print(heatmap_avg_per_size_effective)
+print(ratio_avg_per_size_effective)
+print(heatmap_avg_per_size_55)
+print(ratio_avg_per_size_55)
+
+#initial box plots
+fig, ax = plt.subplots()#1, 2, figsize=(AX_SIZE * 2, AX_SIZE), tight_layout=True)
+ax.boxplot([heatmap_avg_per_size_all.values(), heatmap_avg_per_size_effective.values(), heatmap_avg_per_size_55.values()], positions = [1, 2, 3], widths = 0.6)
+
+plt.show()

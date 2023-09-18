@@ -1,14 +1,14 @@
-try:
-    import procgen_tools
-except ImportError:
-    get_ipython().run_line_magic(
-        magic_name="pip",
-        line="install -U git+https://github.com/ulissemini/procgen-tools",
-    )
-
-from procgen_tools.utils import setup
-
-setup()  # create directory structure and download data
+# try:
+#     import procgen_tools
+# except ImportError:
+#     get_ipython().run_line_magic(
+#         magic_name="pip",
+#         line="install -U git+https://github.com/ulissemini/procgen-tools",
+#     )
+#
+# from procgen_tools.utils import setup
+#
+# setup()  # create directory structure and download data
 
 from procgen_tools.imports import *
 from procgen_tools import maze, visualization, models, patch_utils
