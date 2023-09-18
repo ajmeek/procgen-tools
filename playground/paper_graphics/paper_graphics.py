@@ -608,3 +608,9 @@ def fig_5():
     plt.savefig('playground/paper_graphics/visualizations/fig_5.svg', bbox_inches="tight", format='svg')
 
 #fig_5()
+
+# ---------------------------------------------------- fig X1 ----------------------------------------------------
+# going through the recording of Mrinank's request one at a time.
+# "Some locations are easier to steer to than others"
+# Mrinank wants a heatmap here. Alex just gave heatmap analyses. Use those.
+# merging paper into paper_graphics
