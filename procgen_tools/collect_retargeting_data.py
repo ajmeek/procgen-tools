@@ -10,14 +10,13 @@
 
 # setup()  # create directory structure and download data
 #import procgen_tools
-from procgen_tools.imports import *
+#from ..procgen_tools.imports import *
 
 
 #from ..procgen_tools.imports import *
 
 
-from procgen_tools import maze, visualization, models, patch_utils
-
+import maze, visualization, models, patch_utils
 from typing import Tuple, Dict, List, Optional, Union
 from ipywidgets import interact, interactive, fixed, interact_manual
 import ipywidgets as widgets
@@ -174,47 +173,35 @@ def intervention_type(value):
 
 
 # Save retargeting data
-# if __name__ == "__main__":
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument(
-    #     "--model_file",
-    #     type=str,
-    #     default="trained_models/maze_I/model_rand_region_5.pth",
-    # )
-    # parser.add_argument("--num_levels", type=int, default=100)
-    # parser.add_argument("--remove_cheese", type=bool, default=True)
-    # parser.add_argument("--device", type=str, default="cpu")
-    # parser.add_argument(
-    #     "--intervention", type=intervention_type, default=effective_channels
-    # )
-    # parser.add_argument("--magnitude", type=float, default=2.3)
-    # args = parser.parse_args()
-    #
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--model_file",
+        type=str,
+        default="trained_models/maze_I/model_rand_region_5.pth",
+    )
+    parser.add_argument("--num_levels", type=int, default=100)
+    parser.add_argument("--remove_cheese", type=bool, default=True)
+    parser.add_argument("--device", type=str, default="cpu")
+    parser.add_argument(
+        "--intervention", type=intervention_type, default=effective_channels
+    )
+    parser.add_argument("--magnitude", type=float, default=2.3)
+    args = parser.parse_args()
 
-# Function to parse arguments from a dictionary
-def parse_args_from_dict(args_dict):
-    class Args:
-        def __init__(self, args_dict):
-            self.__dict__.update(args_dict)
+    print(type(args.intervention), args.intervention)
+    if args.intervention == "effective":
+        args.intervention = effective_channels
+    elif args.intervention == "all":
+        args.intervention = cheese_channels
+    rand_region = 5
+    seeds = range(args.num_levels)
 
-    return Args(args_dict)
+    # # Initialize the model and hook inside the function for each process
+    device = t.device(args.device)
+    policy = models.load_policy(args.model_file, 15, device)
+    hook = cmh.ModuleHook(policy)
 
-args = {"num_levels":100, "remove_cheese":True, "device":"cpu", "intervention":"effective_channels", "magnitude":2.3, "model_file":"trained_models/maze_I/model_rand_region_5.pth"}
-args = parse_args_from_dict(args)
-
-print(type(args.intervention), args.intervention)
-if args.intervention == "effective":
-    args.intervention = effective_channels
-elif args.intervention == "all":
-    args.intervention = cheese_channels
-rand_region = 5
-seeds = range(args.num_levels)
-
-# # Initialize the model and hook inside the function for each process
-device = t.device(args.device)
-policy = models.load_policy(args.model_file, 15, device)
-hook = cmh.ModuleHook(policy)
-
-# Strength of the intervention
-for seed in seeds:
-    process_seed(seed, args, SAVE_DIR)
+    # Strength of the intervention
+    for seed in seeds:
+        process_seed(seed, args, SAVE_DIR)
