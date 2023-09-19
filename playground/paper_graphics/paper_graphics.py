@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import matplotlib.colors as mcolors
+import matplotlib as mpl
+from colorspacious import cspace_converter
 import random
 import procgen_tools.vfield_stats as vfield_stats
 import procgen_tools.maze as maze
@@ -232,6 +235,35 @@ def heatmap_data_by_seed_and_prob_type(seed, prob_type):
 
     return prob_data
 
+
+
+def plot_colorbar():
+    gradient = np.linspace(1, 0, 256)
+    gradient = np.vstack((gradient, gradient))
+    # Create figure and adjust figure height to number of colormaps
+    nrows = 2
+
+    figh = 0.25 + 0.15 + (nrows + (nrows - 1) * 0.1) * 0.22
+    fig, axs = plt.subplots(nrows=nrows - 1, figsize=(6.4, figh))
+    fig.subplots_adjust(top=1 - 0.35 / figh, bottom=0.25 / figh,
+                        left=0.2, right=0.8)
+    axs.set_title(f'Activations', fontsize=14)
+
+    # for ax, name in zip(axs, cmap_list):
+    axs.imshow(gradient, aspect='auto', cmap=mpl.colormaps['coolwarm'])
+
+    axs.set_xticks([])
+    axs.set_yticks([])
+    plt.xticks([0, 128, 256])
+    axs.set_xticklabels(['-1', '0', '1'])
+
+    # Save colormap list for later.
+    #cmaps[category] = cmap_list
+    plt.savefig('playground/paper_graphics/visualizations/colorbar.pdf', bbox_inches="tight", format='pdf')
+
+
+#plot_colorbar()
+
 # ---------------------------------------------------- fig 1 ----------------------------------------------------
 
 cheese_channel = 55
@@ -248,7 +280,7 @@ def fig_1():
     #fig, ax = plt.subplots()
     fig1, axd1 = plt.subplot_mosaic(
         [['orig_mpp', 'orig_act', 'patch_act', 'patch_mpp']],
-        figsize=(AX_SIZE * 4, AX_SIZE),
+        figsize=(AX_SIZE * 4, AX_SIZE*1.5),
         tight_layout=True,
     )
 
@@ -304,15 +336,44 @@ def fig_1():
     #     hook.network(obs)
 
     activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
-    axd1['patch_act'].imshow(activ)
+    patch_img = axd1['patch_act'].imshow(activ)
     axd1['patch_act'].imshow(activ, cmap='RdBu', vmin=-1, vmax=1)
 
     axd1['patch_act'].set_xticks([])
     axd1['patch_act'].set_yticks([])
 
+
+    # NOTE just make the colorbar look good and then I can adjust it in Illustrator later
+
+    #plt.colorbar()
+    # cbar_orig_act = plt.colorbar(axd1['orig_act'], ax=axd1['orig_act'])
+    # cbar_orig_act.set_label('Label for Original Activation')
+
+    # Add a colorbar for the 'patch_act' image
+    # cbar_patch_act = plt.colorbar(patch_img, ax=axd1['patch_act'])
+    # cbar_patch_act.set_label('Label for Patched Activation')
+
+    # Create a custom colormap from red to dark blue
+    custom_cmap = mcolors.LinearSegmentedColormap.from_list(
+        'custom_cmap', [(1, 0, 0), (0, 0, 0.5)]
+    )
+
+    # Create a new subplot for the colorbar in the center
+    cbar_ax = fig1.add_axes([0.2, 0.1, 0.4, 0.01])  # Adjust the [left, bottom, width, height] values as needed
+
+    # Add a colorbar for the entire mosaic plot
+    cbar = plt.colorbar(patch_img, cax=cbar_ax, orientation='horizontal', cmap=custom_cmap)
+    cbar.set_label('Label for Activation')
+
+    # Set the tick locations and labels on the colorbar
+    cbar.set_ticks([-1, 0, 1])
+    cbar.set_ticklabels(['-1', '0', '1'])
+
+    #matplotlib.pyplot.p
+
     #plt.show()
     #print(os.getcwd())
-    plt.savefig('playground/paper_graphics/visualizations/fig_1.svg', bbox_inches="tight", format='svg')
+    plt.savefig('playground/paper_graphics/visualizations/fig_1.pdf', bbox_inches="tight", format='pdf')
 
 #fig_1()
 
@@ -775,7 +836,7 @@ For x4, this is moderate. How can I tackle adding more channels? I can do this a
     Perhaps we should have all of the cheese channels ranked in effectiveness, then add them one by one.
 """
 
-def x2_4():
+def fig_x2_4():
     #first, get the data for x2.
     # actually he's only got data for 100 diff seeds there. I need to bin them appropriately.
 
@@ -855,7 +916,7 @@ def x2_4():
     # print(heatmap_avg_per_size_55)
     # print(ratio_avg_per_size_55)
 
-    # data hardcoded. starting with 3x3
+    # data hardcoded. starting with 3x3 up to 25x25.
     heatmap_avg_per_size_all = [0.799889956501738, 0.7775709501219863, 0.7797912188517916, 0.7588451193811928, 0.7406733268789705, 0.6959504505843259, 0.6425305479030984, 0.6545479388988915, 0.5824753527436064, 0.5832421962896295, 0.6167109448569562, 0.5299525163283456]
     heatmap_avg_per_size_effective = [0.7608124070512822, 0.7041304093124999, 0.76901413325, 0.7024797808854166, 0.7087437639591837, 0.7041753128385418, 0.6503412165784831, 0.6596821581796875, 0.6037907865088384, 0.6189248616309523, 0.6371125867599068, 0.5756655757924108]
     heatmap_avg_per_size_55 = [0.700428774165744, 0.7370594442260178, 0.7010945262579837, 0.6721659938343914, 0.6751070216559201, 0.647880930832588, 0.5939934102651221, 0.6109084206556188, 0.540930443222974, 0.5470496808198526, 0.5846496184297417, 0.5023088997834109]
@@ -873,15 +934,53 @@ def x2_4():
     ax.plot(x_values, heatmap_avg_per_size_effective, marker='x', markersize=6, color="red")
     ax.plot(x_values, heatmap_avg_per_size_55, marker='+', markersize=6, color="green")
 
-    ax.set_xticklabels(x_labels)
     ax.set_xticks(x_values)
+    ax.set_xticklabels(x_labels)
+
+    plt.savefig('playground/paper_graphics/visualizations/heat_map_avg_bad_idea.png', bbox_inches="tight", format='png')
+
+    fig, ax = plt.subplots()
+    ax.plot(x_values, ratio_avg_per_size_effective, marker='x', markersize=6, color="red")
+    ax.set_xticks(x_values)
+    ax.set_xticklabels(x_labels)
+    plt.savefig('playground/paper_graphics/visualizations/ratio_avg_also_not_great.png', bbox_inches="tight", format='png')
+
 
 
     #ax.set_xticklabels(['All Cheese Channels', 'Effective Channels', 'Channel 55'])
 
     # gathering more data for x3 will take a while. going to start on the cheese vector figure for now
 
-    plt.show()
+
+    # gathering data for x4
+
+    # I want data for mazes of all sizes and all magnitudes, split by different channels.
+    # intervention_methods = ["cheese", "effective", "all", "normal", "55"]
+    # seeds = {f'{i}x{i}': [] for i in range(3, 26, 2)}
+    #
+    # avg_by_55 = 0.0 #number, count
+    # avg_by_effective = 0.0
+    # avg_by_all = 0.0
+    # for i in range(100):
+    #     # for j in intervention_methods:
+    #     data = heatmap_data_by_seed_and_prob_type(i, "55")
+    #     avg_by_55 += data['probability'].mean()
+    #
+    #     data = heatmap_data_by_seed_and_prob_type(i, "effective")
+    #     avg_by_effective += data['probability'].mean()
+    #
+    #     data = heatmap_data_by_seed_and_prob_type(i, "all")
+    #     # sum = data['probability'].sum()
+    #     # sum /= data['probability'].size
+    #     avg_by_all += data['probability'].mean()
+    #
+    # #because 100 seeds total, then divide
+    # avg_by_55 /= 100
+    # avg_by_effective /= 100
+    # avg_by_all /= 100
+    #
+    # print(avg_by_55, avg_by_effective, avg_by_all)
+    #plt.show()
 
 #fig_x2_4()
 
