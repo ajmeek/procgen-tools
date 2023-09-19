@@ -517,6 +517,14 @@ So simply replacing their maze func does not work. Try using it but specifying a
 collecting the seed from their metadata.
 """
 
+"""
+19/9
+
+Alright just had some more thoughts. I may not need to do an entire forward pass here. Wouldn't it be enough to use the
+patched vector field to show the MPP?
+
+"""
+
 def fig_3():
     fig3, axd3 = plt.subplot_mosaic(
         [['original', 'same_loc', 'dif_loc_historic', 'dif_loc_bottom_right']],
