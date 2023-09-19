@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import random
+import procgen_tools.vfield_stats as vfield_stats
 import procgen_tools.maze as maze
 from procgen_tools.maze import EnvState, create_venv, render_inner_grid
 import numpy as np
@@ -894,113 +896,291 @@ However, that's not the one that's giving probabilities conditional on the decis
 Read it very carefully. It may be what we want. 
 """
 
-# Generate some sample data for the box plots
-data1_var1 = np.random.normal(0, 1, 100)
-data1_var2 = np.random.normal(2, 1, 100)
+def cheese_vector_fig():
+    # Generate some sample data for the box plots
+    data1_var1 = np.random.normal(0, 1, 100)
+    data1_var2 = np.random.normal(2, 1, 100)
 
-data2_var1 = np.random.normal(1, 1, 100)
-data2_var2 = np.random.normal(3, 1, 100)
+    data2_var1 = np.random.normal(1, 1, 100)
+    data2_var2 = np.random.normal(3, 1, 100)
 
-data3_var1 = np.random.normal(2, 1, 100)
-data3_var2 = np.random.normal(4, 1, 100)
+    data3_var1 = np.random.normal(2, 1, 100)
+    data3_var2 = np.random.normal(4, 1, 100)
 
-data4_var1 = np.random.normal(3, 1, 100)
-data4_var2 = np.random.normal(5, 1, 100)
+    data4_var1 = np.random.normal(3, 1, 100)
+    data4_var2 = np.random.normal(5, 1, 100)
 
-import matplotlib.font_manager
-#
-# font_list = matplotlib.font_manager.findSystemFonts(fontpaths=None, fontext='ttf')
-#
-# for font_path in font_list:
-#     font_properties = matplotlib.font_manager.FontProperties(fname=font_path)
-#     print(f'Font: {font_properties.get_name()}, File: {font_path}')
+    import matplotlib.font_manager
+    #
+    # font_list = matplotlib.font_manager.findSystemFonts(fontpaths=None, fontext='ttf')
+    #
+    # for font_path in font_list:
+    #     font_properties = matplotlib.font_manager.FontProperties(fname=font_path)
+    #     print(f'Font: {font_properties.get_name()}, File: {font_path}')
 
-#plt.rcParams["font.family"] = "Times New Roman" - need to install a package
-# Create a figure and axis for the mosaic plot
-fig, ax = plt.subplots(1, 4, figsize=(15, 5))
+    #plt.rcParams["font.family"] = "Times New Roman" - need to install a package
+    # Create a figure and axis for the mosaic plot
+    fig, ax = plt.subplots(1, 4, figsize=(15, 5))
 
-# # Plot each box plot
-# ax[0].boxplot([data1_var1, data1_var2], labels=['Var1', 'Var2'])
-# ax[0].set_title('Boxplot 1')
-#
-# ax[1].boxplot([data2_var1, data2_var2], labels=['Var1', 'Var2'])
-# ax[1].set_title('Boxplot 2')
-# ax[1].set_yticklabels([])
-#
-# ax[2].boxplot([data3_var1, data3_var2], labels=['Var1', 'Var2'])
-# ax[2].set_title('Boxplot 3')
-# ax[2].set_yticklabels([])
-#
-# ax[3].boxplot([data4_var1, data4_var2], labels=['Var1', 'Var2'], patch_artist=True)
-# ax[3].set_title('Boxplot 4')
-# ax[3].set_yticklabels([])
+    # getting actual data
+    vfields = [
+        pickle.load(open(f, "rb"))
+        for f in glob("experiments/statistics/data/vfields/cheese/seed-*.pkl")
+    ]
+    probs_original_plus_1, probs_patched_plus_1 = vfield_stats.get_probs_original_and_patched(
+        vfields, coeff=1.0
+    )
+    probs_original_minus_1, probs_patched_minus_1 = vfield_stats.get_probs_original_and_patched(
+        vfields, coeff=-1.0
+    )
 
-# Plot each box plot with markers, mean, and percentile lines
-# for i, (data_var1, data_var2) in enumerate([(data1_var1, data1_var2), (data2_var1, data2_var2),
-#                                              (data3_var1, data3_var2), (data4_var1, data4_var2)]):
-#
-#     mean = np.mean(data_var1), np.mean(data_var2)
-#     percentiles = np.percentile(data_var1, [25, 75]), np.percentile(data_var2, [25, 75])
-#
-#     # Plot markers for mean
-#     ax[i].plot([1, 2], mean, 'kD', markersize=10, label='Mean')
-#
-#     # Plot lines for the 25th and 75th percentiles
-#     for j in range(2):
-#         ax[i].plot([1, 1], [mean[j], percentiles[j][0]], color='black', linestyle='-', linewidth=2)
-#         ax[i].plot([2, 2], [mean[j], percentiles[j][1]], color='black', linestyle='-', linewidth=2)
-#
-#     ax[i].set_xticks([1, 2])
-#     ax[i].set_xticklabels(['Var1', 'Var2'])
-#     ax[i].set_title(f'Boxplot {i+1}')
-
-# Plot each box plot with markers and different box colors
-for i, (data_var1, data_var2) in enumerate([(data1_var1, data1_var2), (data2_var1, data2_var2),
-                                             (data3_var1, data3_var2), (data4_var1, data4_var2)]):
-
-    mean = np.mean(data_var1), np.mean(data_var2)
-
-    # Plot the boxes with different colors
-    bp = ax[i].boxplot([data_var1, data_var2], labels=['Var1', 'Var2'], patch_artist=True)
-
-    # Set colors for the boxes
-    for count, patch in enumerate(bp['boxes']):
-        #print(patch)
-        if count == 0:
-            patch.set_facecolor('lightblue')  # Left part of the box
-        elif count == 1:
-            patch.set_facecolor('orange')
-        patch.set_edgecolor('black')
-
-    # Plot markers for mean without lines
-    ax[i].plot([1, 2], mean, 'kD', markersize=10, label='Mean', linestyle='None')
-
-    ax[i].set_xticks([1, 2])
-    ax[i].set_xticklabels(['Var1', 'Var2'])
-    ax[i].set_title(f'Boxplot {i+1}')
-
-# Hide x-tick labels and ticks for all boxplots except the first one
-for i in range(0, len(ax)):
-    ax[i].set_xticklabels([])
-    ax[i].tick_params(axis='x', length=0)
-
-# Add markers for each variable
-for i in range(4):
-    ax[i].plot([1, 2], [np.mean([data1_var1, data2_var1, data3_var1, data4_var1][i]),
-                         np.mean([data1_var2, data2_var2, data3_var2, data4_var2][i])],
-                'kD', markersize=10, label='Mean')
-
-# ax[0].legend(loc='lower center', bbox_to_anchor=(0.5, -0.3), ncol=2,
-#               borderaxespad=0., title='Variables', prop={'size': 10})
-# ax[3].legend(loc='upper center', bbox_to_anchor=(0.5, -0.25), ncol=2, title='Variables', fontsize=10)
-# Create a legend for the markers
-legend_elements = [plt.Line2D([0], [0], marker='D', color='w', label='Mean',
-                              markersize=10, markerfacecolor='black')]
-
-# Display the legend below the subplots
-fig.legend(handles=legend_elements, loc='lower center', ncol=2, title='Variables', fontsize=10)
+    probs_original_plus_1, probs_patched_plus_1 = probs_original_plus_1[:, 0], probs_patched_plus_1[:, 0]
+    probs_original_minus_1, probs_patched_minus_1 = probs_original_minus_1[:, 0], probs_patched_minus_1[:, 0]
 
 
+    #alright, try to get one from the same seed. Let's do subtractio seed zero.
+    vfields = [
+        pickle.load(open(f, "rb"))
+        for f in glob("experiments/statistics/data/vfields/cheese/seed-0*.pkl")
+    ]
+    probs_original_same, probs_patched_same = vfield_stats.get_probs_original_and_patched(
+        vfields, coeff=-1.0
+    )
+    probs_original_same, probs_patched_same = probs_original_same[:, 0], probs_patched_same[:, 0]
 
-# Display the plot
-plt.show()
+
+    # now seeing which seeds of the first 100 are short ones - aka 3x3 5x5 or 7x7
+    # seeds = {f'{i}x{i}': [] for i in range(3, 26, 2)}
+    #
+    # for i in range(100):
+    #     seed = i
+    #     venv = create_venv(1,seed,1)
+    #     state = maze.EnvState(venv.env.callmethod('get_state')[0])
+    #     inner_grid = state.inner_grid()
+    #     size = inner_grid.shape[0]
+    #     seeds[f'{size}x{size}'].append(seed)
+    #
+    # small_seeds = []
+    # small_seeds.extend(seeds['3x3'])
+    # small_seeds.extend(seeds['5x5'])
+    # small_seeds.extend(seeds['7x7'])
+    # print(small_seeds)
+    small_seeds = [1, 10, 11, 15, 18, 21, 23, 29, 31, 41, 77, 89, 93, 3, 7, 19, 30, 38, 39, 44, 59, 62, 69, 26, 34, 54, 72]
+    vfields = []
+    for s in small_seeds:
+        for f in glob(f"experiments/statistics/data/vfields/cheese/seed-{s}*.pkl"):
+            vfields.append(pickle.load(open(f, "rb")))
+    probs_small_seed_orig, probs_small_seed_patched = vfield_stats.get_probs_original_and_patched(
+        vfields, coeff=-1.0
+    )
+
+    probs_small_seed_orig, probs_small_seed_patched = probs_small_seed_orig[:, 0], probs_small_seed_patched[:, 0]
+
+    # # Plot each box plot
+    # ax[0].boxplot([data1_var1, data1_var2], labels=['Var1', 'Var2'])
+    # ax[0].set_title('Boxplot 1')
+    #
+    # ax[1].boxplot([data2_var1, data2_var2], labels=['Var1', 'Var2'])
+    # ax[1].set_title('Boxplot 2')
+    # ax[1].set_yticklabels([])
+    #
+    # ax[2].boxplot([data3_var1, data3_var2], labels=['Var1', 'Var2'])
+    # ax[2].set_title('Boxplot 3')
+    # ax[2].set_yticklabels([])
+    #
+    # ax[3].boxplot([data4_var1, data4_var2], labels=['Var1', 'Var2'], patch_artist=True)
+    # ax[3].set_title('Boxplot 4')
+    # ax[3].set_yticklabels([])
+
+    # Plot each box plot with markers, mean, and percentile lines
+    # for i, (data_var1, data_var2) in enumerate([(data1_var1, data1_var2), (data2_var1, data2_var2),
+    #                                              (data3_var1, data3_var2), (data4_var1, data4_var2)]):
+    #
+    #     mean = np.mean(data_var1), np.mean(data_var2)
+    #     percentiles = np.percentile(data_var1, [25, 75]), np.percentile(data_var2, [25, 75])
+    #
+    #     # Plot markers for mean
+    #     ax[i].plot([1, 2], mean, 'kD', markersize=10, label='Mean')
+    #
+    #     # Plot lines for the 25th and 75th percentiles
+    #     for j in range(2):
+    #         ax[i].plot([1, 1], [mean[j], percentiles[j][0]], color='black', linestyle='-', linewidth=2)
+    #         ax[i].plot([2, 2], [mean[j], percentiles[j][1]], color='black', linestyle='-', linewidth=2)
+    #
+    #     ax[i].set_xticks([1, 2])
+    #     ax[i].set_xticklabels(['Var1', 'Var2'])
+    #     ax[i].set_title(f'Boxplot {i+1}')
+
+    # Plot each box plot with markers and different box colors
+    for i, (data_var1, data_var2) in enumerate([(probs_original_plus_1, probs_patched_plus_1),
+                                                (probs_original_minus_1, probs_patched_minus_1),
+                                                (probs_original_same, probs_patched_same),
+                                                (probs_small_seed_orig, probs_small_seed_patched)]):
+
+        # mean = np.mean(data_var1), np.mean(data_var2)
+
+        # Plot the boxes with different colors
+        bp = ax[i].boxplot([data_var1, data_var2], labels=['Var1', 'Var2'], patch_artist=True)
+
+        # Set colors for the boxes
+        for count, patch in enumerate(bp['boxes']):
+            #print(patch)
+            if count == 0:
+                patch.set_facecolor('lightblue')  # Left part of the box
+            elif count == 1:
+                patch.set_facecolor('orange')
+            patch.set_edgecolor('black')
+
+        # TODO - these markers aren't at the actual mean. Try changing the boxplot data struct directly
+        # Plot markers for mean without lines
+        # ax[i].plot([1, 2], mean, 'kD', markersize=10, label='Mean', linestyle='None')
+
+        # if i == 1:
+        #     ax[i].set_title(f'Boxplot {i+1}')
+        # elif i == 2:
+        #     ax[i].set_title(f'Boxplot {i+1}')
+        # elif i == 3:
+        #     ax[i].set_title(f'Boxplot {i+1}')
+        # else i == 4:
+        #     ax[i].set_title(f'Boxplot {i+1}')
+
+    ax[0].set_title("Coeff = 1.0")
+    ax[1].set_title("Coeff = -1.0")
+    ax[2].set_title("Coeff = -1.0, Same Seed")
+    ax[3].set_title("Coeff = -1.0, Small Seeds")
+
+    # Hide x-tick labels and ticks for all boxplots except the first one
+    for i in range(0, len(ax)):
+        ax[i].set_xticklabels([])
+        ax[i].tick_params(axis='x', length=0)
+
+    # Add markers for each variable
+    # for i in range(4):
+    #     ax[i].plot([1, 2], [np.mean([data1_var1, data2_var1, data3_var1, data4_var1][i]),
+    #                          np.mean([data1_var2, data2_var2, data3_var2, data4_var2][i])],
+    #                 'kD', markersize=10, label='Mean')
+
+    # ax[0].legend(loc='lower center', bbox_to_anchor=(0.5, -0.3), ncol=2,
+    #               borderaxespad=0., title='Variables', prop={'size': 10})
+    # ax[3].legend(loc='upper center', bbox_to_anchor=(0.5, -0.25), ncol=2, title='Variables', fontsize=10)
+    # Create a legend for the markers
+    # legend_elements = [plt.Line2D([0], [0], marker='D', color='w', label='Mean',
+    #                               markersize=10, markerfacecolor='black')]
+
+    orig_patch = mpatches.Patch(color='lightblue', label='The original probabilities')
+    patch_patch = mpatches.Patch(color='orange', label='The patched probabilities')
+
+    # Display the legend below the subplots
+    fig.legend(handles=[orig_patch, patch_patch], loc='lower center', ncol=2, fontsize=10)
+
+
+
+    # Display the plot
+    #plt.show()
+    plt.savefig('playground/paper_graphics/visualizations/cheese_vector.pdf', bbox_inches="tight", format='pdf')
+
+
+#cheese_vector_fig()
+
+# ---------------------------------------------------- fig top right vector figure ----------------------------------------------------
+
+"""
+Basically the same as for the cheese vector figure.
+"""
+
+def top_right_vector_figure():
+    fig, ax = plt.subplots(1, 4, figsize=(15, 5))
+
+    # getting actual data
+    vfields = [
+        pickle.load(open(f, "rb"))
+        for f in glob("experiments/statistics/data/vfields/top_right/seed-*.pkl")
+    ]
+    probs_original_plus_1, probs_patched_plus_1 = vfield_stats.get_probs_original_and_patched(
+        vfields, coeff=1.0
+    )
+    probs_original_minus_1, probs_patched_minus_1 = vfield_stats.get_probs_original_and_patched(
+        vfields, coeff=-1.0
+    )
+
+    probs_original_plus_1, probs_patched_plus_1 = probs_original_plus_1[:, 1], probs_patched_plus_1[:, 1]
+    probs_original_minus_1, probs_patched_minus_1 = probs_original_minus_1[:, 1], probs_patched_minus_1[:, 1]
+
+
+    #alright, try to get one from the same seed. Let's do subtractio seed zero.
+    vfields = [
+        pickle.load(open(f, "rb"))
+        for f in glob("experiments/statistics/data/vfields/top_right/seed-0*.pkl")
+    ]
+    probs_original_same, probs_patched_same = vfield_stats.get_probs_original_and_patched(
+        vfields, coeff=-1.0
+    )
+    probs_original_same, probs_patched_same = probs_original_same[:, 1], probs_patched_same[:, 1]
+
+
+    small_seeds = [1, 10, 11, 15, 18, 21, 23, 29, 31, 41, 77, 89, 93, 3, 7, 19, 30, 38, 39, 44, 59, 62, 69, 26, 34, 54, 72]
+    vfields = []
+    for s in small_seeds:
+        for f in glob(f"experiments/statistics/data/vfields/top_right/seed-{s}*.pkl"):
+            vfields.append(pickle.load(open(f, "rb")))
+    probs_small_seed_orig, probs_small_seed_patched = vfield_stats.get_probs_original_and_patched(
+        vfields, coeff=-1.0
+    )
+
+    probs_small_seed_orig, probs_small_seed_patched = probs_small_seed_orig[:, 1], probs_small_seed_patched[:, 1]
+
+    # Plot each box plot with markers and different box colors
+    for i, (data_var1, data_var2) in enumerate([(probs_original_plus_1, probs_patched_plus_1),
+                                                (probs_original_minus_1, probs_patched_minus_1),
+                                                (probs_original_same, probs_patched_same),
+                                                (probs_small_seed_orig, probs_small_seed_patched)]):
+
+        # mean = np.mean(data_var1), np.mean(data_var2)
+
+        # Plot the boxes with different colors
+        bp = ax[i].boxplot([data_var1, data_var2], labels=['Var1', 'Var2'], patch_artist=True)
+
+        # Set colors for the boxes
+        for count, patch in enumerate(bp['boxes']):
+            # print(patch)
+            if count == 0:
+                patch.set_facecolor('lightblue')  # Left part of the box
+            elif count == 1:
+                patch.set_facecolor('orange')
+            patch.set_edgecolor('black')
+
+        # TODO - these markers aren't at the actual mean. Try changing the boxplot data struct directly
+        # Plot markers for mean without lines
+        # ax[i].plot([1, 2], mean, 'kD', markersize=10, label='Mean', linestyle='None')
+
+        # if i == 1:
+        #     ax[i].set_title(f'Boxplot {i+1}')
+        # elif i == 2:
+        #     ax[i].set_title(f'Boxplot {i+1}')
+        # elif i == 3:
+        #     ax[i].set_title(f'Boxplot {i+1}')
+        # else i == 4:
+        #     ax[i].set_title(f'Boxplot {i+1}')
+
+    ax[0].set_title("Coeff = 1.0")
+    ax[1].set_title("Coeff = -1.0")
+    ax[2].set_title("Coeff = -1.0, Same Seed")
+    ax[3].set_title("Coeff = -1.0, Small Seeds")
+
+    # Hide x-tick labels and ticks for all boxplots except the first one
+    for i in range(0, len(ax)):
+        ax[i].set_xticklabels([])
+        ax[i].tick_params(axis='x', length=0)
+
+    orig_patch = mpatches.Patch(color='lightblue', label='The original probabilities')
+    patch_patch = mpatches.Patch(color='orange', label='The patched probabilities')
+
+    # Display the legend below the subplots
+    fig.legend(handles=[orig_patch, patch_patch], loc='lower center', ncol=2, fontsize=10)
+
+    # Display the plot
+    #plt.show()
+    plt.savefig('playground/paper_graphics/visualizations/top_right_vector.pdf', bbox_inches="tight", format='pdf')
+
+
+#top_right_vector_figure()
