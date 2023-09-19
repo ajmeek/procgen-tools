@@ -14,6 +14,7 @@ from procgen_tools.imports import *
 import os
 import procgen_tools.visualization as viz
 import procgen_tools.patch_utils as patch_utils
+import math
 
 AX_SIZE = 3.5
 patch_coords = (5,6)
@@ -956,6 +957,46 @@ def fig_x2_4():
     plt.savefig('playground/paper_graphics/visualizations/ratio_avg_also_not_great.png', bbox_inches="tight", format='png')
 
 
+    # Alex had an idea to try plotting path distance vs. ratio. Try that here.
+    # ratio only exists for effective, cheese, and normal. Just try effective channels for now to get an idea
+
+    # 50 steps
+    path_distance_ratios = {i: [] for i in range(100)}
+
+    for seed in range(100):
+        data = heatmap_data_by_seed_and_prob_type(seed, "effective")
+        path_distance = data['d_to_coord']
+        ratios = data['ratio']
+
+        if len(path_distance) != len(ratios):
+            raise Exception("path distance and ratios are not the same length")
+        for i in range(len(path_distance)):
+            # print(path_distance)
+            # print("values: ", path_distance.values)
+            # print(path_distance[i][1])
+            # print(ratios[i][1])
+            path_distance_ratios[path_distance.values[i]].append(ratios.values[i])
+
+    #     print()
+    # print()
+
+    #alright, now average over all the values for each ratio
+    for i in path_distance_ratios.keys():
+        #if isinstance(path_distance_ratios[i], list):
+        if len(path_distance_ratios[i]) != 0:
+            path_distance_ratios[i] = np.mean(path_distance_ratios[i])
+        else:
+            path_distance_ratios[i] = 0
+
+    print()
+
+
+
+    fig, ax = plt.subplots()
+    ax.plot(path_distance_ratios.keys(), path_distance_ratios.values(), marker='x', markersize=6, color="red")
+    #ax.set_xticks(x_values)
+    #ax.set_xticklabels(x_labels)
+    plt.savefig('playground/paper_graphics/visualizations/ratio_v_path_distance.png', bbox_inches="tight", format='png')
 
     #ax.set_xticklabels(['All Cheese Channels', 'Effective Channels', 'Channel 55'])
 
