@@ -773,107 +773,163 @@ For x4, this is moderate. How can I tackle adding more channels? I can do this a
     Perhaps we should have all of the cheese channels ranked in effectiveness, then add them one by one.
 """
 
-#first, get the data for x2.
-# actually he's only got data for 100 diff seeds there. I need to bin them appropriately.
+def x2_4():
+    #first, get the data for x2.
+    # actually he's only got data for 100 diff seeds there. I need to bin them appropriately.
 
-# interesting ... only odd sizes are generated. didn't notice that before.
-# so that makes the bins easier. I'll just do 3x3, 5x5, 7x7, 9x9, 11x11, 13x13, 15x15, 17x17, 19x19, 21x21, 23x23, 25x25
-# which is 12 total. that's not going to be too cluttered on the graph.
+    # interesting ... only odd sizes are generated. didn't notice that before.
+    # so that makes the bins easier. I'll just do 3x3, 5x5, 7x7, 9x9, 11x11, 13x13, 15x15, 17x17, 19x19, 21x21, 23x23, 25x25
+    # which is 12 total. that's not going to be too cluttered on the graph.
 
-# intervention_methods = ["cheese", "effective", "all", "normal", "55"]
-# seeds = {f'{i}x{i}': [] for i in range(3, 26, 2)}
-# data_by_intervention = {i: {k: {f'{j}x{j}': None for j in range(3, 26)} for k in ['probability', 'ratio']} for i in intervention_methods}
-# heatmap_avg_per_size_all = {f'{i}x{i}': None for i in range(3, 26, 2)}
-# heatmap_avg_per_size_effective = {f'{i}x{i}': None for i in range(3, 26, 2)}
-# heatmap_avg_per_size_55 = {f'{i}x{i}': None for i in range(3, 26, 2)}
-# ratio_avg_per_size_all = {f'{i}x{i}': None for i in range(3, 26, 2)}
-# ratio_avg_per_size_effective = {f'{i}x{i}': None for i in range(3, 26, 2)}
-# ratio_avg_per_size_55 = {f'{i}x{i}': None for i in range(3, 26, 2)}
-#
-# #print(heatmap_avg_per_size)
-# for i in range(100):
-#     seed = i
-#     venv = create_venv(1,seed,1)
-#     state = maze.EnvState(venv.env.callmethod('get_state')[0])
-#     inner_grid = state.inner_grid()
-#     size = inner_grid.shape[0]
-#     seeds[f'{size}x{size}'].append(seed)
-#
-# for key, value in seeds.items():
-#     #get data for that seed and all cheese channels
-#
-#     if len(value) != 0:
-#         per_key_avg_all = 0
-#         per_key_ratio_all = 0
-#
-#         per_key_avg_effective = 0
-#         per_key_ratio_effective = 0
-#
-#         per_key_avg_55 = 0
-#         per_key_ratio_55 = 0
-#
-#         for i in value:
-#             # for j in intervention_methods:
-#             data = heatmap_data_by_seed_and_prob_type(i, "all")
-#             # sum = data['probability'].sum()
-#             # sum /= data['probability'].size
-#             per_key_avg_all += data['probability'].mean()
-#
-#             # sum = data['ratio'].sum()
-#             # sum /= data['ratio'].size
-#             per_key_ratio_all += data['ratio'].mean()
-#
-#             data = heatmap_data_by_seed_and_prob_type(i, "effective")
-#             per_key_avg_effective += data['probability'].mean()
-#             per_key_ratio_effective += data['ratio'].mean()
-#
-#             data = heatmap_data_by_seed_and_prob_type(i, "55")
-#             per_key_avg_55 += data['probability'].mean()
-#             per_key_ratio_55 += data['ratio'].mean()
-#
-#         #         heatmap_avg_per_size[j][key] = per_key_avg# / len(value)
-#         # for j in intervention_methods:
-#         #     for key in heatmap_avg_per_size[j].keys():
-#         heatmap_avg_per_size_all[key] = per_key_avg_all / len(value)
-#         ratio_avg_per_size_all[key] = per_key_ratio_all / len(value)
-#
-#         heatmap_avg_per_size_effective[key] = per_key_avg_effective / len(value)
-#         ratio_avg_per_size_effective[key] = per_key_ratio_effective / len(value)
-#
-#         heatmap_avg_per_size_55[key] = per_key_avg_55 / len(value)
-#         ratio_avg_per_size_55[key] = per_key_ratio_55 / len(value)
-#
-# # after this divide heatmap_avg_per_size by len of # of seeds in "seeds" to get the average
-#
-# print(heatmap_avg_per_size_all)
-# print(ratio_avg_per_size_all)
-# print(heatmap_avg_per_size_effective)
-# print(ratio_avg_per_size_effective)
-# print(heatmap_avg_per_size_55)
-# print(ratio_avg_per_size_55)
+    # intervention_methods = ["cheese", "effective", "all", "normal", "55"]
+    # seeds = {f'{i}x{i}': [] for i in range(3, 26, 2)}
+    # data_by_intervention = {i: {k: {f'{j}x{j}': None for j in range(3, 26)} for k in ['probability', 'ratio']} for i in intervention_methods}
+    # heatmap_avg_per_size_all = {f'{i}x{i}': None for i in range(3, 26, 2)}
+    # heatmap_avg_per_size_effective = {f'{i}x{i}': None for i in range(3, 26, 2)}
+    # heatmap_avg_per_size_55 = {f'{i}x{i}': None for i in range(3, 26, 2)}
+    # ratio_avg_per_size_all = {f'{i}x{i}': None for i in range(3, 26, 2)}
+    # ratio_avg_per_size_effective = {f'{i}x{i}': None for i in range(3, 26, 2)}
+    # ratio_avg_per_size_55 = {f'{i}x{i}': None for i in range(3, 26, 2)}
+    #
+    # #print(heatmap_avg_per_size)
+    # for i in range(100):
+    #     seed = i
+    #     venv = create_venv(1,seed,1)
+    #     state = maze.EnvState(venv.env.callmethod('get_state')[0])
+    #     inner_grid = state.inner_grid()
+    #     size = inner_grid.shape[0]
+    #     seeds[f'{size}x{size}'].append(seed)
+    #
+    # for key, value in seeds.items():
+    #     #get data for that seed and all cheese channels
+    #
+    #     if len(value) != 0:
+    #         per_key_avg_all = 0
+    #         per_key_ratio_all = 0
+    #
+    #         per_key_avg_effective = 0
+    #         per_key_ratio_effective = 0
+    #
+    #         per_key_avg_55 = 0
+    #         per_key_ratio_55 = 0
+    #
+    #         for i in value:
+    #             # for j in intervention_methods:
+    #             data = heatmap_data_by_seed_and_prob_type(i, "all")
+    #             # sum = data['probability'].sum()
+    #             # sum /= data['probability'].size
+    #             per_key_avg_all += data['probability'].mean()
+    #
+    #             # sum = data['ratio'].sum()
+    #             # sum /= data['ratio'].size
+    #             per_key_ratio_all += data['ratio'].mean()
+    #
+    #             data = heatmap_data_by_seed_and_prob_type(i, "effective")
+    #             per_key_avg_effective += data['probability'].mean()
+    #             per_key_ratio_effective += data['ratio'].mean()
+    #
+    #             data = heatmap_data_by_seed_and_prob_type(i, "55")
+    #             per_key_avg_55 += data['probability'].mean()
+    #             per_key_ratio_55 += data['ratio'].mean()
+    #
+    #         #         heatmap_avg_per_size[j][key] = per_key_avg# / len(value)
+    #         # for j in intervention_methods:
+    #         #     for key in heatmap_avg_per_size[j].keys():
+    #         heatmap_avg_per_size_all[key] = per_key_avg_all / len(value)
+    #         ratio_avg_per_size_all[key] = per_key_ratio_all / len(value)
+    #
+    #         heatmap_avg_per_size_effective[key] = per_key_avg_effective / len(value)
+    #         ratio_avg_per_size_effective[key] = per_key_ratio_effective / len(value)
+    #
+    #         heatmap_avg_per_size_55[key] = per_key_avg_55 / len(value)
+    #         ratio_avg_per_size_55[key] = per_key_ratio_55 / len(value)
+    #
+    # # after this divide heatmap_avg_per_size by len of # of seeds in "seeds" to get the average
+    #
+    # print(heatmap_avg_per_size_all)
+    # print(ratio_avg_per_size_all)
+    # print(heatmap_avg_per_size_effective)
+    # print(ratio_avg_per_size_effective)
+    # print(heatmap_avg_per_size_55)
+    # print(ratio_avg_per_size_55)
 
-# data hardcoded. starting with 3x3
-heatmap_avg_per_size_all = [0.799889956501738, 0.7775709501219863, 0.7797912188517916, 0.7588451193811928, 0.7406733268789705, 0.6959504505843259, 0.6425305479030984, 0.6545479388988915, 0.5824753527436064, 0.5832421962896295, 0.6167109448569562, 0.5299525163283456]
-heatmap_avg_per_size_effective = [0.7608124070512822, 0.7041304093124999, 0.76901413325, 0.7024797808854166, 0.7087437639591837, 0.7041753128385418, 0.6503412165784831, 0.6596821581796875, 0.6037907865088384, 0.6189248616309523, 0.6371125867599068, 0.5756655757924108]
-heatmap_avg_per_size_55 = [0.700428774165744, 0.7370594442260178, 0.7010945262579837, 0.6721659938343914, 0.6751070216559201, 0.647880930832588, 0.5939934102651221, 0.6109084206556188, 0.540930443222974, 0.5470496808198526, 0.5846496184297417, 0.5023088997834109]
-ratio_avg_per_size_effective = [1.8489007321794872, 3.4623849059999996, 1.7517762465, 2.7921403650173606, 1.8093523609387756, 2.8955814034765623, 2.458575891675485, 2.8985679961171877, 2.566675839248737, 2.5696256181845234, 3.013872167534965, 1.8687405686830356]
+    # data hardcoded. starting with 3x3
+    heatmap_avg_per_size_all = [0.799889956501738, 0.7775709501219863, 0.7797912188517916, 0.7588451193811928, 0.7406733268789705, 0.6959504505843259, 0.6425305479030984, 0.6545479388988915, 0.5824753527436064, 0.5832421962896295, 0.6167109448569562, 0.5299525163283456]
+    heatmap_avg_per_size_effective = [0.7608124070512822, 0.7041304093124999, 0.76901413325, 0.7024797808854166, 0.7087437639591837, 0.7041753128385418, 0.6503412165784831, 0.6596821581796875, 0.6037907865088384, 0.6189248616309523, 0.6371125867599068, 0.5756655757924108]
+    heatmap_avg_per_size_55 = [0.700428774165744, 0.7370594442260178, 0.7010945262579837, 0.6721659938343914, 0.6751070216559201, 0.647880930832588, 0.5939934102651221, 0.6109084206556188, 0.540930443222974, 0.5470496808198526, 0.5846496184297417, 0.5023088997834109]
+    ratio_avg_per_size_effective = [1.8489007321794872, 3.4623849059999996, 1.7517762465, 2.7921403650173606, 1.8093523609387756, 2.8955814034765623, 2.458575891675485, 2.8985679961171877, 2.566675839248737, 2.5696256181845234, 3.013872167534965, 1.8687405686830356]
 
-x_values = np.linspace(0, 1, len(heatmap_avg_per_size_all))
-#x_labels = ['3x3', '5x5', '7x7', '9x9', '11x11', '13x13', '15x15', '17x17', '19x19', '21x21', '23x23', '25x25']
-x_labels = ['3', '5', '7', '9', '11', '13', '15', '17', '19', '21', '23', '25']
-
-
-#initial box plots
-fig, ax = plt.subplots()#1, 2, figsize=(AX_SIZE * 2, AX_SIZE), tight_layout=True)
-#ax.boxplot([heatmap_avg_per_size_all.values(), heatmap_avg_per_size_effective.values(), heatmap_avg_per_size_55.values()], positions = [1, 2, 3], widths = 0.6)
-ax.plot(x_values, heatmap_avg_per_size_all, marker='o', markersize=6, color="black")
-ax.plot(x_values, heatmap_avg_per_size_effective, marker='x', markersize=6, color="red")
-ax.plot(x_values, heatmap_avg_per_size_55, marker='+', markersize=6, color="green")
-
-ax.set_xticklabels(x_labels)
-ax.set_xticks(x_values)
+    x_values = np.linspace(0, 1, len(heatmap_avg_per_size_all))
+    #x_labels = ['3x3', '5x5', '7x7', '9x9', '11x11', '13x13', '15x15', '17x17', '19x19', '21x21', '23x23', '25x25']
+    x_labels = ['3', '5', '7', '9', '11', '13', '15', '17', '19', '21', '23', '25']
 
 
-#ax.set_xticklabels(['All Cheese Channels', 'Effective Channels', 'Channel 55'])
+    #initial box plots
+    fig, ax = plt.subplots()#1, 2, figsize=(AX_SIZE * 2, AX_SIZE), tight_layout=True)
+    #ax.boxplot([heatmap_avg_per_size_all.values(), heatmap_avg_per_size_effective.values(), heatmap_avg_per_size_55.values()], positions = [1, 2, 3], widths = 0.6)
+    ax.plot(x_values, heatmap_avg_per_size_all, marker='o', markersize=6, color="black")
+    ax.plot(x_values, heatmap_avg_per_size_effective, marker='x', markersize=6, color="red")
+    ax.plot(x_values, heatmap_avg_per_size_55, marker='+', markersize=6, color="green")
 
+    ax.set_xticklabels(x_labels)
+    ax.set_xticks(x_values)
+
+
+    #ax.set_xticklabels(['All Cheese Channels', 'Effective Channels', 'Channel 55'])
+
+    # gathering more data for x3 will take a while. going to start on the cheese vector figure for now
+
+    plt.show()
+
+#fig_x2_4()
+
+# ---------------------------------------------------- fig cheese_vector ----------------------------------------------------
+
+"""
+Idea for this and the top right figure is to have these two side by side, each taking up half a page.
+I want the barplots comparing the blue original v. the orange patched side. Find the code for making those in vfield_stats.py
+
+So to run the original barplot, run a jupyter notebook in cheese_vector and then use vfield_stats.
+However, that's not the one that's giving probabilities conditional on the decision square....
+Read it very carefully. It may be what we want. 
+"""
+
+# Generate some sample data for the box plots
+data1_var1 = np.random.normal(0, 1, 100)
+data1_var2 = np.random.normal(2, 1, 100)
+
+data2_var1 = np.random.normal(1, 1, 100)
+data2_var2 = np.random.normal(3, 1, 100)
+
+data3_var1 = np.random.normal(2, 1, 100)
+data3_var2 = np.random.normal(4, 1, 100)
+
+data4_var1 = np.random.normal(3, 1, 100)
+data4_var2 = np.random.normal(5, 1, 100)
+
+# Create a figure and axis for the mosaic plot
+fig, ax = plt.subplots(1, 4, figsize=(15, 5))
+
+# Plot each box plot
+ax[0].boxplot([data1_var1, data1_var2], labels=['Var1', 'Var2'])
+ax[0].set_title('Boxplot 1')
+
+ax[1].boxplot([data2_var1, data2_var2], labels=['Var1', 'Var2'])
+ax[1].set_title('Boxplot 2')
+ax[1].set_yticklabels([])
+
+ax[2].boxplot([data3_var1, data3_var2], labels=['Var1', 'Var2'])
+ax[2].set_title('Boxplot 3')
+ax[2].set_yticklabels([])
+
+ax[3].boxplot([data4_var1, data4_var2], labels=['Var1', 'Var2'])
+ax[3].set_title('Boxplot 4')
+ax[3].set_yticklabels([])
+
+# Hide x-tick labels and ticks for all boxplots except the first one
+for i in range(0, len(ax)):
+    ax[i].set_xticklabels([])
+    ax[i].tick_params(axis='x', length=0)
+
+# Display the plot
 plt.show()
