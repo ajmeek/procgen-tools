@@ -354,25 +354,31 @@ def fig_1():
     # cbar_patch_act.set_label('Label for Patched Activation')
 
     # Create a custom colormap from red to dark blue
-    custom_cmap = mcolors.LinearSegmentedColormap.from_list(
-        'custom_cmap', [(1, 0, 0), (0, 0, 0.5)]
-    )
-
-    # Create a new subplot for the colorbar in the center
-    cbar_ax = fig1.add_axes([0.2, 0.1, 0.4, 0.01])  # Adjust the [left, bottom, width, height] values as needed
-
-    # Add a colorbar for the entire mosaic plot
-    cbar = plt.colorbar(patch_img, cax=cbar_ax, orientation='horizontal', cmap=custom_cmap)
-    cbar.set_label('Label for Activation')
-
-    # Set the tick locations and labels on the colorbar
-    cbar.set_ticks([-1, 0, 1])
-    cbar.set_ticklabels(['-1', '0', '1'])
+    # custom_cmap = mcolors.LinearSegmentedColormap.from_list(
+    #     'custom_cmap', [(1, 0, 0), (0, 0, 0.5)]
+    # )
+    #
+    # # Create a new subplot for the colorbar in the center
+    # cbar_ax = fig1.add_axes([0.2, 0.1, 0.4, 0.01])  # Adjust the [left, bottom, width, height] values as needed
+    #
+    # # Add a colorbar for the entire mosaic plot
+    # cbar = plt.colorbar(patch_img, cax=cbar_ax, orientation='horizontal', cmap=custom_cmap)
+    # cbar.set_label('Label for Activation')
+    #
+    # # Set the tick locations and labels on the colorbar
+    # cbar.set_ticks([-1, 0, 1])
+    # cbar.set_ticklabels(['-1', '0', '1'])
 
     #matplotlib.pyplot.p
 
     #plt.show()
     #print(os.getcwd())
+
+    #TODO font into Times New Roman. may need to use the mac mini for that, having trouble installing on my debian based distro
+    axd1['orig_mpp'].set_title('Original MPP', fontsize=18)
+    axd1['orig_act'].set_title('Original Activations', fontsize=18)
+    axd1['patch_act'].set_title('Patched Activations', fontsize=18)
+    axd1['patch_mpp'].set_title('Patched MPP', fontsize=18)
     plt.savefig('playground/paper_graphics/visualizations/fig_1.pdf', bbox_inches="tight", format='pdf')
 
 #fig_1()
@@ -386,14 +392,14 @@ def fig_2():
 
     fig2, axd2 = plt.subplot_mosaic(
         [['reg_venv', 'cheese_a', 'cheese_b', 'cheese_c']],
-        figsize=(AX_SIZE * 4, AX_SIZE),
+        figsize=(AX_SIZE * 4, AX_SIZE*1.5),
         tight_layout=True,
     )
 
     venv = create_venv(1,seed,1)
     state = maze.EnvState(venv.env.callmethod('get_state')[0])
 
-    img = viz.visualize_venv(venv, ax=axd2['reg_venv'], render_padding=False)
+    img = viz.visualize_venv(venv, ax=axd2['reg_venv'], render_padding=True)
     axd2['reg_venv'].imshow(img)
 
     # want to show activations from first cheese
@@ -441,9 +447,13 @@ def fig_2():
     axd2['cheese_c'].set_xticks([])
     axd2['cheese_c'].set_yticks([])
 
+    axd2['reg_venv'].set_title('Maze', fontsize=18)
+    axd2['cheese_a'].set_title('Cheese A', fontsize=18)
+    axd2['cheese_b'].set_title('Cheese B', fontsize=18)
+    axd2['cheese_c'].set_title('Cheese C', fontsize=18)
 
     #plt.show()
-    plt.savefig('playground/paper_graphics/visualizations/fig_2.svg', bbox_inches="tight", format='svg')
+    plt.savefig('playground/paper_graphics/visualizations/fig_2.pdf', bbox_inches="tight", format='pdf')
 
 #fig_2()
 
@@ -626,7 +636,7 @@ def fig_4():
     axd4['fail'].imshow(img)
 
     #plt.show()
-    plt.savefig('playground/paper_graphics/visualizations/fig_4.svg', bbox_inches="tight", format='svg')
+    plt.savefig('playground/paper_graphics/visualizations/fig_4.pdf', bbox_inches="tight", format='pdf')
 #fig_4()
 
 
@@ -742,7 +752,7 @@ def fig_5():
     img = viz.plot_vf_mpp(vf, ax=axd5['fail_b'], save_img=False)
     axd5['fail_b'].imshow(img)
 
-    plt.savefig('playground/paper_graphics/visualizations/fig_5.svg', bbox_inches="tight", format='svg')
+    plt.savefig('playground/paper_graphics/visualizations/fig_5.pdf', bbox_inches="tight", format='pdf')
 
 #fig_5()
 
@@ -805,7 +815,7 @@ def fig_x1b():
     axdx1['seed_48_channel_cheese'].set_title("Seed 48, Cheese", fontsize=14)#, font="Times New Roman")
     plot_heatmap(48, "cheese", axdx1['seed_48_channel_cheese'])
 
-    axdx1['seed_48_channel_55'].set_title("Seed 0, Channel 55", fontsize=14)#, font="Times New Roman")
+    axdx1['seed_48_channel_55'].set_title("Seed 48, Channel 55", fontsize=14)#, font="Times New Roman")
     plot_heatmap(48, "55", axdx1['seed_48_channel_55'])
 
     axdx1['seed_48_channel_all'].set_title("Seed 48, Channel All", fontsize=14)#, font="Times New Roman")
@@ -815,10 +825,10 @@ def fig_x1b():
     plot_heatmap(48, "normal", axdx1['seed_48_channel_none'])
 
     #plt.show()
-    plt.savefig('playground/paper_graphics/visualizations/fig_x1b.svg', bbox_inches="tight", format='svg')
+    plt.savefig('playground/paper_graphics/visualizations/fig_x1b.pdf', bbox_inches="tight", format='pdf')
 
 
-#fig_x1b()
+fig_x1b()
 
 
 # ---------------------------------------------------- fig x2-4 ----------------------------------------------------
