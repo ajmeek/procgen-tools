@@ -109,7 +109,7 @@ def mass_display(seeds):
     )
 
     #now grab 16 seeds at a time in a for loop
-    for i in range(0, 1000, 16):
+    for i in range(0, 100, 16):
         for j in range(16):
             seed = seeds[i+j]
             venv = create_venv(1,seed,1)
@@ -119,9 +119,12 @@ def mass_display(seeds):
             axd[str(j+1)].imshow(img)
             axd[str(j+1)].set_xticks([])
             axd[str(j+1)].set_yticks([])
-            axd.set_title(f'Seed {seed}', fontsize=18)
+            #axd.set_title(f'Seed {seed}', fontsize=18)
 
-        plt.show()
+        plt.savefig(f'playground/paper_graphics/visualizations/mass_display_{seed}.png', bbox_inches="tight", format='png')
+
+#seeds = [i for i in range(100)]
+#mass_display(seeds)
 
 def combined_px_patch(layer_name : str, resampling_seed: int, channels : List[int], cheese_loc : Tuple[int, int] = None):
     """
@@ -896,6 +899,8 @@ Okay actually I do need to rerun it some. The effective channels only have 2.3, 
 Well ... perhaps can do as follows
 Then I don't need to amend my heatmap util function either. Fastest route.
 
+First visualize the first 100 seeds.
+
 So heatmap_a is small, effective at 2.3
 heatmap_b is small, 55 at 5.5
 heatmap_c is large, effective at 2.3
@@ -911,22 +916,22 @@ def fig_6():
         tight_layout=True,
     )
     #give title to the axes
-    axd6['small_low'].set_title("Activation = 2.3", fontsize=14)#, font="Times New Roman")
-    plot_heatmap(48, "55", axd6['small_low'])
+    axd6['small_low'].set_title("Activation 2.3, Effective Channels", fontsize=14)#, font="Times New Roman")
+    plot_heatmap(27, "effective", axd6['small_low'])
 
-    axd6['small_high'].set_title("Activation = 5.5", fontsize=14)#, font="Times New Roman")
-    plot_heatmap(48, "55", axd6['small_high'])
+    axd6['small_high'].set_title("Activation 5.5, Channel 55", fontsize=14)#, font="Times New Roman")
+    plot_heatmap(27, "55", axd6['small_high'])
 
-    axd6['large_low'].set_title("Activation = 2.3", fontsize=14)#, font="Times New Roman")
-    plot_heatmap(48, "55", axd6['large_low'])
+    axd6['large_low'].set_title("Activation 2.3, Effective Channels", fontsize=14)#, font="Times New Roman")
+    plot_heatmap(45, "effective", axd6['large_low'])
 
-    axd6['large_high'].set_title("Activation = 5.5", fontsize=14)#, font="Times New Roman")
-    plot_heatmap(48, "55", axd6['large_high'])
+    axd6['large_high'].set_title("Activation 5.5, Cheese Channel", fontsize=14)#, font="Times New Roman")
+    plot_heatmap(45, "55", axd6['large_high'])
 
     #plt.show()
     plt.savefig('playground/paper_graphics/visualizations/fig_6.pdf', bbox_inches="tight", format='pdf')
 
-fig_6()
+#fig_6()
 
 # ---------------------------------------------------- fig x2-4 ----------------------------------------------------
 """
@@ -1196,6 +1201,11 @@ def cheese_vector_fig():
 
     # plot twist this is supposed to be same cheese location.
 
+    # so my previous attempt to get data was ill conceived. I only have vfield stats for the first 100 seeds.
+    # so I should get the cheese loc for each and print them out.
+
+    # alright, out of the first 100 seeds the cheese location that is most prevalent (in outer grid)
+    # is (12, 13), with 6 occurences at seeds [1, 11, 18, 29, 30, 38]
 
 
 
@@ -1434,3 +1444,35 @@ def top_right_vector_figure():
 
 
 #top_right_vector_figure()
+
+# finding cheese loc with most occurences in the limited vfield data we have
+
+# dict_of_seeds = {str(i): [0, 0] for i in range(100)}
+# dict_of_seeds_2 = {}
+# for i in range(100):
+#     grid = maze.get_full_grid_from_seed(i)
+#     cheese_pos = maze.get_cheese_pos(grid)
+#     # print(dict_of_seeds[str(i)])
+#     # dict_of_seeds[str(i)][0] = cheese_pos
+#     # dict_of_seeds[str(i)][1] += 1
+#     if cheese_pos not in dict_of_seeds_2.keys():
+#         dict_of_seeds_2[cheese_pos] = [1, i]
+#     else:
+#         dict_of_seeds_2[cheese_pos][0] += 1
+#     # print(dict_of_seeds_2)
+# max = 0
+# cheese_pos = 0
+# seeds = []
+# for key in dict_of_seeds_2.keys():
+#     if dict_of_seeds_2[key][0] > max:
+#         max = dict_of_seeds_2[key][0]
+#         cheese_pos = key
+#
+# for i in range(100):
+#     grid = maze.get_full_grid_from_seed(i)
+#     cheese_pos_test = maze.get_cheese_pos(grid)
+#     if cheese_pos_test == cheese_pos:
+#         seeds.append(i)
+# print(cheese_pos, max, seeds)
+
+# (12, 13) position of cheese in outer grid has 6 occurences.
