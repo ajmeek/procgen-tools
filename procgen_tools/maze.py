@@ -425,7 +425,13 @@ def state_from_venv(venv, idx: int = 0) -> EnvState:
 
 def get_cheese_pos(grid: np.ndarray, flip_y: bool = False) -> Square:
     "Get (row, col) position of the cheese in the grid. Note that the numpy grid is flipped along the y-axis, relative to rendered images."
-    "The grid taken in here is the inner grid. Can be accessed with inner_grid = maze_env_state.inner_grid()"
+    """The grid taken in here is the inner grid. Can be accessed with inner_grid = maze_env_state.inner_grid()
+     
+    Actually scratch that. this adjusts to the size of the grid you pass in. For full grid:
+    grid = maze.get_full_grid_from_seed(seed)
+    print(maze.get_cheese_pos(grid))
+     
+    """
     num_cheeses = (grid == CHEESE).sum()
     if num_cheeses == 0:
         return None
