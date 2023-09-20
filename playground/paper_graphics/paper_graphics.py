@@ -275,8 +275,8 @@ def seeds_by_cheese_loc(cheese_loc: Tuple[int, int]):
     list_of_seeds = []
     seed = 0
     while(len(list_of_seeds) < 100):
-        venv = create_venv(1,seed,1)
-        state = maze.EnvState(venv.env.callmethod('get_state')[0])
+        # venv = create_venv(1,167,1)
+        # state = maze.EnvState(venv.env.callmethod('get_state')[0])
 
         # get the size of the inner grid
         # inner_grid = state.inner_grid()
@@ -285,7 +285,9 @@ def seeds_by_cheese_loc(cheese_loc: Tuple[int, int]):
         # if cheese_loc[0] >= padding and cheese_loc[0] <= padding + size and cheese_loc[1] >= padding and cheese_loc[1] <= padding + size:
 
         # actually error checking nbd. cheese will only ever be in the inner grid anyways, so if it matches then it'll be it.
+        #seed = 167
         grid = maze.get_full_grid_from_seed(seed)
+        this_maze_loc = maze.get_cheese_pos(grid)
         if maze.get_cheese_pos(grid) == cheese_loc:
             list_of_seeds.append(seed)
         seed += 1
@@ -298,10 +300,10 @@ state = maze.EnvState(venv.env.callmethod('get_state')[0])
 inner_grid = state.inner_grid()
 print(maze.get_cheese_pos(inner_grid)) #this needs to be the outer grid because it needs to be objective between mazes with different sizes.
 
-grid = maze.get_full_grid_from_seed(seed)
+grid = maze.get_full_grid_from_seed(167)
 print(maze.get_cheese_pos(grid))
 
-list_of_seeds = seeds_by_cheese_loc((11, 6)) #seed 167 cheese loc in outer grid
+list_of_seeds = seeds_by_cheese_loc((14, 10)) #seed 167 cheese loc in outer grid
 print(list_of_seeds)
 
 
