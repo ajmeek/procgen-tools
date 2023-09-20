@@ -300,7 +300,8 @@ print(maze.get_cheese_pos(inner_grid)) #this needs to be the outer grid because 
 
 grid = maze.get_full_grid_from_seed(seed)
 print(maze.get_cheese_pos(grid))
-list_of_seeds = seeds_by_cheese_loc((8,4))
+
+list_of_seeds = seeds_by_cheese_loc((11, 6)) #seed 167 cheese loc in outer grid
 print(list_of_seeds)
 
 
