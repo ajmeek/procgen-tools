@@ -198,6 +198,9 @@ if __name__ == "__main__":
     policy = models.load_policy(args.model_file, 15, device)
     hook = cmh.ModuleHook(policy)
 
+    # once get list of 100 seeds with same cheese loc copy and paste here
+
+
     # Strength of the intervention
     for seed in seeds:
         process_seed(seed, args, SAVE_DIR)

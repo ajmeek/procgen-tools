@@ -1137,14 +1137,18 @@ def cheese_vector_fig():
 
 
     #alright, try to get one from the same seed. Let's do subtractio seed zero.
-    vfields = [
-        pickle.load(open(f, "rb"))
-        for f in glob("experiments/statistics/data/vfields/cheese/seed-0*.pkl")
-    ]
-    probs_original_same, probs_patched_same = vfield_stats.get_probs_original_and_patched(
-        vfields, coeff=-1.0
-    )
-    probs_original_same, probs_patched_same = probs_original_same[:, 0], probs_patched_same[:, 0]
+    # vfields = [
+    #     pickle.load(open(f, "rb"))
+    #     for f in glob("experiments/statistics/data/vfields/cheese/seed-0*.pkl")
+    # ]
+    # probs_original_same, probs_patched_same = vfield_stats.get_probs_original_and_patched(
+    #     vfields, coeff=-1.0
+    # )
+    # probs_original_same, probs_patched_same = probs_original_same[:, 0], probs_patched_same[:, 0]
+
+    # plot twist this is supposed to be same cheese location.
+
+
 
 
     # now seeing which seeds of the first 100 are short ones - aka 3x3 5x5 or 7x7
