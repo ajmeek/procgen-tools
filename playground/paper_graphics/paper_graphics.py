@@ -166,7 +166,7 @@ def resample_activations(original_seed, channels, resampling_seed):
 # resample_activations(0, cheese_channels, 435) # - no errors! at least neutral sign :)
 
 
-def plot_heatmap(seed, prob_type, ax):
+def plot_heatmap(seed, prob_type, ax, magnitude = None):
     cheese_channels = [7, 8, 42, 44, 55, 77, 82, 88, 89, 99, 113]
     effective_channels = [8, 55, 77, 82, 88, 89, 113]
 
@@ -222,7 +222,6 @@ def heatmap_data_by_seed_and_prob_type(seed, prob_type):
             dfs.append(df)
     data = pd.concat(dfs, ignore_index=True)
 
-    prob_type = prob_type
     seed_data: pd.DataFrame = data[data["seed"] == seed]
     label = prob_type
     if prob_type == "all":
@@ -295,16 +294,16 @@ def seeds_by_cheese_loc(cheese_loc: Tuple[int, int]):
     return list_of_seeds
 
 #cheese location that's roughly in the center would be from seed 167 (d from fig 5).
-venv = create_venv(1, 167, 1)
-state = maze.EnvState(venv.env.callmethod('get_state')[0])
-inner_grid = state.inner_grid()
-print(maze.get_cheese_pos(inner_grid)) #this needs to be the outer grid because it needs to be objective between mazes with different sizes.
-
-grid = maze.get_full_grid_from_seed(167)
-print(maze.get_cheese_pos(grid))
-
-list_of_seeds = seeds_by_cheese_loc((14, 10)) #seed 167 cheese loc in outer grid
-print(list_of_seeds)
+# venv = create_venv(1, 167, 1)
+# state = maze.EnvState(venv.env.callmethod('get_state')[0])
+# inner_grid = state.inner_grid()
+# print(maze.get_cheese_pos(inner_grid)) #this needs to be the outer grid because it needs to be objective between mazes with different sizes.
+#
+# grid = maze.get_full_grid_from_seed(167)
+# print(maze.get_cheese_pos(grid))
+#
+# list_of_seeds = seeds_by_cheese_loc((14, 10)) #seed 167 cheese loc in outer grid
+# print(list_of_seeds)
 
 
 # ---------------------------------------------------- fig 1 ----------------------------------------------------
@@ -879,8 +878,55 @@ def fig_x1b():
     plt.savefig('playground/paper_graphics/visualizations/fig_x1b.pdf', bbox_inches="tight", format='pdf')
 
 
-fig_x1b()
+#fig_x1b()
 
+
+# -------------------------------------------------- fig 6 ----------------------------------------------------
+"""
+Alright so instead of the below retargeting analyses I'm going to find better heatmaps. I want heatmaps that show
+different things based off of channel size.
+Rigth now I'm thinking of doing 2 heatmaps for smaller mazes and 2 more for medium size mazes.
+Actually, let me read the Overleaf and see what might work best there.
+Alright, have each of the mazes above be by seed too but want to look at the magnitude.
+
+all from channel 55 - scratch that. Alex's data only has magnitude 5.5 for channel 55 only.
+Do not want to rerun it if I can help it. Let me do all targets.
+Okay actually I do need to rerun it some. The effective channels only have 2.3, all only has 1.0, 55 only has 5.5
+
+Well ... perhaps can do as follows
+Then I don't need to amend my heatmap util function either. Fastest route.
+
+So heatmap_a is small, effective at 2.3
+heatmap_b is small, 55 at 5.5
+heatmap_c is large, effective at 2.3
+heatmap_d is large, 55 at 5.5
+"""
+def fig_6():
+
+
+
+    fig6, axd6 = plt.subplot_mosaic(
+        [['small_low', 'small_high', 'large_low', 'large_high']],
+        figsize=(AX_SIZE * 4, AX_SIZE*1.5), #increase y to fit titles
+        tight_layout=True,
+    )
+    #give title to the axes
+    axd6['small_low'].set_title("Activation = 2.3", fontsize=14)#, font="Times New Roman")
+    plot_heatmap(48, "55", axd6['small_low'])
+
+    axd6['small_high'].set_title("Activation = 5.5", fontsize=14)#, font="Times New Roman")
+    plot_heatmap(48, "55", axd6['small_high'])
+
+    axd6['large_low'].set_title("Activation = 2.3", fontsize=14)#, font="Times New Roman")
+    plot_heatmap(48, "55", axd6['large_low'])
+
+    axd6['large_high'].set_title("Activation = 5.5", fontsize=14)#, font="Times New Roman")
+    plot_heatmap(48, "55", axd6['large_high'])
+
+    #plt.show()
+    plt.savefig('playground/paper_graphics/visualizations/fig_6.pdf', bbox_inches="tight", format='pdf')
+
+fig_6()
 
 # ---------------------------------------------------- fig x2-4 ----------------------------------------------------
 """
@@ -1139,14 +1185,14 @@ def cheese_vector_fig():
 
 
     #alright, try to get one from the same seed. Let's do subtractio seed zero.
-    # vfields = [
-    #     pickle.load(open(f, "rb"))
-    #     for f in glob("experiments/statistics/data/vfields/cheese/seed-0*.pkl")
-    # ]
-    # probs_original_same, probs_patched_same = vfield_stats.get_probs_original_and_patched(
-    #     vfields, coeff=-1.0
-    # )
-    # probs_original_same, probs_patched_same = probs_original_same[:, 0], probs_patched_same[:, 0]
+    vfields = [
+        pickle.load(open(f, "rb"))
+        for f in glob("experiments/statistics/data/vfields/cheese/seed-0*.pkl")
+    ]
+    probs_original_same, probs_patched_same = vfield_stats.get_probs_original_and_patched(
+        vfields, coeff=-1.0
+    )
+    probs_original_same, probs_patched_same = probs_original_same[:, 0], probs_patched_same[:, 0]
 
     # plot twist this is supposed to be same cheese location.
 
