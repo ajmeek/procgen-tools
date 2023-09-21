@@ -126,39 +126,60 @@ def mass_display(seeds):
 #seeds = [i for i in range(100)]
 #mass_display(seeds)
 
-def combined_px_patch(layer_name : str, resampling_seed: int, channels : List[int], cheese_loc : Tuple[int, int] = None):
-    """
-    Get a combined patch which randomly replaces channel activations with other activations from different levels.
+def random_channel_patch(seed: int, layer_name: str, channel: int):
+    """ Replace the given channel's activations with values from a randomly sampled observation. This invokes patch_utils.get_random_patch from patch_utils. If channel=-1, then all channels are replaced. """
+    venv = patch_utils.get_cheese_venv_pair(seed=seed)
+    patches = patch_utils.get_random_patch(layer_name=layer_name, hook=hook, channel=channel)
+    fig, axs, info = patch_utils.compare_patched_vfields(venv, patches, hook, render_padding=True, ax_size=AX_SIZE)
+    plt.show()
 
-    Instead change to not be random. Use modified version of patch_utils.get_random_patch.
-    """
-    # patches = [patch_utils.get_specific_patch(layer_name=layer_name, hook=hook, channel=channel, cheese_loc=cheese_loc, resampling_seed=resampling_seed) for channel in channels]
-    patches = [patch_utils.get_random_patch(layer_name=layer_name, hook=hook, channel=channel, cheese_loc=cheese_loc) for channel in channels]
-    print(patches)
+
+
+# Causal scrub 55
+# We want to replace the channel 55 activations with the activations from a randomly generated maze with cheese at the same location
+def random_combined_px_patch(layer_name: str, channels: List[int], cheese_loc: Tuple[int, int] = None):
+    """ Get a combined patch which randomly replaces channel activations with other activations from different levels. """
+    patches = [patch_utils.get_random_patch(layer_name=layer_name, hook=hook, channel=channel, cheese_loc=cheese_loc)
+               for channel in channels]
     combined_patch = patch_utils.compose_patches(*patches)
-    return combined_patch # NOTE we're resampling from a fixed maze for all target forward passes
+    return combined_patch  # NOTE we're resampling from a fixed maze for all target forward passes
 
-def resample_activations(original_seed, channels, resampling_seed):
+
+def resample_activations(seed: int, channels: List[int], cheese_loc: Tuple[int, int] = None):
+    """ Resample activations for default_layer with the given channels.
+
+    Args:
+        seed (int): The seed for the maze
+        channels (List[int]): The channels to resample
+        different_location (bool, optional): If True, then the resampling location is randomly sampled. Otherwise, it is the cheese location. Defaults to False.
     """
-    This function is to resample the activations from one seed to another.
+    render_padding = False
+    padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
 
-    original_seed is the seed whose activations we want to change.
-    channels is a list of channels from the new maze that we wish to combine and overwrite channel 55 with.
-    resampling_seed is the seed whose activations we want to sample from.
+    venv = patch_utils.get_cheese_venv_pair(seed=seed)
+    if cheese_loc is not None:
+        resampling_loc = cheese_loc
+    else:
+        resampling_loc = maze.get_cheese_pos_from_seed(seed, flip_y=False)
 
-    Returns an image of the new vector field.
-    """
+    patches = random_combined_px_patch(layer_name=default_layer, channels=channels, cheese_loc=resampling_loc)
 
-    venv_orig = patch_utils.get_cheese_venv_pair(seed=original_seed)
-    cheese_loc = maze.get_cheese_pos_from_seed(resampling_seed, flip_y=False)
-    patches = combined_px_patch(layer_name=default_layer, resampling_seed=resampling_seed, channels=channels, cheese_loc=cheese_loc)
+    # actually just have it return the patches and then I'll display it as normal.
+    return patches
 
-    with hook.use_patches(patches):
-        patched_vfield = viz.vector_field(venv_orig, hook.network)
-    img = viz.plot_vf_mpp(patched_vfield, save_img=False)
+    # patches = random_combined_px_patch(layer_name=default_layer, channels=[55])
+    # fig, axs, info = patch_utils.compare_patched_vfields(venv, patches, hook, render_padding=render_padding)
+    # channel_description = f'channels {channels}' if len(channels) > 1 else f'channel {channels[0]}'
+    # fig.suptitle(f'Resampling {channel_description} on seed {seed}', fontsize=20)
 
-    patch_utils.compare_patched_vfields_mpp(venv_orig, patches, hook, default_layer)#, show_plot=True, save_img=False)
-    pass
+    # Have this be the ghost cheese instead
+    # viz.plot_dots(axs[1:], resampling_loc, is_grid=True, flip_y=False,
+    #                         hidden_padding=0 if render_padding else padding)
+    #plt.show()
+
+#resample_activations(0, [55], (12, 13)) #this is cheese location from outer grid
+#okay this finally works. Switch it so that it only displays the mpp of the patched maze, and displays on a given axis
+
 
 # sanity check
 # list of cheese channels
@@ -570,54 +591,152 @@ patched vector field to show the MPP?
 """
 
 def fig_3():
-    fig3, axd3 = plt.subplot_mosaic(
-        [['original', 'same_loc', 'dif_loc_historic', 'dif_loc_bottom_right']],
-        figsize=(AX_SIZE * 4, AX_SIZE),
-        tight_layout=True,
-    )
+
+    # a list of 13x13 mazes
+    # some of these cause my mpp function to go haywire. unsure why, but removed them from the list
+    seeds = [0, 2, 16, 51, 74, 84, 85, 99, 107, 108, 132, 169, 183, 189, 192, 195,
+             204, 207, 291, 304, 314, 322, 335, 337, 338, 344, 346, 385, 389, 392, 414, 433, 435, 449, 455,
+             470, 516, 517, 543, 555, 559]
+    seeds = [i for i in range(200)]
+    for seed in seeds:
+        #seed = 314
+        try:
+            if os.path.exists(f'playground/paper_graphics/visualizations/fig_3_by_seed/{seed}_fig_3.pdf'):
+                print(f'Already have {seed}')
+                continue # in the for loop
+            if os.path.exists(f'playground/paper_graphics/visualizations/fig_3_by_seed/{seed}_fig_3.png'):
+                print(f'Already have {seed}')
+                continue
+            print("current seed: ", seed)
+
+
+            fig3, axd3 = plt.subplot_mosaic(
+                [['original', 'same_loc', 'dif_loc_historic', 'dif_loc_bottom_right']],
+                figsize=(AX_SIZE * 4, AX_SIZE),
+                tight_layout=True,
+            )
+
+            #seed = 304
+
+            venv = create_venv(1,seed,1)
+            state = maze.EnvState(venv.env.callmethod('get_state')[0])
+
+            vf = viz.vector_field(venv, policy)
+            img = viz.plot_vf_mpp(vf, ax=axd3['original'], save_img=False)
+            axd3['original'].imshow(img)
+
+            # part b
+            # move to cheese loc in same location
+            # resample across all channels
+            cheese_channels = [7, 8, 42, 44, 55, 77, 82, 88, 89, 99, 113]
+
+            patches = resample_activations(seed, cheese_channels)
+
+            venv = create_venv(1,seed,1)
+            obs = t.tensor(venv.reset(), dtype=t.float32)
+
+            with hook.use_patches(patches):
+                hook.network(obs)
+                patched_vfield = viz.vector_field(venv, hook.network)
+            img = viz.plot_vf_mpp(patched_vfield, ax=axd3['same_loc'], save_img=False)
+            axd3['same_loc'].imshow(img)
+
+
+            # part c
+            # different location in the top right
+
+            #size of inner grid
+            inner_grid = maze.get_inner_grid_from_seed(seed)
+            size = inner_grid.shape[0]
+            padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
+
+
+            #top right
+            top_right = (size + padding, size + padding)
+            patches = resample_activations(seed, cheese_channels, cheese_loc=top_right)
+
+            venv = create_venv(1,seed,1)
+            obs = t.tensor(venv.reset(), dtype=t.float32)
+
+            with hook.use_patches(patches):
+                hook.network(obs)
+                patched_vfield = viz.vector_field(venv, hook.network)
+            img = viz.plot_vf_mpp(patched_vfield, ax=axd3['dif_loc_historic'], save_img=False)
+            axd3['dif_loc_historic'].imshow(img)
+
+            # part d
+            # different location in the bottom right
+
+            bottom_right = (0, size + padding)
+
+            patches = resample_activations(seed, cheese_channels, cheese_loc=bottom_right)
+            padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
+            #viz.plot_pixel_dot(axd3['dif_loc_bottom_right'], 12, 0, hidden_padding=padding)
+
+            venv = create_venv(1,seed,1)
+            obs = t.tensor(venv.reset(), dtype=t.float32)
+
+            with hook.use_patches(patches):
+                hook.network(obs)
+                patched_vfield = viz.vector_field(venv, hook.network)
+            img = viz.plot_vf_mpp(patched_vfield, ax=axd3['dif_loc_bottom_right'], save_img=False)
+            axd3['dif_loc_bottom_right'].imshow(img)
+
+
+            # add title
+            plt.suptitle(f'Seed {seed}')
+            #plt.show()
+            #plt.savefig(f'playground/paper_graphics/visualizations/fig_3_by_seed/{seed}_fig_3.pdf', bbox_inches="tight", format='pdf')
+            plt.savefig(f'playground/paper_graphics/visualizations/fig_3_by_seed/{seed}_fig_3.png', bbox_inches="tight", format='png')
+            plt.close()
+        except:
+            continue #in the for loop
+            #pass
+
+
 
     # part a
 
-    venv_a = create_venv(1,433,1)
-    vf = viz.vector_field(venv_a, policy)
-    img = viz.plot_vf_mpp(vf, ax=axd3['original'], save_img=False)
-    axd3['original'].imshow(img)
-
-    original_activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
-
-    # part b
-
-    # part c
-
-    # venv_c = create_venv(1,516,1)
-    # obs = t.tensor(venv_c.reset(), dtype=t.float32)
+    # venv_a = create_venv(1,433,1)
+    # vf = viz.vector_field(venv_a, policy)
+    # img = viz.plot_vf_mpp(vf, ax=axd3['original'], save_img=False)
+    # axd3['original'].imshow(img)
     #
-    # with hook.set_hook_should_get_custom_data():
-    #     hook.network(obs)
-    # c_activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
+    # original_activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
     #
-    # np.save("playground/paper_graphics/visualizations/fig_3_516_activ.npy", c_activ)
-    c_activ = np.load("playground/paper_graphics/visualizations/fig_3_516_activ.npy")
-
-    # patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=success_a_pos)
+    # # part b
+    #
+    # # part c
+    #
+    # # venv_c = create_venv(1,516,1)
+    # # obs = t.tensor(venv_c.reset(), dtype=t.float32)
+    # #
+    # # with hook.set_hook_should_get_custom_data():
+    # #     hook.network(obs)
+    # # c_activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
+    # #
+    # # np.save("playground/paper_graphics/visualizations/fig_3_516_activ.npy", c_activ)
+    # c_activ = np.load("playground/paper_graphics/visualizations/fig_3_516_activ.npy")
+    #
+    # # patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=success_a_pos)
+    # # with hook.use_patches(patches):
+    # #     patched_vfield = viz.vector_field(venv, hook.network)
+    # # img = viz.plot_vf_mpp(patched_vfield, ax=axd4['success_a'], save_img=False)
+    #
+    # # obs = t.tensor(venv_a.reset(), dtype=t.float32)
+    # #
+    # # with hook.set_hook_should_get_custom_data():
+    # #     hook.network(obs)
+    # patches = patch_utils.get_channel_whole_patch_replace(layer_name=default_layer,channel=55, activations=c_activ)
     # with hook.use_patches(patches):
-    #     patched_vfield = viz.vector_field(venv, hook.network)
-    # img = viz.plot_vf_mpp(patched_vfield, ax=axd4['success_a'], save_img=False)
-
-    # obs = t.tensor(venv_a.reset(), dtype=t.float32)
+    #     patched_vfield = viz.vector_field(venv_a, hook.network)
+    # img = viz.plot_vf_mpp(patched_vfield, ax=axd3['dif_loc_historic'], save_img=False)
+    # axd3['dif_loc_historic'].imshow(img)
     #
-    # with hook.set_hook_should_get_custom_data():
-    #     hook.network(obs)
-    patches = patch_utils.get_channel_whole_patch_replace(layer_name=default_layer,channel=55, activations=c_activ)
-    with hook.use_patches(patches):
-        patched_vfield = viz.vector_field(venv_a, hook.network)
-    img = viz.plot_vf_mpp(patched_vfield, ax=axd3['dif_loc_historic'], save_img=False)
-    axd3['dif_loc_historic'].imshow(img)
+    # plt.show()
+    # print()
 
-    plt.show()
-    print()
-
-#fig_3()
+fig_3()
 
 
 # ---------------------------------------------------- fig 4 ----------------------------------------------------
