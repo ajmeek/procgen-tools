@@ -1171,7 +1171,7 @@ def cheese_vector_fig():
 
     #plt.rcParams["font.family"] = "Times New Roman" - need to install a package
     # Create a figure and axis for the mosaic plot
-    fig, ax = plt.subplots(1, 4, figsize=(15, 5))
+    #fig, ax = plt.subplots(1, 4, figsize=(15, 5))
 
     # getting actual data
     vfields = [
@@ -1190,14 +1190,14 @@ def cheese_vector_fig():
 
 
     #alright, try to get one from the same seed. Let's do subtractio seed zero.
-    vfields = [
-        pickle.load(open(f, "rb"))
-        for f in glob("experiments/statistics/data/vfields/cheese/seed-0*.pkl")
-    ]
-    probs_original_same, probs_patched_same = vfield_stats.get_probs_original_and_patched(
-        vfields, coeff=-1.0
-    )
-    probs_original_same, probs_patched_same = probs_original_same[:, 0], probs_patched_same[:, 0]
+    # vfields = [
+    #     pickle.load(open(f, "rb"))
+    #     for f in glob("experiments/statistics/data/vfields/cheese/seed-0*.pkl")
+    # ]
+    # probs_original_same, probs_patched_same = vfield_stats.get_probs_original_and_patched(
+    #     vfields, coeff=-1.0
+    # )
+    # probs_original_same, probs_patched_same = probs_original_same[:, 0], probs_patched_same[:, 0]
 
     # plot twist this is supposed to be same cheese location.
 
@@ -1207,6 +1207,26 @@ def cheese_vector_fig():
     # alright, out of the first 100 seeds the cheese location that is most prevalent (in outer grid)
     # is (12, 13), with 6 occurences at seeds [1, 11, 18, 29, 30, 38]
 
+    vfields = []
+    #for i in [1, 11, 18, 29, 30, 38]:
+    for f in glob(f"experiments/statistics/data/vfields/cheese/seed-1_*.pkl"):
+        vfields.append(pickle.load(open(f, "rb")))
+    for f in glob(f"experiments/statistics/data/vfields/cheese/seed-11_*.pkl"):
+        vfields.append(pickle.load(open(f, "rb")))
+    for f in glob(f"experiments/statistics/data/vfields/cheese/seed-18_*.pkl"):
+        vfields.append(pickle.load(open(f, "rb")))
+    for f in glob(f"experiments/statistics/data/vfields/cheese/seed-29_*.pkl"):
+        vfields.append(pickle.load(open(f, "rb")))
+    for f in glob(f"experiments/statistics/data/vfields/cheese/seed-30_*.pkl"):
+        vfields.append(pickle.load(open(f, "rb")))
+    for f in glob(f"experiments/statistics/data/vfields/cheese/seed-38_*.pkl"):
+        vfields.append(pickle.load(open(f, "rb")))
+
+
+    probs_original_same, probs_patched_same = vfield_stats.get_probs_original_and_patched(
+        vfields, coeff=-1.0
+    )
+    probs_original_same, probs_patched_same = probs_original_same[:, 0], probs_patched_same[:, 0]
 
 
     # now seeing which seeds of the first 100 are short ones - aka 3x3 5x5 or 7x7
@@ -1272,47 +1292,47 @@ def cheese_vector_fig():
     #     ax[i].set_title(f'Boxplot {i+1}')
 
     # Plot each box plot with markers and different box colors
-    for i, (data_var1, data_var2) in enumerate([(probs_original_plus_1, probs_patched_plus_1),
-                                                (probs_original_minus_1, probs_patched_minus_1),
-                                                (probs_original_same, probs_patched_same),
-                                                (probs_small_seed_orig, probs_small_seed_patched)]):
-
-        # mean = np.mean(data_var1), np.mean(data_var2)
-
-        # Plot the boxes with different colors
-        bp = ax[i].boxplot([data_var1, data_var2], labels=['Var1', 'Var2'], patch_artist=True)
-
-        # Set colors for the boxes
-        for count, patch in enumerate(bp['boxes']):
-            #print(patch)
-            if count == 0:
-                patch.set_facecolor('lightblue')  # Left part of the box
-            elif count == 1:
-                patch.set_facecolor('orange')
-            patch.set_edgecolor('black')
-
-        # TODO - these markers aren't at the actual mean. Try changing the boxplot data struct directly
-        # Plot markers for mean without lines
-        # ax[i].plot([1, 2], mean, 'kD', markersize=10, label='Mean', linestyle='None')
-
-        # if i == 1:
-        #     ax[i].set_title(f'Boxplot {i+1}')
-        # elif i == 2:
-        #     ax[i].set_title(f'Boxplot {i+1}')
-        # elif i == 3:
-        #     ax[i].set_title(f'Boxplot {i+1}')
-        # else i == 4:
-        #     ax[i].set_title(f'Boxplot {i+1}')
-
-    ax[0].set_title("Coeff = 1.0")
-    ax[1].set_title("Coeff = -1.0")
-    ax[2].set_title("Coeff = -1.0, Same Seed")
-    ax[3].set_title("Coeff = -1.0, Small Seeds")
-
-    # Hide x-tick labels and ticks for all boxplots except the first one
-    for i in range(0, len(ax)):
-        ax[i].set_xticklabels([])
-        ax[i].tick_params(axis='x', length=0)
+    # for i, (data_var1, data_var2) in enumerate([(probs_original_plus_1, probs_patched_plus_1),
+    #                                             (probs_original_minus_1, probs_patched_minus_1),
+    #                                             (probs_original_same, probs_patched_same),
+    #                                             (probs_small_seed_orig, probs_small_seed_patched)]):
+    #
+    #     # mean = np.mean(data_var1), np.mean(data_var2)
+    #
+    #     # Plot the boxes with different colors
+    #     bp = ax[i].boxplot([data_var1, data_var2], labels=['Var1', 'Var2'], patch_artist=True)
+    #
+    #     # Set colors for the boxes
+    #     for count, patch in enumerate(bp['boxes']):
+    #         #print(patch)
+    #         if count == 0:
+    #             patch.set_facecolor('lightblue')  # Left part of the box
+    #         elif count == 1:
+    #             patch.set_facecolor('orange')
+    #         patch.set_edgecolor('black')
+    #
+    #     # TODO - these markers aren't at the actual mean. Try changing the boxplot data struct directly
+    #     # Plot markers for mean without lines
+    #     # ax[i].plot([1, 2], mean, 'kD', markersize=10, label='Mean', linestyle='None')
+    #
+    #     # if i == 1:
+    #     #     ax[i].set_title(f'Boxplot {i+1}')
+    #     # elif i == 2:
+    #     #     ax[i].set_title(f'Boxplot {i+1}')
+    #     # elif i == 3:
+    #     #     ax[i].set_title(f'Boxplot {i+1}')
+    #     # else i == 4:
+    #     #     ax[i].set_title(f'Boxplot {i+1}')
+    #
+    # ax[0].set_title("Coeff = 1.0")
+    # ax[1].set_title("Coeff = -1.0")
+    # ax[2].set_title("Coeff = -1.0, Same Seed")
+    # ax[3].set_title("Coeff = -1.0, Small Seeds")
+    #
+    # # Hide x-tick labels and ticks for all boxplots except the first one
+    # for i in range(0, len(ax)):
+    #     ax[i].set_xticklabels([])
+    #     ax[i].tick_params(axis='x', length=0)
 
     # Add markers for each variable
     # for i in range(4):
@@ -1327,17 +1347,74 @@ def cheese_vector_fig():
     # legend_elements = [plt.Line2D([0], [0], marker='D', color='w', label='Mean',
     #                               markersize=10, markerfacecolor='black')]
 
-    orig_patch = mpatches.Patch(color='lightblue', label='The original probabilities')
-    patch_patch = mpatches.Patch(color='orange', label='The patched probabilities')
+    fig, axs = plt.subplots(1, 2, figsize=(15, 5), tight_layout=True)
+
+    boxplot_data_cheese = [probs_original_plus_1, probs_patched_plus_1,
+                    probs_patched_minus_1]#,
+                    #probs_small_seed_orig, probs_small_seed_patched]
+    labels = ['P(Cheese|Decision Square)', 'Coeff = 1.0',
+              'Coeff = -1.0']#,
+              #'Coeff = -1.0, Small Seed', 'Coeff = -1.0, Small Seeds']
+    colors = ['lightblue', 'orange', 'red']#, 'pink', 'green']
+    medianprops = dict(linestyle='-', linewidth=2.5, color='black')
+
+    bp1 = axs[0].boxplot(boxplot_data_cheese, medianprops=medianprops, patch_artist=True) #labels=labels)
+
+    for box in bp1:
+        for patch, color in zip(bp1['boxes'], colors):
+            patch.set_facecolor(color)
+
+    orig_patch = mpatches.Patch(color='lightblue', label='Original')
+    pos_patch = mpatches.Patch(color='orange', label='Added Vector')
+    neg_patch = mpatches.Patch(color='red', label='Subtracted Vector')
+    handles = [orig_patch, pos_patch, neg_patch]
 
     # Display the legend below the subplots
-    fig.legend(handles=[orig_patch, patch_patch], loc='lower center', ncol=2, fontsize=10)
+    #fig.legend(handles=[orig_patch, patch_patch], loc='lower center', ncol=2, fontsize=10)
+    #fig.legend(handles=handles, loc='lower center', ncol=3, fontsize=10, bbox_to_anchor=(0.5, -0.3))
 
+    axs[0].set_xticks([])
+    axs[0].set_ylabel("P(Cheese | Decision Square)", fontsize=14)
 
+    # here add stuff from top right vector to place side by side
+
+    vfields = [
+        pickle.load(open(f, "rb"))
+        for f in glob("experiments/statistics/data/vfields/top_right/seed-*.pkl")
+    ]
+    probs_original_plus_1, probs_patched_plus_1 = vfield_stats.get_probs_original_and_patched(
+        vfields, coeff=1.0
+    )
+    probs_original_minus_1, probs_patched_minus_1 = vfield_stats.get_probs_original_and_patched(
+        vfields, coeff=-1.0
+    )
+
+    probs_original_plus_1, probs_patched_plus_1 = probs_original_plus_1[:, 1], probs_patched_plus_1[:, 1]
+    probs_original_minus_1, probs_patched_minus_1 = probs_original_minus_1[:, 1], probs_patched_minus_1[:, 1]
+
+    orig_tr, pos_tr, min_tr = probs_original_plus_1, probs_patched_plus_1, probs_patched_minus_1
+
+    boxplot_data_tr = [probs_original_plus_1, probs_patched_plus_1, probs_patched_minus_1]
+
+    bp2 = axs[1].boxplot(boxplot_data_tr, medianprops=medianprops, patch_artist=True) #labels=labels)
+
+    for box in bp2:
+        for patch, color in zip(bp2['boxes'], colors):
+            patch.set_facecolor(color)
+
+    axs[1].set_ylabel("P(Top Right | Decision Square)", fontsize=14)
+    axs[1].set_xticks([])
+
+    #fig.legend(handles=handles, loc='lower center', ncol=3, fontsize=10, bbox_to_anchor=(0.5, -0.3))
+    #fig.legend([bp1['boxes'][0], bp2['boxes'][0]], handles=handles, loc='upper center', bbox_to_anchor=(0.5, -0.1),
+    #           fancybox=True, shadow=True, ncol=2)
+    fig.legend(handles=handles, loc='lower center', ncol=3, fontsize=18, bbox_to_anchor=(0.5, -0.02))
+    plt.tight_layout(rect=[0,1.1,1,1]) # left bottom right top
 
     # Display the plot
     #plt.show()
-    plt.savefig('playground/paper_graphics/visualizations/cheese_vector.pdf', bbox_inches="tight", format='pdf')
+    #plt.savefig('playground/paper_graphics/visualizations/cheese_vector.pdf', bbox_inches="tight", format='pdf')
+    plt.savefig('playground/paper_graphics/visualizations/vector_figure.pdf', bbox_inches="tight", format='pdf')
 
 
 #cheese_vector_fig()
