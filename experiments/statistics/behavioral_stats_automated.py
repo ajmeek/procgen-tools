@@ -32,7 +32,7 @@ import prettytable
 
 #rand_region = [i+1 for i in range(15)] #skip 2 for now because no examples of it getting the cheese outside top right
 rand_region = [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-rand_region = [5] # go one by one due to memory issues on my laptop
+rand_region = [10, 11, 12, 13, 14, 15] # go one by one due to memory issues on my laptop
 
 for i in rand_region:
 

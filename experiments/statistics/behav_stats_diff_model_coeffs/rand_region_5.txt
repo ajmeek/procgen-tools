@@ -1,0 +1,10 @@
+P(get cheese | decision square, cheese not in top 5x5) = 0.7141
+The average regression accuracy is 0.824.
++--------------------------------------------------------+-------------+
+|                       [1mAttribute[0m                        | [1mCoefficient[0m |
++--------------------------------------------------------+-------------+
+| [1mEuclidean distance between cheese and top right square[0m |    -1.414   |
+|        [1mSteps between cheese and decision square[0m        |    -0.579   |
+| [1mEuclidean distance between cheese and decision square[0m  |    -0.549   |
+|                       Intercept                        |    1.366    |
++--------------------------------------------------------+-------------+
