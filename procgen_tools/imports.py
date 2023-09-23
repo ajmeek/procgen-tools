@@ -40,7 +40,7 @@ from ipywidgets import (
     Text,
 )  # Import this later because otherwise Text gets cast as str?
 
-RAND_REGION = 5
+RAND_REGION = 5    # change this for testing different models in cheese vector jupyter notebook
 NUM_ACTIONS = 15
 try:
     get_ipython()

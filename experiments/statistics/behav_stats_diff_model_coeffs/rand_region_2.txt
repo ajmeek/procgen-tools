@@ -1,0 +1,32 @@
+Loaded 1010 runs
+Considering 547 runs
+P(get cheese | decision square, cheese not in top 5x5) = 0.000
++-----------------------------------------------------------------+-------------+---------------------------------------------------------------+
+|                             [1mMetric 1[0m                            | [1mCorrelation[0m |                            [1mMetric 2[0m                           |
++-----------------------------------------------------------------+-------------+---------------------------------------------------------------+
+| Euclidean distance between decision square and top right square |    0.995    | Taxicab distance between decision square and top right square |
+|      [1mEuclidean distance between cheese and top right square[0m     |    0.995    |      Euclidean distance between cheese and top-right 5x5      |
+| Euclidean distance between decision square and top right square |    0.994    |  [1mEuclidean distance between decision square and top-right 5x5[0m |
+|   [1mEuclidean distance between decision square and top-right 5x5[0m  |    0.992    |   Taxicab distance between decision square and top-right 5x5  |
+|  Taxicab distance between decision square and top right square  |    0.990    |   Taxicab distance between decision square and top-right 5x5  |
+| Euclidean distance between decision square and top right square |    0.990    |   Taxicab distance between decision square and top-right 5x5  |
+|      [1mEuclidean distance between cheese and top right square[0m     |    0.986    |       Taxicab distance between cheese and top-right 5x5       |
+|       Taxicab distance between cheese and top right square      |    0.984    |       Taxicab distance between cheese and top-right 5x5       |
+|  Taxicab distance between decision square and top right square  |    0.984    |  [1mEuclidean distance between decision square and top-right 5x5[0m |
+|      [1mEuclidean distance between cheese and decision square[0m      |    0.982    |      Taxicab distance between cheese and decision square      |
+|       Euclidean distance between cheese and top-right 5x5       |    0.975    |       Taxicab distance between cheese and top-right 5x5       |
+|      [1mEuclidean distance between cheese and top right square[0m     |    0.974    |      Taxicab distance between cheese and top right square     |
+|        Steps between decision square and top right square       |    0.961    |        Steps between decision square and top-right 5x5        |
+|       Taxicab distance between cheese and top right square      |    0.948    |      Euclidean distance between cheese and top-right 5x5      |
+|         Steps between decision square and top-right 5x5         |    0.918    |   Taxicab distance between decision square and top-right 5x5  |
+|         Steps between decision square and top-right 5x5         |    0.917    |  [1mEuclidean distance between decision square and top-right 5x5[0m |
+| Euclidean distance between decision square and top right square |    0.912    |        Steps between decision square and top-right 5x5        |
+| Euclidean distance between decision square and top right square |    0.912    |       Steps between decision square and top right square      |
+|  Taxicab distance between decision square and top right square  |    0.910    |       Steps between decision square and top right square      |
+|  Taxicab distance between decision square and top right square  |    0.909    |        Steps between decision square and top-right 5x5        |
+|        Steps between decision square and top right square       |    0.907    |  [1mEuclidean distance between decision square and top-right 5x5[0m |
+|        Steps between decision square and top right square       |    0.907    |   Taxicab distance between decision square and top-right 5x5  |
+|            Steps between cheese and top right square            |    0.875    |             Steps between cheese and top-right 5x5            |
+|            Steps between cheese and top right square            |    0.863    |       Steps between decision square and top right square      |
+|       Taxicab distance between cheese and decision square       |    0.848    |            [1mSteps between cheese and decision square[0m           |
++-----------------------------------------------------------------+-------------+---------------------------------------------------------------+
