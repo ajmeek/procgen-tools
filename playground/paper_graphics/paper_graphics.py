@@ -725,104 +725,104 @@ def fig_3():
              470, 516, 517, 543, 555, 559]
     seeds = [i for i in range(200)]
     #for seed in seeds:
-    seed = 79
-    try:
-        if os.path.exists(f'playground/paper_graphics/visualizations/fig_3_by_seed/{seed}_fig_3.pdf'):
-            print(f'Already have {seed}')
-            #continue # in the for loop
-        if os.path.exists(f'playground/paper_graphics/visualizations/fig_3_by_seed/{seed}_fig_3.png'):
-            print(f'Already have {seed}')
-            #continue
-        print("current seed: ", seed)
+    seed = 51
+    #try:
+    if os.path.exists(f'playground/paper_graphics/visualizations/fig_3_by_seed/{seed}_fig_3.pdf'):
+        print(f'Already have {seed}')
+        #continue # in the for loop
+    if os.path.exists(f'playground/paper_graphics/visualizations/fig_3_by_seed/{seed}_fig_3.png'):
+        print(f'Already have {seed}')
+        #continue
+    print("current seed: ", seed)
 
 
-        fig3, axd3 = plt.subplot_mosaic(
-            [['original', 'same_loc', 'dif_loc_historic', 'dif_loc_bottom_right']],
-            figsize=(AX_SIZE * 4, AX_SIZE),
-            tight_layout=True,
-        )
+    fig3, axd3 = plt.subplot_mosaic(
+        [['original', 'same_loc', 'dif_loc_historic', 'dif_loc_bottom_right']],
+        figsize=(AX_SIZE * 4, AX_SIZE),
+        tight_layout=True,
+    )
 
-        #seed = 304
+    #seed = 304
 
-        venv = create_venv(1,seed,1)
-        state = maze.EnvState(venv.env.callmethod('get_state')[0])
+    venv = create_venv(1,seed,1)
+    state = maze.EnvState(venv.env.callmethod('get_state')[0])
 
-        vf = viz.vector_field(venv, policy)
-        img = viz.plot_vf_mpp(vf, ax=axd3['original'], save_img=False)
-        axd3['original'].imshow(img)
-        axd3['original'].set_title('Original', fontsize=18)
+    vf = viz.vector_field(venv, policy)
+    img = viz.plot_vf_mpp(vf, ax=axd3['original'], save_img=False)
+    axd3['original'].imshow(img)
+    axd3['original'].set_title('Original', fontsize=24)
 
-        # part b
-        # move to cheese loc in same location
-        # resample across all channels
-        cheese_channels = [7, 8, 42, 44, 55, 77, 82, 88, 89, 99, 113]
+    # part b
+    # move to cheese loc in same location
+    # resample across all channels
+    cheese_channels = [7, 8, 42, 44, 55, 77, 82, 88, 89, 99, 113]
 
-        patches = resample_activations(seed, cheese_channels)
+    patches = resample_activations(seed, cheese_channels)
 
-        venv = create_venv(1,seed,1)
-        obs = t.tensor(venv.reset(), dtype=t.float32)
+    venv = create_venv(1,seed,1)
+    obs = t.tensor(venv.reset(), dtype=t.float32)
 
-        with hook.use_patches(patches):
-            hook.network(obs)
-            patched_vfield = viz.vector_field(venv, hook.network)
-        img = viz.plot_vf_mpp(patched_vfield, ax=axd3['same_loc'], save_img=False)
-        axd3['same_loc'].imshow(img)
-        axd3['same_loc'].set_title('Same Location', fontsize=18)
-
-
-        # part c
-        # different location in the top right
-
-        #size of inner grid
-        inner_grid = maze.get_inner_grid_from_seed(seed)
-        size = inner_grid.shape[0]
-        padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
+    with hook.use_patches(patches):
+        hook.network(obs)
+        patched_vfield = viz.vector_field(venv, hook.network)
+    img = viz.plot_vf_mpp(patched_vfield, ax=axd3['same_loc'], save_img=False)
+    axd3['same_loc'].imshow(img)
+    axd3['same_loc'].set_title('Same Location', fontsize=24)
 
 
-        #top right
-        top_right = (size + padding, size + padding)
-        patches = resample_activations(seed, cheese_channels, cheese_loc=top_right)
+    # part c
+    # different location in the top right
 
-        venv = create_venv(1,seed,1)
-        obs = t.tensor(venv.reset(), dtype=t.float32)
-
-        with hook.use_patches(patches):
-            hook.network(obs)
-            patched_vfield = viz.vector_field(venv, hook.network)
-        img = viz.plot_vf_mpp(patched_vfield, ax=axd3['dif_loc_historic'], save_img=False)
-        axd3['dif_loc_historic'].imshow(img)
-        axd3['dif_loc_historic'].set_title('Different Location', fontsize=18)
-
-        # part d
-        # different location in the bottom right
-
-        bottom_right = (0, size + padding)
-
-        patches = resample_activations(seed, cheese_channels, cheese_loc=bottom_right)
-        padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
-        #viz.plot_pixel_dot(axd3['dif_loc_bottom_right'], 12, 0, hidden_padding=padding)
-
-        venv = create_venv(1,seed,1)
-        obs = t.tensor(venv.reset(), dtype=t.float32)
-
-        with hook.use_patches(patches):
-            hook.network(obs)
-            patched_vfield = viz.vector_field(venv, hook.network)
-        img = viz.plot_vf_mpp(patched_vfield, ax=axd3['dif_loc_bottom_right'], save_img=False)
-        axd3['dif_loc_bottom_right'].imshow(img)
-        axd3['dif_loc_bottom_right'].set_title('Different Location', fontsize=18)
+    #size of inner grid
+    inner_grid = maze.get_inner_grid_from_seed(seed)
+    size = inner_grid.shape[0]
+    padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
 
 
-        # add title
-        plt.suptitle(f'Seed {seed}')
-        #plt.show()
-        plt.savefig(f'playground/paper_graphics/visualizations/{seed}_fig_3.pdf', bbox_inches="tight", format='pdf')
-        #plt.savefig(f'playground/paper_graphics/visualizations/fig_3_by_seed/{seed}_fig_3.png', bbox_inches="tight", format='png')
-        #plt.close()
-    except:
-        #continue #in the for loop
-        print(f"excepted at seed {seed}")
-        pass
+    #top right
+    top_right = (size + padding, size + padding)
+    patches = resample_activations(seed, cheese_channels, cheese_loc=top_right)
+
+    venv = create_venv(1,seed,1)
+    obs = t.tensor(venv.reset(), dtype=t.float32)
+
+    with hook.use_patches(patches):
+        hook.network(obs)
+        patched_vfield = viz.vector_field(venv, hook.network)
+    img = viz.plot_vf_mpp(patched_vfield, ax=axd3['dif_loc_historic'], save_img=False)
+    axd3['dif_loc_historic'].imshow(img)
+    axd3['dif_loc_historic'].set_title('Historic Location', fontsize=24)
+
+    # part d
+    # different location in the bottom right
+
+    bottom_right = (0, size + padding)
+
+    patches = resample_activations(seed, cheese_channels, cheese_loc=bottom_right)
+    padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
+    #viz.plot_pixel_dot(axd3['dif_loc_bottom_right'], 12, 0, hidden_padding=padding)
+
+    venv = create_venv(1,seed,1)
+    obs = t.tensor(venv.reset(), dtype=t.float32)
+
+    with hook.use_patches(patches):
+        hook.network(obs)
+        patched_vfield = viz.vector_field(venv, hook.network)
+    img = viz.plot_vf_mpp(patched_vfield, ax=axd3['dif_loc_bottom_right'], save_img=False)
+    axd3['dif_loc_bottom_right'].imshow(img)
+    axd3['dif_loc_bottom_right'].set_title('Bottom Right Location', fontsize=24)
+
+
+    # add title
+    #plt.suptitle(f'Seed {seed}')
+    #plt.show()
+    plt.savefig(f'playground/paper_graphics/visualizations/{seed}_fig_3.pdf', bbox_inches="tight", format='pdf')
+    #plt.savefig(f'playground/paper_graphics/visualizations/fig_3_by_seed/{seed}_fig_3.png', bbox_inches="tight", format='png')
+    #plt.close()
+    # except:
+    #     #continue #in the for loop
+    #     print(f"excepted at seed {seed}")
+    #     pass
 
 
 
@@ -1650,7 +1650,7 @@ def cheese_vector_fig():
     # legend_elements = [plt.Line2D([0], [0], marker='D', color='w', label='Mean',
     #                               markersize=10, markerfacecolor='black')]
 
-    fig, axs = plt.subplots(1, 2, figsize=(15, 5), tight_layout=True)
+    fig, axs = plt.subplots(1, 2, figsize=(15, 6), tight_layout=True)
 
     boxplot_data_cheese = [probs_original_plus_1, probs_patched_plus_1,
                     probs_patched_minus_1]#,
@@ -1678,6 +1678,7 @@ def cheese_vector_fig():
 
     axs[0].set_xticks([])
     axs[0].set_ylabel("P(Cheese | Decision Square)", fontsize=14)
+    axs[0].set_title("Cheese Vector", fontsize=24)
 
     # here add stuff from top right vector to place side by side
 
@@ -1707,6 +1708,7 @@ def cheese_vector_fig():
 
     axs[1].set_ylabel("P(Top Right | Decision Square)", fontsize=14)
     axs[1].set_xticks([])
+    axs[1].set_title("Top Right Vector", fontsize=24)
 
     #fig.legend(handles=handles, loc='lower center', ncol=3, fontsize=10, bbox_to_anchor=(0.5, -0.3))
     #fig.legend([bp1['boxes'][0], bp2['boxes'][0]], handles=handles, loc='upper center', bbox_to_anchor=(0.5, -0.1),
@@ -1856,3 +1858,14 @@ def top_right_vector_figure():
 # print(cheese_pos, max, seeds)
 
 # (12, 13) position of cheese in outer grid has 6 occurences.
+
+# --------------------------------------- base heatmap small figure ----------------------------------------------
+def base_heatmap_small_fig():
+    fig, ax = plt.subplots()
+
+    plot_heatmap(48, "normal", ax)
+
+    #trying png to get latex wrapfigure package to work. - yes. it can't handle PDFs for some reason
+    plt.savefig('playground/paper_graphics/visualizations/base_heatmap.png', bbox_inches="tight", format='png')
+
+#base_heatmap_small_fig()
