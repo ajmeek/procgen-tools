@@ -463,7 +463,7 @@ def fig_1():
 
     #plt.show()
 
-fig_1()
+#fig_1()
 
 
 # ------------------------------------------------ fig 1 with subfigures ---------------------------------------
@@ -1049,6 +1049,66 @@ def fig_5():
     plt.savefig('playground/paper_graphics/visualizations/fig_5.pdf', bbox_inches="tight", format='pdf')
 
 #fig_5()
+
+# ------------------------------------------- fig 5 with subfigures ----------------------------------------------
+
+def fig_5_subfigures():
+
+    venv = create_venv(1,seed,1)
+    state = maze.EnvState(venv.env.callmethod('get_state')[0])
+
+    obs = t.tensor(venv.reset(), dtype=t.float32)
+
+    with hook.set_hook_should_get_custom_data():
+        hook.network(obs)
+    fig = plt.figure(figsize=(AX_SIZE * 4, AX_SIZE * 1.15), layout='constrained')
+    subfigs = fig.subfigures(1, 2, wspace=0.05)
+
+    historic_a = 2
+    historic_b = 543
+    different_a = 128
+    different_b = 167
+
+    font_dict = {'fontname': 'Times New Roman', 'fontsize': 24}
+
+    subfigs[0].suptitle('Historic Goal Location', **font_dict)
+    subfigs[1].suptitle('Different Goal Location', **font_dict)
+    # subfigs[2].suptitle('Patched Activations', fontsize=18, fontproperties=font_prop)
+    # subfigs[3].suptitle('Patched MPP', fontsize=18, fontproperties=font_prop)
+
+    # Historic A
+    ax0 = subfigs[0].subplots(1, 2)
+    venv = create_venv(1,historic_a, 1)
+    vf = viz.vector_field(venv, policy)
+
+    img = viz.plot_vf_mpp(vf, ax=ax0[0], save_img=False)
+    ax0[0].imshow(img)
+
+    # Historic B
+    venv = create_venv(1,historic_b,1)
+    vf = viz.vector_field(venv, policy)
+
+    img = viz.plot_vf_mpp(vf, ax=ax0[1], save_img=False)
+    ax0[1].imshow(img)
+
+    # Different A
+    ax1 = subfigs[1].subplots(1, 2)
+    venv = create_venv(1,different_a,1)
+    vf = viz.vector_field(venv, policy)
+
+    img = viz.plot_vf_mpp(vf, ax=ax1[0], save_img=False)
+    ax1[0].imshow(img)
+
+    # Different B
+    venv = create_venv(1,different_b,1)
+    vf = viz.vector_field(venv, policy)
+
+    img = viz.plot_vf_mpp(vf, ax=ax1[1], save_img=False)
+    ax1[1].imshow(img)
+
+    plt.savefig('playground/paper_graphics/visualizations/fig_5_subfigures.pdf', bbox_inches="tight", format='pdf')
+
+fig_5_subfigures()
 
 # ---------------------------------------------------- fig X1 ----------------------------------------------------
 # going through the recording of Mrinank's request one at a time.
