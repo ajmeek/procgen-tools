@@ -499,6 +499,8 @@ def visualize_venv(
         fudge = 3.5
 
         y_coord = square[0] * step_in_pixels + step_in_pixels//2 + fudge
+        # got flipped for fig 5 for some reason
+        y_coord = img.shape[0] - y_coord
         x_coord = square[1] * step_in_pixels + step_in_pixels//2 + fudge
 
         y_coord = int(y_coord)

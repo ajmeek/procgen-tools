@@ -568,75 +568,84 @@ def fig_1_subfigures():
 
 # ---------------------------------------------------- fig 2 ----------------------------------------------------
 def fig_2():
-    #move cheese in state uses full grid. use padding manually to get right grid coords
-    #cheese_a_pos = ()
-    cheese_b_pos = (18, 18) #top right
-    cheese_c_pos = (6, 18) #bottom right
 
-    fig2, axd2 = plt.subplot_mosaic(
-        [['reg_venv', 'cheese_a', 'cheese_b', 'cheese_c']],
-        figsize=(AX_SIZE * 4, AX_SIZE*1.5),
-        tight_layout=True,
-    )
+    # all cheese channels - 7, 8, 42, 44, 55, 77, 82, 88, 89, 99, 113
+    cheese_channels = [7, 8, 42, 44, 55, 77, 82, 88, 89, 99, 113]
+    for channel in cheese_channels:
 
-    venv = create_venv(1,seed,1)
-    state = maze.EnvState(venv.env.callmethod('get_state')[0])
+        #move cheese in state uses full grid. use padding manually to get right grid coords
+        #cheese_a_pos = ()
+        cheese_b_pos = (18, 18) #top right
+        cheese_c_pos = (6, 18) #bottom right
 
-    img = viz.visualize_venv(venv, ax=axd2['reg_venv'], render_padding=True)
-    axd2['reg_venv'].imshow(img)
+        fig2, axd2 = plt.subplot_mosaic(
+            [['reg_venv', 'cheese_a', 'cheese_b', 'cheese_c']],
+            figsize=(AX_SIZE * 4, AX_SIZE*1.5),
+            tight_layout=True,
+        )
 
-    # want to show activations from first cheese
-    # maze.move_cheese_in_state(state, cheese_a_pos)
-    # venv.env.callmethod('set_state', [state.state_bytes])
-    obs = t.tensor(venv.reset(), dtype=t.float32)
+        venv = create_venv(1,seed,1)
+        state = maze.EnvState(venv.env.callmethod('get_state')[0])
 
-    with hook.set_hook_should_get_custom_data():
-        hook.network(obs)
+        img = viz.visualize_venv(venv, ax=axd2['reg_venv'], render_padding=True)
+        axd2['reg_venv'].imshow(img)
 
-    activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
-    axd2['cheese_a'].imshow(activ)
-    axd2['cheese_a'].imshow(activ, cmap='RdBu', vmin=-1, vmax=1)
+        # want to show activations from first cheese
+        # maze.move_cheese_in_state(state, cheese_a_pos)
+        # venv.env.callmethod('set_state', [state.state_bytes])
+        obs = t.tensor(venv.reset(), dtype=t.float32)
 
-    axd2['cheese_a'].set_xticks([])
-    axd2['cheese_a'].set_yticks([])
+        with hook.set_hook_should_get_custom_data():
+            hook.network(obs)
 
-    maze.move_cheese_in_state(state, cheese_b_pos)
-    venv.env.callmethod('set_state', [state.state_bytes])
-    obs = t.tensor(venv.reset(), dtype=t.float32)
+        activ = hook.get_value_by_label(default_layer)[0][channel]
+        axd2['cheese_a'].imshow(activ)
+        axd2['cheese_a'].imshow(activ, cmap='bwr', vmin=-1, vmax=1)
 
-    with hook.set_hook_should_get_custom_data():
-        hook.network(obs)
+        axd2['cheese_a'].set_xticks([])
+        axd2['cheese_a'].set_yticks([])
 
-    #img = viz.visualize_venv(venv, render_padding=False, show_plot=True) #checking cheese coords, it is top right
-    activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
-    axd2['cheese_b'].imshow(activ)
-    axd2['cheese_b'].imshow(activ, cmap='RdBu', vmin=-1, vmax=1)
+        maze.move_cheese_in_state(state, cheese_b_pos)
+        venv.env.callmethod('set_state', [state.state_bytes])
+        obs = t.tensor(venv.reset(), dtype=t.float32)
 
-    axd2['cheese_b'].set_xticks([])
-    axd2['cheese_b'].set_yticks([])
+        with hook.set_hook_should_get_custom_data():
+            hook.network(obs)
 
-    maze.move_cheese_in_state(state, cheese_c_pos)
-    venv.env.callmethod('set_state', [state.state_bytes])
-    obs = t.tensor(venv.reset(), dtype=t.float32)
+        #img = viz.visualize_venv(venv, render_padding=False, show_plot=True) #checking cheese coords, it is top right
+        activ = hook.get_value_by_label(default_layer)[0][channel]
+        axd2['cheese_b'].imshow(activ)
+        axd2['cheese_b'].imshow(activ, cmap='bwr', vmin=-1, vmax=1)
 
-    with hook.set_hook_should_get_custom_data():
-        hook.network(obs)
+        axd2['cheese_b'].set_xticks([])
+        axd2['cheese_b'].set_yticks([])
 
-    #img = viz.visualize_venv(venv, render_padding=False, show_plot=True) #checking cheese coords, it is bottom right
-    activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
-    axd2['cheese_c'].imshow(activ)
-    axd2['cheese_c'].imshow(activ, cmap='RdBu', vmin=-1, vmax=1)
+        maze.move_cheese_in_state(state, cheese_c_pos)
+        venv.env.callmethod('set_state', [state.state_bytes])
+        obs = t.tensor(venv.reset(), dtype=t.float32)
 
-    axd2['cheese_c'].set_xticks([])
-    axd2['cheese_c'].set_yticks([])
+        with hook.set_hook_should_get_custom_data():
+            hook.network(obs)
 
-    axd2['reg_venv'].set_title('Maze', fontsize=18)
-    axd2['cheese_a'].set_title('Cheese A', fontsize=18)
-    axd2['cheese_b'].set_title('Cheese B', fontsize=18)
-    axd2['cheese_c'].set_title('Cheese C', fontsize=18)
+        #img = viz.visualize_venv(venv, render_padding=False, show_plot=True) #checking cheese coords, it is bottom right
+        activ = hook.get_value_by_label(default_layer)[0][channel]
+        axd2['cheese_c'].imshow(activ)
+        axd2['cheese_c'].imshow(activ, cmap='bwr', vmin=-1, vmax=1)
 
-    #plt.show()
-    plt.savefig('playground/paper_graphics/visualizations/fig_2.pdf', bbox_inches="tight", format='pdf')
+        axd2['cheese_c'].set_xticks([])
+        axd2['cheese_c'].set_yticks([])
+
+        axd2['reg_venv'].set_title('Maze', fontsize=24)
+        axd2['cheese_a'].set_title('Cheese A', fontsize=24)
+        axd2['cheese_b'].set_title('Cheese B', fontsize=24)
+        axd2['cheese_c'].set_title('Cheese C', fontsize=24)
+
+        norm = mpl.colors.Normalize(vmin=-1, vmax=1)
+        cax = fig2.add_axes([0.275, 0.05, 0.45, 0.05]) #distance from left, distance from bottom, width, height
+        fig2.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'), orientation='horizontal')#, location='bottom', shrink=0.5)
+
+        #plt.show()
+        plt.savefig(f'playground/paper_graphics/visualizations/fig_2_channel_{channel}.pdf', bbox_inches="tight", format='pdf')
 
 #fig_2()
 
@@ -1054,13 +1063,6 @@ def fig_5():
 
 def fig_5_subfigures():
 
-    venv = create_venv(1,seed,1)
-    state = maze.EnvState(venv.env.callmethod('get_state')[0])
-
-    obs = t.tensor(venv.reset(), dtype=t.float32)
-
-    with hook.set_hook_should_get_custom_data():
-        hook.network(obs)
     fig = plt.figure(figsize=(AX_SIZE * 4, AX_SIZE * 1.15), layout='constrained')
     subfigs = fig.subfigures(1, 2, wspace=0.05)
 
@@ -1108,7 +1110,7 @@ def fig_5_subfigures():
 
     plt.savefig('playground/paper_graphics/visualizations/fig_5_subfigures.pdf', bbox_inches="tight", format='pdf')
 
-fig_5_subfigures()
+#fig_5_subfigures()
 
 # ---------------------------------------------------- fig X1 ----------------------------------------------------
 # going through the recording of Mrinank's request one at a time.
