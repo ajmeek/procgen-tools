@@ -16,6 +16,13 @@ import procgen_tools.visualization as viz
 import procgen_tools.patch_utils as patch_utils
 import math
 
+import matplotlib.font_manager as fm
+
+# Load the font properties
+font_prop = fm.FontProperties(fname='/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman.ttf')
+plt.rcParams['font.family'] = 'Times New Roman'
+# plt.rcParams['font.serif'] = ['Times New Roman']
+
 AX_SIZE = 3.5
 patch_coords = (5,6)
 seed = 0
@@ -352,7 +359,8 @@ def fig_1():
 
     activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
     axd1['orig_act'].imshow(activ)
-    axd1['orig_act'].imshow(activ, cmap='RdBu', vmin=-1, vmax=1)
+    axd1['orig_act'].imshow(activ, cmap='bwr', vmin=-1, vmax=1) #test of reversing colorscheme
+    # alright, changed color scheme from RdBu to bwr. Ref: https://matplotlib.org/stable/users/explain/colors/colormaps.html
 
     axd1['orig_act'].set_xticks([])
     axd1['orig_act'].set_yticks([])
@@ -403,7 +411,7 @@ def fig_1():
 
     activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
     patch_img = axd1['patch_act'].imshow(activ)
-    axd1['patch_act'].imshow(activ, cmap='RdBu', vmin=-1, vmax=1)
+    axd1['patch_act'].imshow(activ, cmap='bwr', vmin=-1, vmax=1)
 
     axd1['patch_act'].set_xticks([])
     axd1['patch_act'].set_yticks([])
@@ -440,14 +448,123 @@ def fig_1():
     #plt.show()
     #print(os.getcwd())
 
-    #TODO font into Times New Roman. may need to use the mac mini for that, having trouble installing on my debian based distro
-    axd1['orig_mpp'].set_title('Original MPP', fontsize=18)
-    axd1['orig_act'].set_title('Original Activations', fontsize=18)
-    axd1['patch_act'].set_title('Patched Activations', fontsize=18)
-    axd1['patch_mpp'].set_title('Patched MPP', fontsize=18)
+    font_dict = {'fontname': 'Times New Roman', 'fontsize': 24}
+
+    axd1['orig_mpp'].set_title('Original MPP', **font_dict)#, fontproperties=font_prop)
+    axd1['orig_act'].set_title('Original Activations', **font_dict)
+    axd1['patch_act'].set_title('Patched Activations', **font_dict)
+    axd1['patch_mpp'].set_title('Patched MPP', **font_dict)
+    #plt.savefig('playground/paper_graphics/visualizations/fig_1.pdf', bbox_inches="tight", format='pdf')
+
+    norm = mpl.colors.Normalize(vmin=-1, vmax=1)
+    cax = fig1.add_axes([0.275, 0.05, 0.45, 0.05]) #distance from left, distance from bottom, width, height
+    fig1.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'), orientation='horizontal')#, location='bottom', shrink=0.5)
     plt.savefig('playground/paper_graphics/visualizations/fig_1.pdf', bbox_inches="tight", format='pdf')
 
-#fig_1()
+    #plt.show()
+
+fig_1()
+
+
+# ------------------------------------------------ fig 1 with subfigures ---------------------------------------
+
+def fig_1_subfigures():
+    venv = create_venv(1,seed,1)
+    state = maze.EnvState(venv.env.callmethod('get_state')[0])
+
+    obs = t.tensor(venv.reset(), dtype=t.float32)
+
+    with hook.set_hook_should_get_custom_data():
+        hook.network(obs)
+
+    # #fig, ax = plt.subplots()
+    # fig1, axd1 = plt.subplot_mosaic(
+    #     [['orig_mpp', 'orig_act', 'patch_act', 'patch_mpp']],
+    #     figsize=(AX_SIZE * 4, AX_SIZE*1.5),
+    #     tight_layout=True,
+    # )
+    #
+    # activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
+    # axd1['orig_act'].imshow(activ)
+    # axd1['orig_act'].imshow(activ, cmap='bwr', vmin=-1, vmax=1) #test of reversing colorscheme
+    # # alright, changed color scheme from RdBu to bwr. Ref: https://matplotlib.org/stable/users/explain/colors/colormaps.html
+    #
+    # axd1['orig_act'].set_xticks([])
+    # axd1['orig_act'].set_yticks([])
+    #
+    # #orig_mpp = viz.visualize_venv(venv, render_padding=False)
+    # vf = viz.vector_field(venv, policy)
+    #
+    # img = viz.plot_vf_mpp(vf, ax=axd1['orig_mpp'], save_img=False)
+    # axd1['orig_mpp'].imshow(img)
+    #
+    # patch_coords = (3, 12)
+    # patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=patch_coords)
+    #
+    # with hook.use_patches(patches):
+    #     hook.network(obs) # trying before asking Uli
+    #     patched_vfield = viz.vector_field(venv, hook.network)
+    # img = viz.plot_vf_mpp(patched_vfield, ax=axd1['patch_mpp'], save_img=False)
+    # axd1['patch_mpp'].imshow(img)
+    #
+    # # TODO - I think the activations for seed = 0 get vertically flipped somehow in the display
+    # maze.move_cheese_in_state(state, (18, 18))
+    # venv.env.callmethod('set_state', [state.state_bytes])
+    # obs = t.tensor(venv.reset(), dtype=t.float32)
+    #
+    # activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
+    # patch_img = axd1['patch_act'].imshow(activ)
+    # axd1['patch_act'].imshow(activ, cmap='bwr', vmin=-1, vmax=1)
+    #
+    # axd1['patch_act'].set_xticks([])
+    # axd1['patch_act'].set_yticks([])
+    #
+    # axd1['orig_mpp'].set_title('Original MPP', fontsize=18, fontproperties=font_prop)
+    # axd1['orig_act'].set_title('Original Activations', fontsize=18, fontproperties=font_prop)
+    # axd1['patch_act'].set_title('Patched Activations', fontsize=18, fontproperties=font_prop)
+    # axd1['patch_mpp'].set_title('Patched MPP', fontsize=18, fontproperties=font_prop)
+    # plt.savefig('playground/paper_graphics/visualizations/fig_1.pdf', bbox_inches="tight", format='pdf')
+
+    fig = plt.figure(figsize=(AX_SIZE * 4, AX_SIZE*2))#, layout='constrained')
+    subfigs = fig.subfigures(1, 2, wspace=0.5)
+
+    subfigs[0].suptitle('Most Probable Path', fontsize=18, fontproperties=font_prop)
+    subfigs[1].suptitle('Activations', fontsize=18, fontproperties=font_prop)
+    #subfigs[2].suptitle('Patched Activations', fontsize=18, fontproperties=font_prop)
+    #subfigs[3].suptitle('Patched MPP', fontsize=18, fontproperties=font_prop)
+
+    #Original MPP
+    vf = viz.vector_field(venv, policy)
+    ax0 = subfigs[0].subplots(1,2)
+    img = viz.plot_vf_mpp(vf, ax=ax0[0], save_img=False)
+    ax0[0].imshow(img)
+
+
+    #Original Activations
+    activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
+    ax1 = subfigs[1].subplots(1, 2)
+    ax1[0].imshow(activ, cmap='bwr', vmin=-1, vmax=1)
+    ax1[0].set_xticks([])
+    ax1[0].set_yticks([])
+    ax1[0].set_title('Original Activations', fontsize=18, fontproperties=font_prop)
+
+    #Patched MPP
+    patch_coords = (3, 12)
+    patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=patch_coords)
+
+    with hook.use_patches(patches):
+        hook.network(obs) # trying before asking Uli
+        patched_vfield = viz.vector_field(venv, hook.network)
+    img = viz.plot_vf_mpp(patched_vfield, ax=ax0[1], save_img=False)
+    ax0[1].imshow(img)
+
+    norm = mpl.colors.Normalize(vmin=-1, vmax=1)
+    cax = fig.add_axes([0.25, 0.05, 0.5, 0.05]) #
+    fig.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'), orientation='horizontal')#, location='bottom', shrink=0.5)
+
+    plt.show()
+
+#fig_1_subfigures()
 
 # ---------------------------------------------------- fig 2 ----------------------------------------------------
 def fig_2():

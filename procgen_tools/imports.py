@@ -24,6 +24,8 @@ from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
 import matplotlib.pyplot as plt
 
 plt.rcParams["figure.dpi"] = 140
+# plt.rcParams["font.family"] = "serif"
+# plt.rcParams["font.serif"] = ["Times New Roman"]
 
 import circrl.module_hook as cmh
 import circrl.rollouts as cro
