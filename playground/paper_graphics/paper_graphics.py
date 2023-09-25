@@ -26,9 +26,6 @@ plt.rcParams['font.family'] = 'Times New Roman'
 AX_SIZE = 3.5
 patch_coords = (5,6)
 seed = 0
-"""
-What's the role of axis size in matplotlib above? I thought axes were like layers in gimp.
-"""
 
 # ------------------------------------------------ util functions------------------------------------------------
 
@@ -99,6 +96,49 @@ def return_seeds_with_inner_grid_size(size = (13,13)):
         if len(seeds) >= 1000:
             return seeds
     return seeds
+
+
+def first_3_seeds_of_each_size():
+    """
+    Returns a list of the first 3 seeds of each size.
+    """
+    seeds = {'3x3': [], '5x5': [], '7x7': [], '9x9': [], '11x11': [], '13x13': [], '15x15': [], '17x17': [], '19x19': [], '21x21': [], '23x23': [], '25x25': []}
+    for seed in range(10000):
+        inner_grid = maze.get_inner_grid_from_seed(seed)
+        size = inner_grid.shape[0]
+        if size == 3 and len(seeds['3x3']) < 3:
+            seeds['3x3'].append(seed)
+        elif size == 5 and len(seeds['5x5']) < 3:
+            seeds['5x5'].append(seed)
+        elif size == 7 and len(seeds['7x7']) < 3:
+            seeds['7x7'].append(seed)
+        elif size == 9 and len(seeds['9x9']) < 3:
+            seeds['9x9'].append(seed)
+        elif size == 11 and len(seeds['11x11']) < 3:
+            seeds['11x11'].append(seed)
+        elif size == 13 and len(seeds['13x13']) < 3:
+            seeds['13x13'].append(seed)
+        elif size == 15 and len(seeds['15x15']) < 3:
+            seeds['15x15'].append(seed)
+        elif size == 17 and len(seeds['17x17']) < 3:
+            seeds['17x17'].append(seed)
+        elif size == 19 and len(seeds['19x19']) < 3:
+            seeds['19x19'].append(seed)
+        elif size == 21 and len(seeds['21x21']) < 3:
+            seeds['21x21'].append(seed)
+        elif size == 23 and len(seeds['23x23']) < 3:
+            seeds['23x23'].append(seed)
+        elif size == 25 and len(seeds['25x25']) < 3:
+            seeds['25x25'].append(seed)
+        else:
+            no_return = False
+            for size in seeds:
+                if len(seeds[size]) < 3:
+                    no_return = True
+            if not no_return:
+                return seeds
+    raise ValueError("Didn't find enough seeds for each size with range 10000")
+
 
 def mass_display(seeds):
     """
@@ -186,12 +226,6 @@ def resample_activations(seed: int, channels: List[int], cheese_loc: Tuple[int, 
 
 #resample_activations(0, [55], (12, 13)) #this is cheese location from outer grid
 #okay this finally works. Switch it so that it only displays the mpp of the patched maze, and displays on a given axis
-
-
-# sanity check
-# list of cheese channels
-
-# WAITING FOR ULI
 
 # cheese_channels = [7, 8, 42, 44, 55, 77, 82, 88, 89, 99, 113]
 # resample_activations(0, cheese_channels, 435) # - no errors! at least neutral sign :)
@@ -725,7 +759,7 @@ def fig_3():
              470, 516, 517, 543, 555, 559]
     seeds = [i for i in range(200)]
     #for seed in seeds:
-    seed = 51
+    seed = 1
     #try:
     if os.path.exists(f'playground/paper_graphics/visualizations/fig_3_by_seed/{seed}_fig_3.pdf'):
         print(f'Already have {seed}')
@@ -734,6 +768,91 @@ def fig_3():
         print(f'Already have {seed}')
         #continue
     print("current seed: ", seed)
+
+    seeds_by_size = first_3_seeds_of_each_size()
+    for key, value in seeds_by_size.items():
+        for i in value:
+            fig3, axd3 = plt.subplot_mosaic(
+                [['original', 'same_loc', 'dif_loc_historic', 'dif_loc_bottom_right']],
+                figsize=(AX_SIZE * 4, AX_SIZE),
+                tight_layout=True,
+            )
+
+            # seed = 304
+
+            venv = create_venv(1, i, 1)
+            state = maze.EnvState(venv.env.callmethod('get_state')[0])
+
+            vf = viz.vector_field(venv, policy)
+            img = viz.plot_vf_mpp(vf, ax=axd3['original'], save_img=False)
+            axd3['original'].imshow(img)
+            axd3['original'].set_title('Original', fontsize=24)
+
+            # part b
+            # move to cheese loc in same location
+            # resample across all channels
+            cheese_channels = [7, 8, 42, 44, 55, 77, 82, 88, 89, 99, 113]
+
+            patches = resample_activations(i, cheese_channels)
+
+            venv = create_venv(1, i, 1)
+            obs = t.tensor(venv.reset(), dtype=t.float32)
+
+            with hook.use_patches(patches):
+                hook.network(obs)
+                patched_vfield = viz.vector_field(venv, hook.network)
+            img = viz.plot_vf_mpp(patched_vfield, ax=axd3['same_loc'], save_img=False)
+            axd3['same_loc'].imshow(img)
+            axd3['same_loc'].set_title('Same Location', fontsize=24)
+
+            # part c
+            # different location in the top right
+
+            # size of inner grid
+            inner_grid = maze.get_inner_grid_from_seed(i)
+            size = inner_grid.shape[0]
+            padding = maze.get_padding(maze.get_inner_grid_from_seed(i))
+
+            # top right
+            top_right = (size + padding - 1, size + padding - 1)
+            # if key == '3x3' and i == 11:
+            #     top_right = (13, 13)
+            patches = resample_activations(i, cheese_channels, cheese_loc=top_right)
+
+            venv = create_venv(1, i, 1)
+            obs = t.tensor(venv.reset(), dtype=t.float32)
+
+            with hook.use_patches(patches):
+                hook.network(obs)
+                patched_vfield = viz.vector_field(venv, hook.network)
+            print(key, value, i)
+            img = viz.plot_vf_mpp(patched_vfield, ax=axd3['dif_loc_historic'], save_img=False)
+            axd3['dif_loc_historic'].imshow(img)
+            axd3['dif_loc_historic'].set_title('Historic Location', fontsize=24)
+
+            # part d
+            # different location in the bottom right
+
+            bottom_right = (padding - 1, size + padding - 1)
+
+            patches = resample_activations(i, cheese_channels, cheese_loc=bottom_right)
+            padding = maze.get_padding(maze.get_inner_grid_from_seed(i))
+            # viz.plot_pixel_dot(axd3['dif_loc_bottom_right'], 12, 0, hidden_padding=padding)
+
+            venv = create_venv(1, i, 1)
+            obs = t.tensor(venv.reset(), dtype=t.float32)
+
+            with hook.use_patches(patches):
+                hook.network(obs)
+                patched_vfield = viz.vector_field(venv, hook.network)
+            img = viz.plot_vf_mpp(patched_vfield, ax=axd3['dif_loc_bottom_right'], save_img=False)
+            axd3['dif_loc_bottom_right'].imshow(img)
+            axd3['dif_loc_bottom_right'].set_title('Bottom Right Location', fontsize=24)
+
+            # add title
+            # plt.suptitle(f'Seed {seed}')
+            # plt.show()
+            plt.savefig(f'playground/paper_graphics/visualizations/fig_3_by_size/{key}_fig_3_{i}.pdf', bbox_inches="tight", format='pdf')
 
 
     fig3, axd3 = plt.subplot_mosaic(
@@ -825,49 +944,7 @@ def fig_3():
     #     pass
 
 
-
-    # part a
-
-    # venv_a = create_venv(1,433,1)
-    # vf = viz.vector_field(venv_a, policy)
-    # img = viz.plot_vf_mpp(vf, ax=axd3['original'], save_img=False)
-    # axd3['original'].imshow(img)
-    #
-    # original_activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
-    #
-    # # part b
-    #
-    # # part c
-    #
-    # # venv_c = create_venv(1,516,1)
-    # # obs = t.tensor(venv_c.reset(), dtype=t.float32)
-    # #
-    # # with hook.set_hook_should_get_custom_data():
-    # #     hook.network(obs)
-    # # c_activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
-    # #
-    # # np.save("playground/paper_graphics/visualizations/fig_3_516_activ.npy", c_activ)
-    # c_activ = np.load("playground/paper_graphics/visualizations/fig_3_516_activ.npy")
-    #
-    # # patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=success_a_pos)
-    # # with hook.use_patches(patches):
-    # #     patched_vfield = viz.vector_field(venv, hook.network)
-    # # img = viz.plot_vf_mpp(patched_vfield, ax=axd4['success_a'], save_img=False)
-    #
-    # # obs = t.tensor(venv_a.reset(), dtype=t.float32)
-    # #
-    # # with hook.set_hook_should_get_custom_data():
-    # #     hook.network(obs)
-    # patches = patch_utils.get_channel_whole_patch_replace(layer_name=default_layer,channel=55, activations=c_activ)
-    # with hook.use_patches(patches):
-    #     patched_vfield = viz.vector_field(venv_a, hook.network)
-    # img = viz.plot_vf_mpp(patched_vfield, ax=axd3['dif_loc_historic'], save_img=False)
-    # axd3['dif_loc_historic'].imshow(img)
-    #
-    # plt.show()
-    # print()
-
-#fig_3()
+fig_3()
 
 
 # ---------------------------------------------------- fig 4 ----------------------------------------------------
