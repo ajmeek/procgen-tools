@@ -384,77 +384,27 @@ def fig_1():
     with hook.set_hook_should_get_custom_data():
         hook.network(obs)
 
-    # fig, ax = plt.subplots()
-    # fig1, axd1 = plt.subplot_mosaic(
-    #     [['orig_mpp', 'orig_act', 'patch_act', 'patch_mpp']],
-    #     figsize=(AX_SIZE * 4.25, AX_SIZE*1.5),
-    #     tight_layout=True,
-    # )
-    # #fig1, axd1 = plt.subplots(1,4)
-    #
-    # activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
-    # axd1['orig_act'].imshow(activ)
-    # axd1['orig_act'].imshow(activ, cmap='bwr', vmin=-1, vmax=1) #test of reversing colorscheme
-    # # alright, changed color scheme from RdBu to bwr. Ref: https://matplotlib.org/stable/users/explain/colors/colormaps.html
-    #
-    # axd1['orig_act'].set_xticks([])
-    # axd1['orig_act'].set_yticks([])
-    #
-    # #orig_mpp = viz.visualize_venv(venv, render_padding=False)
-    # vf = viz.vector_field(venv, policy)
-    #
-    # img = viz.plot_vf_mpp(vf, ax=axd1['orig_mpp'], save_img=False)
-    # axd1['orig_mpp'].imshow(img)
-    #
-    # patch_coords = (3, 12)
-    # patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=patch_coords)
-    # #patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=(17,17)) # to test that this is on a 16x16 grid - yes it is
-    #
-    #
-    # with hook.use_patches(patches):
-    #     hook.network(obs) # trying before asking Uli
-    #     patched_vfield = viz.vector_field(venv, hook.network)
-    #     #hook.network(obs) # trying before asking Uli
-    # img = viz.plot_vf_mpp(patched_vfield, ax=axd1['patch_mpp'], save_img=False)
-    # axd1['patch_mpp'].imshow(img)
-    #
-    # maze.move_cheese_in_state(state, (18, 18))
-    # venv.env.callmethod('set_state', [state.state_bytes])
-    # obs = t.tensor(venv.reset(), dtype=t.float32)
-    #
-    #
-    # activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
-    # patch_img = axd1['patch_act'].imshow(activ)
-    # axd1['patch_act'].imshow(activ, cmap='bwr', vmin=-1, vmax=1)
-    #
-    # axd1['patch_act'].set_xticks([])
-    # axd1['patch_act'].set_yticks([])
-    #
-    # font_dict = {'fontname': 'Times New Roman', 'fontsize': 24}
-    #
-    # axd1['orig_mpp'].set_title('Original MPP', **font_dict)#, fontproperties=font_prop)
-    # axd1['orig_act'].set_title('Original Activations', **font_dict)
-    # axd1['patch_act'].set_title('Patched Activations', **font_dict)
-    # axd1['patch_mpp'].set_title('Patched MPP', **font_dict)
-    # #plt.savefig('playground/paper_graphics/visualizations/fig_1.pdf', bbox_inches="tight", format='pdf')
-
-    #fig1.subplots_adjust(right=0.95)
-
-    fig1, axd1 = plt.subplots(1,4,figsize=(AX_SIZE * 4.25, AX_SIZE))#, constrained_layout=True)#), tight_layout=True,)
+    #fig, ax = plt.subplots()
+    fig1, axd1 = plt.subplot_mosaic(
+        [['orig_mpp', 'orig_act', 'patch_act', 'patch_mpp']],
+        figsize=(AX_SIZE * 4.25, AX_SIZE*1.5),
+        tight_layout=True,
+    )
+    #fig1, axd1 = plt.subplots(1,4)
 
     activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
-    axd1[1].imshow(activ)
-    axd1[1].imshow(activ, cmap='bwr', vmin=-1, vmax=1) #test of reversing colorscheme
+    axd1['orig_act'].imshow(activ)
+    axd1['orig_act'].imshow(activ, cmap='bwr', vmin=-1, vmax=1) #test of reversing colorscheme
     # alright, changed color scheme from RdBu to bwr. Ref: https://matplotlib.org/stable/users/explain/colors/colormaps.html
 
-    axd1[1].set_xticks([])
-    axd1[1].set_yticks([])
+    axd1['orig_act'].set_xticks([])
+    axd1['orig_act'].set_yticks([])
 
     #orig_mpp = viz.visualize_venv(venv, render_padding=False)
     vf = viz.vector_field(venv, policy)
 
-    img = viz.plot_vf_mpp(vf, ax=axd1[0], save_img=False)
-    axd1[0].imshow(img)
+    img = viz.plot_vf_mpp(vf, ax=axd1['orig_mpp'], save_img=False)
+    axd1['orig_mpp'].imshow(img)
 
     patch_coords = (3, 12)
     patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=patch_coords)
@@ -465,8 +415,8 @@ def fig_1():
         hook.network(obs) # trying before asking Uli
         patched_vfield = viz.vector_field(venv, hook.network)
         #hook.network(obs) # trying before asking Uli
-    img = viz.plot_vf_mpp(patched_vfield, ax=axd1[3], save_img=False)
-    axd1[3].imshow(img)
+    img = viz.plot_vf_mpp(patched_vfield, ax=axd1['patch_mpp'], save_img=False)
+    axd1['patch_mpp'].imshow(img)
 
     maze.move_cheese_in_state(state, (18, 18))
     venv.env.callmethod('set_state', [state.state_bytes])
@@ -474,31 +424,25 @@ def fig_1():
 
 
     activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
-    patch_img = axd1[2].imshow(activ)
-    axd1[2].imshow(activ, cmap='bwr', vmin=-1, vmax=1)
+    patch_img = axd1['patch_act'].imshow(activ)
+    axd1['patch_act'].imshow(activ, cmap='bwr', vmin=-1, vmax=1)
 
-    axd1[2].set_xticks([])
-    axd1[2].set_yticks([])
+    axd1['patch_act'].set_xticks([])
+    axd1['patch_act'].set_yticks([])
 
     font_dict = {'fontname': 'Times New Roman', 'fontsize': 24}
 
-    axd1[0].set_title('Original MPP', **font_dict)#, fontproperties=font_prop)
-    axd1[1].set_title('Original Activations', **font_dict)
-    axd1[2].set_title('Patched Activations', **font_dict)
-    axd1[3].set_title('Patched MPP', **font_dict)
+    axd1['orig_mpp'].set_title('(a): Original Behavior', pad=8, **font_dict)#, fontproperties=font_prop)
+    axd1['orig_act'].set_title('(b): Original Activations', pad=8, **font_dict)
+    axd1['patch_act'].set_title('(c): Patched Activations', pad=8, **font_dict)
+    axd1['patch_mpp'].set_title('(d): Patched MPP', pad=8, **font_dict)
+
 
     norm = mpl.colors.Normalize(vmin=-1, vmax=1)
+    cax = fig1.add_axes([0.275, 0.075, 0.45, 0.05])  # distance from left, distance from bottom, width, height
+    cbar = fig1.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'),
+                  orientation='horizontal')  # , location='bottom', shrink=0.5)
 
-    fig1.subplots_adjust(right=0.9, hspace=0.01)
-    cax = fig1.add_axes([0.925, 0.135, 0.025, 0.725])
-
-    # divider = make_axes_locatable(axd1)
-    # cax = divider.append_axes("right", size="5%", pad=0.05)
-
-    cbar = fig1.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'), orientation='vertical')#, location='right')#, location='bottom', shrink=0.5)
-    # cax = fig1.add_axes([0.275, 0.05, 0.45, 0.05]) #distance from left, distance from bottom, width, height
-    # fig1.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'), orientation='horizontal')#, location='bottom', shrink=0.5)
-    #plt.savefig('playground/paper_graphics/visualizations/fig_1.pdf', bbox_inches="tight", format='pdf')
     # Define custom ticks and labels
     custom_ticks = [-1, 0, 1]  # Custom ticks positions
     custom_tick_labels = ['-1', '0', '1']  # Custom tick labels
@@ -507,10 +451,80 @@ def fig_1():
     cbar.set_ticks(custom_ticks)
     cbar.set_ticklabels(custom_tick_labels)
     cbar.ax.tick_params(labelsize=20)
+    plt.savefig('playground/paper_graphics/visualizations/fig_1.pdf', bbox_inches="tight", format='pdf')
+    #fig1.subplots_adjust(right=0.95)
 
-    plt.show()
+    # fig1, axd1 = plt.subplots(1,4,figsize=(AX_SIZE * 4.25, AX_SIZE))#, constrained_layout=True)#), tight_layout=True,)
+    #
+    # activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
+    # axd1[1].imshow(activ)
+    # axd1[1].imshow(activ, cmap='bwr', vmin=-1, vmax=1) #test of reversing colorscheme
+    # # alright, changed color scheme from RdBu to bwr. Ref: https://matplotlib.org/stable/users/explain/colors/colormaps.html
+    #
+    # axd1[1].set_xticks([])
+    # axd1[1].set_yticks([])
+    #
+    # #orig_mpp = viz.visualize_venv(venv, render_padding=False)
+    # vf = viz.vector_field(venv, policy)
+    #
+    # img = viz.plot_vf_mpp(vf, ax=axd1[0], save_img=False)
+    # axd1[0].imshow(img)
+    #
+    # patch_coords = (3, 12)
+    # patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=patch_coords)
+    # #patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5.6, coord=(17,17)) # to test that this is on a 16x16 grid - yes it is
+    #
+    #
+    # with hook.use_patches(patches):
+    #     hook.network(obs) # trying before asking Uli
+    #     patched_vfield = viz.vector_field(venv, hook.network)
+    #     #hook.network(obs) # trying before asking Uli
+    # img = viz.plot_vf_mpp(patched_vfield, ax=axd1[3], save_img=False)
+    # axd1[3].imshow(img)
+    #
+    # maze.move_cheese_in_state(state, (18, 18))
+    # venv.env.callmethod('set_state', [state.state_bytes])
+    # obs = t.tensor(venv.reset(), dtype=t.float32)
+    #
+    #
+    # activ = hook.get_value_by_label(default_layer)[0][cheese_channel]
+    # patch_img = axd1[2].imshow(activ)
+    # axd1[2].imshow(activ, cmap='bwr', vmin=-1, vmax=1)
+    #
+    # axd1[2].set_xticks([])
+    # axd1[2].set_yticks([])
+    #
+    # font_dict = {'fontname': 'Times New Roman', 'fontsize': 24}
+    #
+    # axd1[0].set_title('Original MPP', **font_dict)#, fontproperties=font_prop)
+    # axd1[1].set_title('Original Activations', **font_dict)
+    # axd1[2].set_title('Patched Activations', **font_dict)
+    # axd1[3].set_title('Patched MPP', **font_dict)
+    #
+    # norm = mpl.colors.Normalize(vmin=-1, vmax=1)
+    #
+    # fig1.subplots_adjust(right=0.9, hspace=0.01)
+    # cax = fig1.add_axes([0.925, 0.135, 0.025, 0.725])
+    #
+    # # divider = make_axes_locatable(axd1)
+    # # cax = divider.append_axes("right", size="5%", pad=0.05)
+    #
+    # cbar = fig1.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'), orientation='vertical')#, location='right')#, location='bottom', shrink=0.5)
+    # # cax = fig1.add_axes([0.275, 0.05, 0.45, 0.05]) #distance from left, distance from bottom, width, height
+    # # fig1.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'), orientation='horizontal')#, location='bottom', shrink=0.5)
+    # #plt.savefig('playground/paper_graphics/visualizations/fig_1.pdf', bbox_inches="tight", format='pdf')
+    # # Define custom ticks and labels
+    # custom_ticks = [-1, 0, 1]  # Custom ticks positions
+    # custom_tick_labels = ['-1', '0', '1']  # Custom tick labels
+    #
+    # # Set the ticks and their labels
+    # cbar.set_ticks(custom_ticks)
+    # cbar.set_ticklabels(custom_tick_labels)
+    # cbar.ax.tick_params(labelsize=20)
 
-fig_1()
+    #plt.show()
+
+#fig_1()
 
 
 # ------------------------------------------------ fig 1 with subfigures ---------------------------------------
@@ -1114,7 +1128,7 @@ def fig_5():
 
     fig5, axd5 = plt.subplot_mosaic(
         [['success_a', 'success_b', 'fail_a', 'fail_b']],
-        figsize=(AX_SIZE * 4, AX_SIZE),
+        figsize=(AX_SIZE * 4, AX_SIZE*1.25),
         tight_layout=True,
     )
 
@@ -1145,7 +1159,15 @@ def fig_5():
     img = viz.plot_vf_mpp(vf, ax=axd5['fail_b'], save_img=False)
     axd5['fail_b'].imshow(img)
 
+    font_dict = {'fontname': 'Times New Roman', 'fontsize': 24}
+
+    axd5['success_a'].set_title('Maze A', pad=8, **font_dict)#, fontproperties=font_prop)
+    axd5['success_b'].set_title('Maze B', pad=8, **font_dict)
+    axd5['fail_a'].set_title('Maze C', pad=8, **font_dict)
+    axd5['fail_b'].set_title('Maze D', pad=8, **font_dict)
+
     plt.savefig('playground/paper_graphics/visualizations/fig_5.pdf', bbox_inches="tight", format='pdf')
+    #plt.show()
 
 #fig_5()
 
