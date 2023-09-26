@@ -992,6 +992,12 @@ def fig_4():
         tight_layout=True,
     )
 
+    fig4a, ax4a = plt.subplots()
+    fig4b, ax4b = plt.subplots()
+    fig4c, ax4c = plt.subplots()
+    fig4d, ax4d = plt.subplots()
+
+
     venv = create_venv(1,seed,1)
     state = maze.EnvState(venv.env.callmethod('get_state')[0])
 
@@ -1009,6 +1015,14 @@ def fig_4():
     #viz.plot_red_dot(venv, axd4['success_a'], success_a_pos[0], success_a_pos[1])
     axd4['success_a'].imshow(img)
 
+    fig4.show()
+    img = viz.plot_vf_mpp(patched_vfield, ax=ax4a, save_img=False)
+    viz.plot_pixel_dot(ax4a, u, v, hidden_padding=padding)
+    ax4a.imshow(img)
+    ax4a.set_xticks([])
+    ax4a.set_yticks([])
+    fig4a.show()
+
     patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=success_b_pos)
     with hook.use_patches(patches):
         patched_vfield = viz.vector_field(venv, hook.network)
@@ -1019,6 +1033,12 @@ def fig_4():
     padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
     viz.plot_pixel_dot(axd4['success_b'], u, v, hidden_padding=padding)
     axd4['success_b'].imshow(img)
+
+    img = viz.plot_vf_mpp(patched_vfield, ax=ax4b, save_img=False)
+    viz.plot_pixel_dot(ax4b, u, v, hidden_padding=padding)
+    ax4b.imshow(img)
+    ax4b.set_xticks([])
+    ax4b.set_yticks([])
 
     patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=success_c_pos)
     with hook.use_patches(patches):
@@ -1031,6 +1051,12 @@ def fig_4():
     viz.plot_pixel_dot(axd4['success_c'], u, v, hidden_padding=padding)
     axd4['success_c'].imshow(img)
 
+    img = viz.plot_vf_mpp(patched_vfield, ax=ax4c, save_img=False)
+    viz.plot_pixel_dot(ax4c, u, v, hidden_padding=padding)
+    ax4c.imshow(img)
+    ax4c.set_xticks([])
+    ax4c.set_yticks([])
+
     patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=fail)
     with hook.use_patches(patches):
         patched_vfield = viz.vector_field(venv, hook.network)
@@ -1042,8 +1068,21 @@ def fig_4():
     viz.plot_pixel_dot(axd4['fail'], u, v, hidden_padding=padding)
     axd4['fail'].imshow(img)
 
+
+    img = viz.plot_vf_mpp(patched_vfield, ax=ax4d, save_img=False)
+    viz.plot_pixel_dot(ax4d, u, v, hidden_padding=padding)
+    ax4d.imshow(img)
+    ax4d.set_xticks([])
+    ax4d.set_yticks([])
+
+    fig4a.savefig('playground/paper_graphics/visualizations/fig_4a.pdf', bbox_inches="tight", format='pdf')
+    fig4b.savefig('playground/paper_graphics/visualizations/fig_4b.pdf', bbox_inches="tight", format='pdf')
+    fig4c.savefig('playground/paper_graphics/visualizations/fig_4c.pdf', bbox_inches="tight", format='pdf')
+    fig4d.savefig('playground/paper_graphics/visualizations/fig_4d.pdf', bbox_inches="tight", format='pdf')
+
+
     #plt.show()
-    plt.savefig('playground/paper_graphics/visualizations/fig_4.pdf', bbox_inches="tight", format='pdf')
+    #plt.savefig('playground/paper_graphics/visualizations/fig_4.pdf', bbox_inches="tight", format='pdf')
 #fig_4()
 
 
@@ -2032,3 +2071,34 @@ def base_heatmap_small_fig():
     plt.savefig('playground/paper_graphics/visualizations/base_heatmap.png', bbox_inches="tight", format='png')
 
 #base_heatmap_small_fig()
+
+def table_for_appendix_b():
+
+    # this was a dud
+
+    # Data for the table
+    data = [[1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9]]
+
+    # Create a figure and axis
+    fig, ax = plt.subplots()
+
+    # Hide axes
+    ax.axis('off')
+
+    colLabels = ['Size of random region', 'Steps between cheese \n and decision square',
+                 'Euclidean distance between \n cheese and decision square',
+                 ]
+
+    # Create the table
+    table = ax.table(cellText=data, loc='center', cellLoc='center', colLabels=colLabels)
+
+    # Format the table
+    table.auto_set_font_size(False)
+    table.set_fontsize(12)
+    table.scale(1.2, 1.2)  # Adjust the size if needed
+
+    plt.show()
+
+#table_for_appendix_b()
