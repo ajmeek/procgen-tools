@@ -1,10 +1,138 @@
-P(get cheese | decision square, cheese not in top 5x5) = 0.9237
-The average regression accuracy is 0.949.
+Loaded 1000 runs
+Considering 524 runs
+P(get cheese | decision square, cheese not in top 10x10) = 0.924
++-----------------------------------------------------------------+-------------+---------------------------------------------------------------+
+|                             [1mMetric 1[0m                            | [1mCorrelation[0m |                            [1mMetric 2[0m                           |
++-----------------------------------------------------------------+-------------+---------------------------------------------------------------+
+| Euclidean distance between decision square and top right square |    0.997    | Taxicab distance between decision square and top right square |
+| Euclidean distance between decision square and top right square |    0.995    |  [1mEuclidean distance between decision square and top-right 5x5[0m |
+|      [1mEuclidean distance between cheese and top right square[0m     |    0.995    |      Euclidean distance between cheese and top-right 5x5      |
+|   [1mEuclidean distance between decision square and top-right 5x5[0m  |    0.994    |   Taxicab distance between decision square and top-right 5x5  |
+|  Taxicab distance between decision square and top right square  |    0.992    |   Taxicab distance between decision square and top-right 5x5  |
+| Euclidean distance between decision square and top right square |    0.992    |   Taxicab distance between decision square and top-right 5x5  |
+|  Taxicab distance between decision square and top right square  |    0.988    |  [1mEuclidean distance between decision square and top-right 5x5[0m |
+|      [1mEuclidean distance between cheese and top right square[0m     |    0.987    |       Taxicab distance between cheese and top-right 5x5       |
+|       Taxicab distance between cheese and top right square      |    0.984    |       Taxicab distance between cheese and top-right 5x5       |
+|      [1mEuclidean distance between cheese and decision square[0m      |    0.981    |      Taxicab distance between cheese and decision square      |
+|       Euclidean distance between cheese and top-right 5x5       |    0.975    |       Taxicab distance between cheese and top-right 5x5       |
+|      [1mEuclidean distance between cheese and top right square[0m     |    0.973    |      Taxicab distance between cheese and top right square     |
+|        Steps between decision square and top right square       |    0.956    |        Steps between decision square and top-right 5x5        |
+|       Taxicab distance between cheese and top right square      |    0.947    |      Euclidean distance between cheese and top-right 5x5      |
+|         Steps between decision square and top-right 5x5         |    0.936    |   Taxicab distance between decision square and top-right 5x5  |
+|         Steps between decision square and top-right 5x5         |    0.933    |  [1mEuclidean distance between decision square and top-right 5x5[0m |
+| Euclidean distance between decision square and top right square |    0.930    |        Steps between decision square and top-right 5x5        |
+|  Taxicab distance between decision square and top right square  |    0.929    |        Steps between decision square and top-right 5x5        |
+| Euclidean distance between decision square and top right square |    0.922    |       Steps between decision square and top right square      |
+|  Taxicab distance between decision square and top right square  |    0.921    |       Steps between decision square and top right square      |
+|        Steps between decision square and top right square       |    0.917    |   Taxicab distance between decision square and top-right 5x5  |
+|        Steps between decision square and top right square       |    0.917    |  [1mEuclidean distance between decision square and top-right 5x5[0m |
+|            Steps between cheese and top right square            |    0.910    |             Steps between cheese and top-right 5x5            |
+|      [1mEuclidean distance between cheese and decision square[0m      |    0.880    |            [1mSteps between cheese and decision square[0m           |
+|       Taxicab distance between cheese and decision square       |    0.879    |            [1mSteps between cheese and decision square[0m           |
++-----------------------------------------------------------------+-------------+---------------------------------------------------------------+
++-----------------------------------------------------------------+-------------+
+|                            [1mAttribute[0m                            | [1mCoefficient[0m |
++-----------------------------------------------------------------+-------------+
+|              Steps between cheese and top-right 5x5             |    -0.476   |
+|       Euclidean distance between cheese and top-right 5x5       |    0.000    |
+|         Steps between decision square and top-right 5x5         |    0.000    |
+|   [1mEuclidean distance between decision square and top-right 5x5[0m  |    0.000    |
+|            Steps between cheese and top right square            |    0.000    |
+|      [1mEuclidean distance between cheese and top right square[0m     |    -2.537   |
+|        Steps between decision square and top right square       |    0.915    |
+| Euclidean distance between decision square and top right square |    0.177    |
+|             [1mSteps between cheese and decision square[0m            |    -0.635   |
+|      [1mEuclidean distance between cheese and decision square[0m      |    -0.050   |
+|                    Norm of cheese coordinate                    |    0.014    |
+|                            Intercept                            |    4.935    |
++-----------------------------------------------------------------+-------------+
+The average regression accuracy is 0.949, averaged over 50 regressions.
+Accuracy of the trivial "always yes" or "always no" predictor: 0.924
+
++------------------------------------------+-------------+
+|                [1mAttribute[0m                 | [1mCoefficient[0m |
++------------------------------------------+-------------+
+| [1mSteps between cheese and decision square[0m |    -0.914   |
+|                Intercept                 |    2.861    |
++------------------------------------------+-------------+
+The accuracy for these attributes is 0.925, averaged over 100 regressions.
+
+
++-------------------------------------------------------+-------------+
+|                       [1mAttribute[0m                       | [1mCoefficient[0m |
++-------------------------------------------------------+-------------+
+|        [1mSteps between cheese and decision square[0m       |    -0.599   |
+| [1mEuclidean distance between cheese and decision square[0m |    -0.415   |
+|                       Intercept                       |    2.911    |
++-------------------------------------------------------+-------------+
+The accuracy for these attributes is 0.921, averaged over 100 regressions.
+
+
 +--------------------------------------------------------+-------------+
 |                       [1mAttribute[0m                        | [1mCoefficient[0m |
 +--------------------------------------------------------+-------------+
-| [1mEuclidean distance between cheese and top right square[0m |    -1.982   |
-|        [1mSteps between cheese and decision square[0m        |    -0.995   |
-| [1mEuclidean distance between cheese and decision square[0m  |    0.000    |
-|                       Intercept                        |    4.452    |
+|        [1mSteps between cheese and decision square[0m        |    -1.051   |
+| [1mEuclidean distance between cheese and decision square[0m  |    -0.040   |
+| [1mEuclidean distance between cheese and top right square[0m |    -2.075   |
+|                       Intercept                        |    4.718    |
 +--------------------------------------------------------+-------------+
+The accuracy for these attributes is 0.951, averaged over 100 regressions.
+
+When excluded, the following attributes caused a >0.5% relative drop in accuracy:
+	Taxicab distance between cheese and decision square
+	Norm of cheese coordinate
+The accuracy of the regression with the dropped attributes is 0.944.
+Accuracy of regression with dropped attributes is not as good as with all attributes.
+
+The accuracy of the regression with (Euclidean distance between cheese and top-right 5x5) added is not significantly higher than with all attributes.
+The accuracy of the regression with (Taxicab distance between decision square and top right square) added is not significantly higher than with all attributes.
+The accuracy of the regression with (Steps between cheese and top right square) added is not significantly higher than with all attributes.
+The accuracy of the regression with (Taxicab distance between cheese and top right square) added is not significantly higher than with all attributes.
+The accuracy of the regression with ([1mEuclidean distance between cheese and top right square[0m) added is not significantly higher than with all attributes.
+The accuracy of the regression with (Euclidean distance between decision square and top right square) added is not significantly higher than with all attributes.
+The accuracy of the regression with (Steps between cheese and top-right 5x5) added is not significantly higher than with all attributes.
+The accuracy of the regression with (Taxicab distance between cheese and top-right 5x5) added is not significantly higher than with all attributes.
++--------------------------------------------------------------+-------------+
+|                          [1mAttribute[0m                           | [1mCoefficient[0m |
++--------------------------------------------------------------+-------------+
+|           [1mSteps between cheese and decision square[0m           |    -0.939   |
+|    [1mEuclidean distance between cheese and decision square[0m     |    0.000    |
+|    [1mEuclidean distance between cheese and top right square[0m    |    -2.373   |
+| [1mEuclidean distance between decision square and top-right 5x5[0m |    0.442    |
+|                          Intercept                           |    4.631    |
++--------------------------------------------------------------+-------------+
+Claimed attributes obtain accuracy of 0.958, which is -0.952 absolute percent less than when all features are used.
++--------------------------------------------------------------+-----------------------------+
+|                          Attribute                           | % of runs with flipped sign |
++--------------------------------------------------------------+-----------------------------+
+|           Steps between cheese and decision square           |             0.0             |
+|    Euclidean distance between cheese and decision square     |             38.0            |
+|    Euclidean distance between cheese and top right square    |             13.5            |
+| Euclidean distance between decision square and top-right 5x5 |             46.5            |
++--------------------------------------------------------------+-----------------------------+
+
+VIF for claimed attributes
+                               Features       VIF
+0  steps_between_cheese_decision_square  4.445358
+1       euc_dist_cheese_decision_square  4.509591
+2             euc_dist_cheese_top_right  2.251723
+3          euc_dist_decision_square_5x5  2.106712
+
+VIF for all attributes
+                                   Features          VIF
+0           euc_dist_cheese_decision_square    30.704621
+1          taxi_dist_cheese_decision_square    28.224810
+2      steps_between_cheese_decision_square          inf
+3            steps_between_cheese_top_right          inf
+4                 euc_dist_cheese_top_right  1198.096509
+5                taxi_dist_cheese_top_right   210.507115
+6        euc_dist_decision_square_top_right  1094.162918
+7       taxi_dist_decision_square_top_right   679.644076
+8   steps_between_decision_square_top_right          inf
+9                  steps_between_cheese_5x5    10.019551
+10        steps_between_decision_square_5x5    23.309171
+11                      euc_dist_cheese_5x5   693.526069
+12                     taxi_dist_cheese_5x5    99.971620
+13             euc_dist_decision_square_5x5   559.838523
+14            taxi_dist_decision_square_5x5   334.459379
+15                        cheese_coord_norm     3.577573
