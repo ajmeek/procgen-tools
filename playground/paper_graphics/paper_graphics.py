@@ -1443,76 +1443,122 @@ def fig_x2_4():
     # print(heatmap_avg_per_size_55)
     # print(ratio_avg_per_size_55)
 
-    # data hardcoded. starting with 3x3 up to 25x25.
-    heatmap_avg_per_size_all = [0.799889956501738, 0.7775709501219863, 0.7797912188517916, 0.7588451193811928, 0.7406733268789705, 0.6959504505843259, 0.6425305479030984, 0.6545479388988915, 0.5824753527436064, 0.5832421962896295, 0.6167109448569562, 0.5299525163283456]
-    heatmap_avg_per_size_effective = [0.7608124070512822, 0.7041304093124999, 0.76901413325, 0.7024797808854166, 0.7087437639591837, 0.7041753128385418, 0.6503412165784831, 0.6596821581796875, 0.6037907865088384, 0.6189248616309523, 0.6371125867599068, 0.5756655757924108]
-    heatmap_avg_per_size_55 = [0.700428774165744, 0.7370594442260178, 0.7010945262579837, 0.6721659938343914, 0.6751070216559201, 0.647880930832588, 0.5939934102651221, 0.6109084206556188, 0.540930443222974, 0.5470496808198526, 0.5846496184297417, 0.5023088997834109]
-    ratio_avg_per_size_effective = [1.8489007321794872, 3.4623849059999996, 1.7517762465, 2.7921403650173606, 1.8093523609387756, 2.8955814034765623, 2.458575891675485, 2.8985679961171877, 2.566675839248737, 2.5696256181845234, 3.013872167534965, 1.8687405686830356]
+    # # data hardcoded. starting with 3x3 up to 25x25.
+    # heatmap_avg_per_size_all = [0.799889956501738, 0.7775709501219863, 0.7797912188517916, 0.7588451193811928, 0.7406733268789705, 0.6959504505843259, 0.6425305479030984, 0.6545479388988915, 0.5824753527436064, 0.5832421962896295, 0.6167109448569562, 0.5299525163283456]
+    # heatmap_avg_per_size_effective = [0.7608124070512822, 0.7041304093124999, 0.76901413325, 0.7024797808854166, 0.7087437639591837, 0.7041753128385418, 0.6503412165784831, 0.6596821581796875, 0.6037907865088384, 0.6189248616309523, 0.6371125867599068, 0.5756655757924108]
+    # heatmap_avg_per_size_55 = [0.700428774165744, 0.7370594442260178, 0.7010945262579837, 0.6721659938343914, 0.6751070216559201, 0.647880930832588, 0.5939934102651221, 0.6109084206556188, 0.540930443222974, 0.5470496808198526, 0.5846496184297417, 0.5023088997834109]
+    # ratio_avg_per_size_effective = [1.8489007321794872, 3.4623849059999996, 1.7517762465, 2.7921403650173606, 1.8093523609387756, 2.8955814034765623, 2.458575891675485, 2.8985679961171877, 2.566675839248737, 2.5696256181845234, 3.013872167534965, 1.8687405686830356]
+    #
+    # x_values = np.linspace(0, 1, len(heatmap_avg_per_size_all))
+    # #x_labels = ['3x3', '5x5', '7x7', '9x9', '11x11', '13x13', '15x15', '17x17', '19x19', '21x21', '23x23', '25x25']
+    # x_labels = ['3', '5', '7', '9', '11', '13', '15', '17', '19', '21', '23', '25']
+    #
+    #
+    # #initial box plots
+    # fig, ax = plt.subplots()#1, 2, figsize=(AX_SIZE * 2, AX_SIZE), tight_layout=True)
+    # #ax.boxplot([heatmap_avg_per_size_all.values(), heatmap_avg_per_size_effective.values(), heatmap_avg_per_size_55.values()], positions = [1, 2, 3], widths = 0.6)
+    # ax.plot(x_values, heatmap_avg_per_size_all, marker='o', markersize=6, color="black")
+    # ax.plot(x_values, heatmap_avg_per_size_effective, marker='x', markersize=6, color="red")
+    # ax.plot(x_values, heatmap_avg_per_size_55, marker='+', markersize=6, color="green")
+    #
+    # ax.set_xticks(x_values)
+    # ax.set_xticklabels(x_labels)
+    #
+    # plt.savefig('playground/paper_graphics/visualizations/heat_map_avg_bad_idea.png', bbox_inches="tight", format='png')
+    #
+    # fig, ax = plt.subplots()
+    # ax.plot(x_values, ratio_avg_per_size_effective, marker='x', markersize=6, color="red")
+    # ax.set_xticks(x_values)
+    # ax.set_xticklabels(x_labels)
+    # plt.savefig('playground/paper_graphics/visualizations/ratio_avg_also_not_great.png', bbox_inches="tight", format='png')
+    #
+    #
+    # # Alex had an idea to try plotting path distance vs. ratio. Try that here.
+    # # ratio only exists for effective, cheese, and normal. Just try effective channels for now to get an idea
+    #
+    # # 50 steps
+    # path_distance_ratios = {i: [] for i in range(100)}
+    #
+    # for seed in range(100):
+    #     data = heatmap_data_by_seed_and_prob_type(seed, "effective")
+    #     path_distance = data['d_to_coord']
+    #     ratios = data['ratio']
+    #
+    #     if len(path_distance) != len(ratios):
+    #         raise Exception("path distance and ratios are not the same length")
+    #     for i in range(len(path_distance)):
+    #         # print(path_distance)
+    #         # print("values: ", path_distance.values)
+    #         # print(path_distance[i][1])
+    #         # print(ratios[i][1])
+    #         path_distance_ratios[path_distance.values[i]].append(ratios.values[i])
+    #
+    # #     print()
+    # # print()
+    #
+    # #alright, now average over all the values for each ratio
+    # for i in path_distance_ratios.keys():
+    #     #if isinstance(path_distance_ratios[i], list):
+    #     if len(path_distance_ratios[i]) != 0:
+    #         path_distance_ratios[i] = np.mean(path_distance_ratios[i])
+    #     else:
+    #         path_distance_ratios[i] = 0
+    #
+    # print()
+    #
+    #
+    #
+    # fig, ax = plt.subplots()
+    # ax.plot(path_distance_ratios.keys(), path_distance_ratios.values(), marker='x', markersize=6, color="red")
+    # #ax.set_xticks(x_values)
+    # #ax.set_xticklabels(x_labels)
+    # plt.savefig('playground/paper_graphics/visualizations/ratio_v_path_distance.png', bbox_inches="tight", format='png')
+    #
 
-    x_values = np.linspace(0, 1, len(heatmap_avg_per_size_all))
-    #x_labels = ['3x3', '5x5', '7x7', '9x9', '11x11', '13x13', '15x15', '17x17', '19x19', '21x21', '23x23', '25x25']
-    x_labels = ['3', '5', '7', '9', '11', '13', '15', '17', '19', '21', '23', '25']
 
-
-    #initial box plots
-    fig, ax = plt.subplots()#1, 2, figsize=(AX_SIZE * 2, AX_SIZE), tight_layout=True)
-    #ax.boxplot([heatmap_avg_per_size_all.values(), heatmap_avg_per_size_effective.values(), heatmap_avg_per_size_55.values()], positions = [1, 2, 3], widths = 0.6)
-    ax.plot(x_values, heatmap_avg_per_size_all, marker='o', markersize=6, color="black")
-    ax.plot(x_values, heatmap_avg_per_size_effective, marker='x', markersize=6, color="red")
-    ax.plot(x_values, heatmap_avg_per_size_55, marker='+', markersize=6, color="green")
-
-    ax.set_xticks(x_values)
-    ax.set_xticklabels(x_labels)
-
-    plt.savefig('playground/paper_graphics/visualizations/heat_map_avg_bad_idea.png', bbox_inches="tight", format='png')
-
-    fig, ax = plt.subplots()
-    ax.plot(x_values, ratio_avg_per_size_effective, marker='x', markersize=6, color="red")
-    ax.set_xticks(x_values)
-    ax.set_xticklabels(x_labels)
-    plt.savefig('playground/paper_graphics/visualizations/ratio_avg_also_not_great.png', bbox_inches="tight", format='png')
-
-
-    # Alex had an idea to try plotting path distance vs. ratio. Try that here.
-    # ratio only exists for effective, cheese, and normal. Just try effective channels for now to get an idea
-
-    # 50 steps
-    path_distance_ratios = {i: [] for i in range(100)}
+    # Redo this plot for probability of successful retargeting vs. distance from top right path
+    tr_path_by_probs = {i: [] for i in range(51)}
 
     for seed in range(100):
-        data = heatmap_data_by_seed_and_prob_type(seed, "effective")
-        path_distance = data['d_to_coord']
-        ratios = data['ratio']
+        data = heatmap_data_by_seed_and_prob_type(seed, "all")
+        tr_path_dist = data['topright_path_divergence']
+        probs = data['probability']
 
-        if len(path_distance) != len(ratios):
+        if len(tr_path_dist) != len(probs):
             raise Exception("path distance and ratios are not the same length")
-        for i in range(len(path_distance)):
+        for i in range(len(tr_path_dist)):
             # print(path_distance)
             # print("values: ", path_distance.values)
             # print(path_distance[i][1])
             # print(ratios[i][1])
-            path_distance_ratios[path_distance.values[i]].append(ratios.values[i])
+            if tr_path_dist.values[i] <= 50:
+                tr_path_by_probs[tr_path_dist.values[i]].append(probs.values[i])
+            #path_distance_ratios[path_distance.values[i]].append(ratios.values[i])
 
     #     print()
     # print()
 
     #alright, now average over all the values for each ratio
-    for i in path_distance_ratios.keys():
+    for i in tr_path_by_probs.keys():
         #if isinstance(path_distance_ratios[i], list):
-        if len(path_distance_ratios[i]) != 0:
-            path_distance_ratios[i] = np.mean(path_distance_ratios[i])
+        if len(tr_path_by_probs[i]) != 0:
+            tr_path_by_probs[i] = np.mean(tr_path_by_probs[i])
         else:
-            path_distance_ratios[i] = 0
+            tr_path_by_probs[i] = 0
 
     print()
 
 
 
     fig, ax = plt.subplots()
-    ax.plot(path_distance_ratios.keys(), path_distance_ratios.values(), marker='x', markersize=6, color="red")
+    ax.plot(tr_path_by_probs.keys(), tr_path_by_probs.values(), marker='x', markersize=6, color="red")
+    ax.set_xlabel("Distance from Top Right Path", fontsize=14)
+    ax.set_ylabel("Probability of Successful Retargeting", fontsize=14)
     #ax.set_xticks(x_values)
     #ax.set_xticklabels(x_labels)
-    plt.savefig('playground/paper_graphics/visualizations/ratio_v_path_distance.png', bbox_inches="tight", format='png')
+    plt.savefig('playground/paper_graphics/visualizations/tr_path_dist_v_retargetability.pdf', bbox_inches="tight", format='pdf')
+    #plt.show()
+
 
     #ax.set_xticklabels(['All Cheese Channels', 'Effective Channels', 'Channel 55'])
 
@@ -1762,7 +1808,7 @@ def cheese_vector_fig():
     # legend_elements = [plt.Line2D([0], [0], marker='D', color='w', label='Mean',
     #                               markersize=10, markerfacecolor='black')]
 
-    fig, axs = plt.subplots(1, 2, figsize=(15, 6), tight_layout=True)
+    fig, axs = plt.subplots(1, 2, figsize=(15, 5), tight_layout=True)
 
     boxplot_data_cheese = [probs_original_plus_1, probs_patched_plus_1,
                     probs_patched_minus_1]#,
@@ -1780,8 +1826,8 @@ def cheese_vector_fig():
             patch.set_facecolor(color)
 
     orig_patch = mpatches.Patch(color='lightblue', label='Original')
-    pos_patch = mpatches.Patch(color='orange', label='Added Vector')
-    neg_patch = mpatches.Patch(color='red', label='Subtracted Vector')
+    pos_patch = mpatches.Patch(color='orange', label='Added')
+    neg_patch = mpatches.Patch(color='red', label='Subtracted')
     handles = [orig_patch, pos_patch, neg_patch]
 
     # Display the legend below the subplots
@@ -1789,8 +1835,12 @@ def cheese_vector_fig():
     #fig.legend(handles=handles, loc='lower center', ncol=3, fontsize=10, bbox_to_anchor=(0.5, -0.3))
 
     axs[0].set_xticks([])
-    axs[0].set_ylabel("P(Cheese | Decision Square)", fontsize=14)
-    axs[0].set_title("Cheese Vector", fontsize=24)
+    #axs[0].set_yticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0],fontsize=30)
+    axs[0].tick_params(labelsize=14)
+    axs[0].set_ylabel("P(Cheese | Decision Square)", labelpad=5, fontsize=20)
+    axs[0].set_title("Cheese Vector", pad=10, fontsize=30)
+    axs[0].legend(handles=handles, loc='upper right', ncol=1, fontsize=18, handlelength=1)
+    #axs[0].legend(bp1['boxes'][0], ['Original', 'Added Vector', 'Subtracted Vector'], loc='upper right', ncol=3, fontsize=18)
 
     # here add stuff from top right vector to place side by side
 
@@ -1818,14 +1868,15 @@ def cheese_vector_fig():
         for patch, color in zip(bp2['boxes'], colors):
             patch.set_facecolor(color)
 
-    axs[1].set_ylabel("P(Top Right | Decision Square)", fontsize=14)
+    axs[1].set_ylabel("P(Top Right | Decision Square)", labelpad=5, fontsize=20)
     axs[1].set_xticks([])
-    axs[1].set_title("Top Right Vector", fontsize=24)
+    axs[1].tick_params(labelsize=14)
+    axs[1].set_title("Top Right Vector", pad=10, fontsize=30)
 
     #fig.legend(handles=handles, loc='lower center', ncol=3, fontsize=10, bbox_to_anchor=(0.5, -0.3))
     #fig.legend([bp1['boxes'][0], bp2['boxes'][0]], handles=handles, loc='upper center', bbox_to_anchor=(0.5, -0.1),
     #           fancybox=True, shadow=True, ncol=2)
-    fig.legend(handles=handles, loc='lower center', ncol=3, fontsize=18, bbox_to_anchor=(0.5, -0.02))
+    #fig.legend(handles=handles, loc='lower center', ncol=3, fontsize=18, bbox_to_anchor=(0.5, -0.02))
     plt.tight_layout(rect=[0,1.1,1,1]) # left bottom right top
 
     # Display the plot
