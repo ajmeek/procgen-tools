@@ -707,21 +707,23 @@ def fig_2():
         # cax = fig2.add_axes([0.275, 0.05, 0.45, 0.05]) #distance from left, distance from bottom, width, height
         # fig2.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'), orientation='horizontal')#, location='bottom', shrink=0.5)
 
-        norm = mpl.colors.Normalize(vmin=-1, vmax=1)
-        cax = fig2.add_axes([0.275, 0.075, 0.45, 0.05])  # distance from left, distance from bottom, width, height
-        # cbar = fig2.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'),
-        #                     orientation='horizontal')  # , location='bottom', shrink=0.5)
+        # norm = mpl.colors.Normalize(vmin=-1, vmax=1)
+        # cax = fig2.add_axes([0.275, 0.075, 0.45, 0.05])  # distance from left, distance from bottom, width, height
+        # # cbar = fig2.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'),
+        # #                     orientation='horizontal')  # , location='bottom', shrink=0.5)
+        #
+        # cbar = fig2.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'), orientation='horizontal')
+        #
+        # # Define custom ticks and labels
+        # custom_ticks = [-1, 0, 1]  # Custom ticks positions
+        # custom_tick_labels = ['-1', '0', '1']  # Custom tick labels
+        #
+        # # Set the ticks and their labels
+        # cbar.set_ticks(custom_ticks)
+        # cbar.set_ticklabels(custom_tick_labels)
+        # cbar.ax.tick_params(labelsize=20)
 
-        cbar = fig2.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'), orientation='horizontal')
-
-        # Define custom ticks and labels
-        custom_ticks = [-1, 0, 1]  # Custom ticks positions
-        custom_tick_labels = ['-1', '0', '1']  # Custom tick labels
-
-        # Set the ticks and their labels
-        cbar.set_ticks(custom_ticks)
-        cbar.set_ticklabels(custom_tick_labels)
-        cbar.ax.tick_params(labelsize=20)
+        # manually add cbar in illustrator
 
         #plt.show()
         plt.savefig(f'playground/paper_graphics/visualizations/fig_2_channel_{channel}.pdf', bbox_inches="tight", format='pdf')
@@ -928,7 +930,7 @@ def fig_2_test():
         #plt.show()
         plt.savefig(f'playground/paper_graphics/visualizations/grab_colorbar_heatmap.pdf', bbox_inches="tight", format='pdf')
         break
-fig_2_test()
+#fig_2_test()
 
 # ---------------------------------------------------- fig 3 ----------------------------------------------------
 
