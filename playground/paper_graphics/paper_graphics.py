@@ -17,6 +17,8 @@ import procgen_tools.patch_utils as patch_utils
 import math
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.font_manager as fm
+from mpl_toolkits.axes_grid1 import ImageGrid
+
 
 # Load the font properties
 font_prop = fm.FontProperties(fname='/usr/share/fonts/truetype/msttcorefonts/Times_New_Roman.ttf')
@@ -648,7 +650,7 @@ def fig_2():
         venv = create_venv(1,seed,1)
         state = maze.EnvState(venv.env.callmethod('get_state')[0])
 
-        img = viz.visualize_venv(venv, ax=axd2['reg_venv'], render_padding=True)
+        img = viz.visualize_venv(venv, ax=axd2['reg_venv'], render_padding=False)
         axd2['reg_venv'].imshow(img)
 
         # want to show activations from first cheese
@@ -696,19 +698,225 @@ def fig_2():
         axd2['cheese_c'].set_xticks([])
         axd2['cheese_c'].set_yticks([])
 
-        axd2['reg_venv'].set_title('Maze', fontsize=24)
-        axd2['cheese_a'].set_title('Cheese A', fontsize=24)
-        axd2['cheese_b'].set_title('Cheese B', fontsize=24)
-        axd2['cheese_c'].set_title('Cheese C', fontsize=24)
+        axd2['reg_venv'].set_title('(a): Maze with \n cheese locations', fontsize=24)
+        axd2['cheese_a'].set_title('(b): Cheese at \n location 1', fontsize=24)
+        axd2['cheese_b'].set_title('(c): Cheese at \n location 2', fontsize=24)
+        axd2['cheese_c'].set_title('(d): Cheese at \n location 3', fontsize=24)
+
+        # norm = mpl.colors.Normalize(vmin=-1, vmax=1)
+        # cax = fig2.add_axes([0.275, 0.05, 0.45, 0.05]) #distance from left, distance from bottom, width, height
+        # fig2.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'), orientation='horizontal')#, location='bottom', shrink=0.5)
 
         norm = mpl.colors.Normalize(vmin=-1, vmax=1)
-        cax = fig2.add_axes([0.275, 0.05, 0.45, 0.05]) #distance from left, distance from bottom, width, height
-        fig2.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'), orientation='horizontal')#, location='bottom', shrink=0.5)
+        cax = fig2.add_axes([0.275, 0.075, 0.45, 0.05])  # distance from left, distance from bottom, width, height
+        # cbar = fig2.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'),
+        #                     orientation='horizontal')  # , location='bottom', shrink=0.5)
+
+        cbar = fig2.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'), orientation='horizontal')
+
+        # Define custom ticks and labels
+        custom_ticks = [-1, 0, 1]  # Custom ticks positions
+        custom_tick_labels = ['-1', '0', '1']  # Custom tick labels
+
+        # Set the ticks and their labels
+        cbar.set_ticks(custom_ticks)
+        cbar.set_ticklabels(custom_tick_labels)
+        cbar.ax.tick_params(labelsize=20)
 
         #plt.show()
         plt.savefig(f'playground/paper_graphics/visualizations/fig_2_channel_{channel}.pdf', bbox_inches="tight", format='pdf')
+        #break
 
 #fig_2()
+
+def fig_2_test():
+
+    # matplotlib can't rescale the 268x268x3 maze image to a 16x16 ndarray or vice versa.
+    # so this sucks.
+    # but use it to generate the cbar to attach tomorrow
+
+    # all cheese channels - 7, 8, 42, 44, 55, 77, 82, 88, 89, 99, 113
+    cheese_channels = [7, 8, 42, 44, 55, 77, 82, 88, 89, 99, 113]
+    for channel in cheese_channels:
+
+        #move cheese in state uses full grid. use padding manually to get right grid coords
+        #cheese_a_pos = ()
+        cheese_b_pos = (18, 18) #top right
+        cheese_c_pos = (6, 18) #bottom right
+
+        # fig2, axd2 = plt.subplot_mosaic(
+        #     [['reg_venv', 'cheese_a', 'cheese_b', 'cheese_c', 'colorbar']],
+        #     figsize=(AX_SIZE * 4, AX_SIZE*1.5),
+        #     tight_layout=True,
+        # )
+
+        # Set up figure and image grid
+        fig = plt.figure(figsize=(AX_SIZE * 4, AX_SIZE*1.5))
+
+        grid = ImageGrid(fig, 111,  # as in plt.subplot(111)
+                         nrows_ncols=(1, 4),
+                         axes_pad=0.15,
+                         share_all=True,
+                         cbar_location="right",
+                         cbar_mode="single",
+                         cbar_size="7%",
+                         cbar_pad=0.15,
+                         )
+
+        venv = create_venv(1,seed,1)
+        state = maze.EnvState(venv.env.callmethod('get_state')[0])
+
+        for count, ax in enumerate(grid):
+
+            if count == 0:
+                img = viz.visualize_venv(venv, ax=ax, render_padding=False)
+                im = ax.imshow(img)
+                ax.set_title('(a): Maze with \n cheese locations', fontsize=24)
+
+            elif count == 1:
+                obs = t.tensor(venv.reset(), dtype=t.float32)
+
+                with hook.set_hook_should_get_custom_data():
+                    hook.network(obs)
+
+                activ = hook.get_value_by_label(default_layer)[0][channel]
+                ax.imshow(activ)
+                im = ax.imshow(activ, cmap='bwr', vmin=-1, vmax=1)
+
+                ax.set_xticks([])
+                ax.set_yticks([])
+                ax.set_title('(b): Cheese at \n location 1', fontsize=24)
+
+            elif count == 2:
+                maze.move_cheese_in_state(state, cheese_b_pos)
+                venv.env.callmethod('set_state', [state.state_bytes])
+                obs = t.tensor(venv.reset(), dtype=t.float32)
+
+                with hook.set_hook_should_get_custom_data():
+                    hook.network(obs)
+
+                # img = viz.visualize_venv(venv, render_padding=False, show_plot=True) #checking cheese coords, it is top right
+                activ = hook.get_value_by_label(default_layer)[0][channel]
+                ax.imshow(activ)
+                im = ax.imshow(activ, cmap='bwr', vmin=-1, vmax=1)
+
+                ax.set_xticks([])
+                ax.set_yticks([])
+                ax.set_title('(c): Cheese at \n location 2', fontsize=24)
+
+            elif count == 3:
+                maze.move_cheese_in_state(state, cheese_c_pos)
+                venv.env.callmethod('set_state', [state.state_bytes])
+                obs = t.tensor(venv.reset(), dtype=t.float32)
+
+                with hook.set_hook_should_get_custom_data():
+                    hook.network(obs)
+
+                # img = viz.visualize_venv(venv, render_padding=False, show_plot=True) #checking cheese coords, it is bottom right
+                activ = hook.get_value_by_label(default_layer)[0][channel]
+                ax.imshow(activ)
+                im = ax.imshow(activ, cmap='bwr', vmin=-1, vmax=1)
+
+                ax.set_xticks([])
+                ax.set_yticks([])
+                ax.set_title('(d): Cheese at \n location 3', fontsize=24)
+
+        norm = mpl.colors.Normalize(vmin=-1, vmax=1)
+        #norm = mpl.colors.SymLogNorm(linthresh=0.03, linscale=1,#0.03, vmin=-6.0, vmax=6.0, base=6)
+
+        grid.cbar_axes[0].colorbar(mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'))
+
+        #grid.cbar_axes[0].set_yticklabels(['-1', '0', '1'], fontsize=20)
+
+        # Define custom ticks and labels
+        custom_ticks = [-1, 0, 1]  # Custom ticks positions
+        custom_tick_labels = ['-1', '0', '1']  # Custom tick labels
+
+        # Set the ticks and their labels
+        grid.cbar_axes[0].set_yticks(custom_ticks)
+        grid.cbar_axes[0].set_yticklabels(custom_tick_labels)
+        grid.cbar_axes[0].tick_params(labelsize=20)
+
+        # venv = create_venv(1,seed,1)
+        # state = maze.EnvState(venv.env.callmethod('get_state')[0])
+
+        # img = viz.visualize_venv(venv, ax=axd2['reg_venv'], render_padding=False)
+        # axd2['reg_venv'].imshow(img)
+
+        # want to show activations from first cheese
+        # maze.move_cheese_in_state(state, cheese_a_pos)
+        # venv.env.callmethod('set_state', [state.state_bytes])
+        # obs = t.tensor(venv.reset(), dtype=t.float32)
+        #
+        # with hook.set_hook_should_get_custom_data():
+        #     hook.network(obs)
+        #
+        # activ = hook.get_value_by_label(default_layer)[0][channel]
+        # axd2['cheese_a'].imshow(activ)
+        # axd2['cheese_a'].imshow(activ, cmap='bwr', vmin=-1, vmax=1)
+        #
+        # axd2['cheese_a'].set_xticks([])
+        # axd2['cheese_a'].set_yticks([])
+        #
+        # maze.move_cheese_in_state(state, cheese_b_pos)
+        # venv.env.callmethod('set_state', [state.state_bytes])
+        # obs = t.tensor(venv.reset(), dtype=t.float32)
+        #
+        # with hook.set_hook_should_get_custom_data():
+        #     hook.network(obs)
+        #
+        # #img = viz.visualize_venv(venv, render_padding=False, show_plot=True) #checking cheese coords, it is top right
+        # activ = hook.get_value_by_label(default_layer)[0][channel]
+        # axd2['cheese_b'].imshow(activ)
+        # axd2['cheese_b'].imshow(activ, cmap='bwr', vmin=-1, vmax=1)
+        #
+        # axd2['cheese_b'].set_xticks([])
+        # axd2['cheese_b'].set_yticks([])
+        #
+        # maze.move_cheese_in_state(state, cheese_c_pos)
+        # venv.env.callmethod('set_state', [state.state_bytes])
+        # obs = t.tensor(venv.reset(), dtype=t.float32)
+        #
+        # with hook.set_hook_should_get_custom_data():
+        #     hook.network(obs)
+        #
+        # #img = viz.visualize_venv(venv, render_padding=False, show_plot=True) #checking cheese coords, it is bottom right
+        # activ = hook.get_value_by_label(default_layer)[0][channel]
+        # axd2['cheese_c'].imshow(activ)
+        # axd2['cheese_c'].imshow(activ, cmap='bwr', vmin=-1, vmax=1)
+        #
+        # axd2['cheese_c'].set_xticks([])
+        # axd2['cheese_c'].set_yticks([])
+
+        # axd2['reg_venv'].set_title('(a): Maze with \n cheese locations', fontsize=24)
+        # axd2['cheese_a'].set_title('(b): Cheese at \n location 1', fontsize=24)
+        # axd2['cheese_b'].set_title('(c): Cheese at \n location 2', fontsize=24)
+        # axd2['cheese_c'].set_title('(d): Cheese at \n location 3', fontsize=24)
+        #
+        # norm = mpl.colors.Normalize(vmin=-1, vmax=1)
+        # cax = fig2.add_axes([0.275, 0.05, 0.45, 0.05]) #distance from left, distance from bottom, width, height
+        # fig2.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'), orientation='horizontal')#, location='bottom', shrink=0.5)
+
+        # norm = mpl.colors.Normalize(vmin=-1, vmax=1)
+        # #cax = fig2.add_axes([0.275, 0.075, 0.45, 0.05])  # distance from left, distance from bottom, width, height
+        # #cbar = fig2.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'),
+        # #                     orientation='horizontal')  # , location='bottom', shrink=0.5)
+        #
+        # cbar = fig2.colorbar(ax=axd2['colorbar'], mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'))
+        #
+        # # Define custom ticks and labels
+        # custom_ticks = [-1, 0, 1]  # Custom ticks positions
+        # custom_tick_labels = ['-1', '0', '1']  # Custom tick labels
+        #
+        # # Set the ticks and their labels
+        # cbar.set_ticks(custom_ticks)
+        # cbar.set_ticklabels(custom_tick_labels)
+        # cbar.ax.tick_params(labelsize=20)
+
+        #plt.show()
+        plt.savefig(f'playground/paper_graphics/visualizations/grab_colorbar.pdf', bbox_inches="tight", format='pdf')
+        break
+#fig_2_test()
 
 # ---------------------------------------------------- fig 3 ----------------------------------------------------
 
@@ -1319,24 +1527,50 @@ def fig_x1b():
     # loading the data
 
     #give title to the axes
-    axdx1['seed_48_channel_cheese'].set_title("Seed 48, Cheese", fontsize=14)#, font="Times New Roman")
+    axdx1['seed_48_channel_cheese'].set_title("(a): Seed 48, Cheese", pad=8, fontsize=24)#, font="Times New Roman")
     plot_heatmap(48, "cheese", axdx1['seed_48_channel_cheese'])
 
-    axdx1['seed_48_channel_55'].set_title("Seed 48, Channel 55", fontsize=14)#, font="Times New Roman")
+    axdx1['seed_48_channel_55'].set_title("(b): Seed 48, Channel 55", pad=8, fontsize=24)#, font="Times New Roman")
     plot_heatmap(48, "55", axdx1['seed_48_channel_55'])
 
-    axdx1['seed_48_channel_all'].set_title("Seed 48, Channel All", fontsize=14)#, font="Times New Roman")
+    axdx1['seed_48_channel_all'].set_title("(c): Seed 48, Channel All", pad=8, fontsize=24)#, font="Times New Roman")
     plot_heatmap(48, "all", axdx1['seed_48_channel_all'])
 
-    axdx1['seed_48_channel_none'].set_title("Seed 48, Base", fontsize=14)#, font="Times New Roman")
+    axdx1['seed_48_channel_none'].set_title("(d): Seed 48, Base", pad=8, fontsize=24)#, font="Times New Roman")
     plot_heatmap(48, "normal", axdx1['seed_48_channel_none'])
 
-    #plt.show()
-    plt.savefig('playground/paper_graphics/visualizations/fig_x1b.pdf', bbox_inches="tight", format='pdf')
+    plt.show()
+    #plt.savefig('playground/paper_graphics/visualizations/fig_x1b.pdf', bbox_inches="tight", format='pdf')
 
 
 #fig_x1b()
 
+def fig_x1bv2():
+    figx1, axdx1 = plt.subplot_mosaic(
+        [['seed_0_channel_55', 'seed_0_channel_all', 'seed_48_channel_55', 'seed_48_channel_all']],
+        figsize=(AX_SIZE * 4, AX_SIZE*1.5), #increase y to fit titles
+        tight_layout=True,
+    )
+
+    # loading the data
+
+    #give title to the axes
+    axdx1['seed_0_channel_55'].set_title("(a): Seed 0\n Channel 55", pad=8, fontsize=24)#, font="Times New Roman")
+    plot_heatmap(0, "55", axdx1['seed_0_channel_55'])
+
+    axdx1['seed_0_channel_all'].set_title("(b): Seed 0\n All Channels", pad=8, fontsize=24)#, font="Times New Roman")
+    plot_heatmap(0, "all", axdx1['seed_0_channel_all'])
+
+    axdx1['seed_48_channel_55'].set_title("(c): Seed 48\n Channel 55", pad=8, fontsize=24)#, font="Times New Roman")
+    plot_heatmap(48, "55", axdx1['seed_48_channel_55'])
+
+    axdx1['seed_48_channel_all'].set_title("(d): Seed 48\n All Channels", pad=8, fontsize=24)#, font="Times New Roman")
+    plot_heatmap(48, "all", axdx1['seed_48_channel_all'])
+
+    #plt.show()
+    plt.savefig('playground/paper_graphics/visualizations/fig_x1bv2.pdf', bbox_inches="tight", format='pdf')
+
+#fig_x1bv2()
 
 # -------------------------------------------------- fig 6 ----------------------------------------------------
 """
