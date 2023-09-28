@@ -506,7 +506,7 @@ def visualize_venv(
         y_coord = int(y_coord)
         x_coord = int(x_coord)
 
-        circle = matplotlib.patches.Circle((x_coord, y_coord), step_in_pixels//3, color='r', fill=True)
+        circle = matplotlib.patches.Circle((x_coord, y_coord), step_in_pixels//3, color='w', fill=True)
         ax.add_patch(circle)
 
 

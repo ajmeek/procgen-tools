@@ -442,19 +442,19 @@ def fig_1():
     axd1['patch_mpp'].set_title('(d): Patched MPP', pad=8, **font_dict)
 
 
-    norm = mpl.colors.Normalize(vmin=-1, vmax=1)
-    cax = fig1.add_axes([0.275, 0.075, 0.45, 0.05])  # distance from left, distance from bottom, width, height
-    cbar = fig1.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'),
-                  orientation='horizontal')  # , location='bottom', shrink=0.5)
-
-    # Define custom ticks and labels
-    custom_ticks = [-1, 0, 1]  # Custom ticks positions
-    custom_tick_labels = ['-1', '0', '1']  # Custom tick labels
-
-    # Set the ticks and their labels
-    cbar.set_ticks(custom_ticks)
-    cbar.set_ticklabels(custom_tick_labels)
-    cbar.ax.tick_params(labelsize=20)
+    # norm = mpl.colors.Normalize(vmin=-1, vmax=1)
+    # cax = fig1.add_axes([0.275, 0.075, 0.45, 0.05])  # distance from left, distance from bottom, width, height
+    # cbar = fig1.colorbar(cax=cax, mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'),
+    #               orientation='horizontal')  # , location='bottom', shrink=0.5)
+    #
+    # # Define custom ticks and labels
+    # custom_ticks = [-1, 0, 1]  # Custom ticks positions
+    # custom_tick_labels = ['-1', '0', '1']  # Custom tick labels
+    #
+    # # Set the ticks and their labels
+    # cbar.set_ticks(custom_ticks)
+    # cbar.set_ticklabels(custom_tick_labels)
+    # cbar.ax.tick_params(labelsize=20)
     plt.savefig('playground/paper_graphics/visualizations/fig_1.pdf', bbox_inches="tight", format='pdf')
     #fig1.subplots_adjust(right=0.95)
 
@@ -825,8 +825,64 @@ def fig_2_test():
                 ax.set_yticks([])
                 ax.set_title('(d): Cheese at \n location 3', fontsize=24)
 
-        norm = mpl.colors.Normalize(vmin=0, vmax=1)
+        norm = mpl.colors.LogNorm()
         #norm = mpl.colors.SymLogNorm(linthresh=0.03, linscale=1,#0.03, vmin=-6.0, vmax=6.0, base=6)
+
+        # def makeTickLables(vmin, vmax, linthresh):
+        #     """
+        #     make two lists, one for the tick positions, and one for the labels
+        #     at those positions. The number and placement of positive labels is
+        #     different from the negative labels.
+        #     """
+        #     nvpos = int(np.log10(vmax)) - int(np.log10(linthresh))
+        #     nvneg = int(np.log10(np.abs(vmin))) - int(np.log10(linthresh)) + 1
+        #     ticks = []
+        #     labels = []
+        #     lavmin = (np.log10(np.abs(vmin)))
+        #     lvmax = (np.log10(np.abs(vmax)))
+        #     llinthres = int(np.log10(linthresh))
+        #     # f(x) = mx+b
+        #     # f(llinthres) = .5
+        #     # f(lavmin) = 0
+        #     m = .5 / float(llinthres - lavmin)
+        #     b = (.5 - llinthres * m - lavmin * m) / 2
+        #     for itick in range(nvneg):
+        #         labels.append(-1 * float(pow(10, itick + llinthres)))
+        #         ticks.append((b + (itick + llinthres) * m))
+        #     # add vmin tick
+        #     labels.append(vmin)
+        #     ticks.append(b + (lavmin) * m)
+        #
+        #     # f(x) = mx+b
+        #     # f(llinthres) = .5
+        #     # f(lvmax) = 1
+        #     m = .5 / float(lvmax - llinthres)
+        #     b = m * (lvmax - 2 * llinthres)
+        #     for itick in range(1, nvpos):
+        #         labels.append(float(pow(10, itick + llinthres)))
+        #         ticks.append((b + (itick + llinthres) * m))
+        #     # add vmax tick
+        #     labels.append(vmax)
+        #     ticks.append(b + (lvmax) * m)
+        #
+        #     return ticks, labels
+        #
+        # LINTHRESH = 1e-3
+        # VMIN=-1
+        # VMAX=6
+        #
+        # ticks, labels = makeTickLables(VMIN, VMAX, LINTHRESH)
+        # #ticks = [-1, 0, 1, 5, 6]
+        # #labels = ['-1', '0', '1', '5', '6']
+        # ticks[3] = 0
+        # labels[3] = '0'
+        # #LINTHRESH = 1e-4
+        # cmap = mpl.cm.bwr
+        # fig = plt.figure()
+        # ax = fig.add_subplot(111)
+        # im = ax.imshow(activ, cmap=cmap, vmin=0, vmax=1)
+        # cbar = plt.colorbar(im,ticks=ticks)
+        # cbar.ax.set_yticklabels(labels)
 
         # colors = [
         #     (1, 0, 0, 0),
@@ -835,23 +891,23 @@ def fig_2_test():
 
         #make it grey to red, transparency doesn't work well on a cbar
         colors = [(0.5, 0.5, 0.5), (1, 0, 0)]
-
+        #
         cmap_name = "custom_div_cmap"
         cm = mcolors.LinearSegmentedColormap.from_list(cmap_name, colors, N=100)
-
+        #
         grid.cbar_axes[0].colorbar(mappable=mpl.cm.ScalarMappable(norm=norm, cmap=cm))
-        #grid.cbar_axes[0].colorbar(mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'))
-
-        #grid.cbar_axes[0].set_yticklabels(['-1', '0', '1'], fontsize=20)
-
-        # Define custom ticks and labels
-        custom_ticks = [0, 0.5, 1]  # Custom ticks positions
-        custom_tick_labels = ['0', '0.5', '1']  # Custom tick labels
-
-        # Set the ticks and their labels
-        grid.cbar_axes[0].set_yticks(custom_ticks)
-        grid.cbar_axes[0].set_yticklabels(custom_tick_labels)
-        grid.cbar_axes[0].tick_params(labelsize=20)
+        # #grid.cbar_axes[0].colorbar(mappable=mpl.cm.ScalarMappable(norm=norm, cmap='bwr'))
+        #
+        # #grid.cbar_axes[0].set_yticklabels(['-1', '0', '1'], fontsize=20)
+        #
+        # # Define custom ticks and labels
+        # custom_ticks = [0, 0.5, 1]  # Custom ticks positions
+        # custom_tick_labels = ['0', '0.5', '1']  # Custom tick labels
+        #
+        # # Set the ticks and their labels
+        # grid.cbar_axes[0].set_yticks(custom_ticks)
+        # grid.cbar_axes[0].set_yticklabels(custom_tick_labels)
+        # grid.cbar_axes[0].tick_params(labelsize=20)
 
         # venv = create_venv(1,seed,1)
         # state = maze.EnvState(venv.env.callmethod('get_state')[0])
@@ -929,8 +985,8 @@ def fig_2_test():
         # cbar.set_ticklabels(custom_tick_labels)
         # cbar.ax.tick_params(labelsize=20)
 
-        #plt.show()
-        plt.savefig(f'playground/paper_graphics/visualizations/grab_colorbar_heatmap.pdf', bbox_inches="tight", format='pdf')
+        plt.show()
+        #plt.savefig(f'playground/paper_graphics/visualizations/grab_colorbar_log.pdf', bbox_inches="tight", format='pdf')
         break
 #fig_2_test()
 
@@ -1223,104 +1279,110 @@ def fig_4():
     success_c_pos = (5, 11) # bottom left
     fail = (10, 4) #
 
-    fig4, axd4 = plt.subplot_mosaic(
-        [['success_a', 'success_b', 'success_c', 'fail']],
-        figsize=(AX_SIZE * 4, AX_SIZE),
-        tight_layout=True,
-    )
+    # 12 different mazes of size 13
+    #seeds = [0, 2, 16, 51, 74, 84, 85, 99, 107, 108, 132, 169]
+    seeds = [183, 189, 192]
+    for seed in seeds:
 
-    fig4a, ax4a = plt.subplots()
-    fig4b, ax4b = plt.subplots()
-    fig4c, ax4c = plt.subplots()
-    fig4d, ax4d = plt.subplots()
+        fig4, axd4 = plt.subplot_mosaic(
+            [['success_a', 'success_b', 'success_c', 'fail']],
+            figsize=(AX_SIZE * 4, AX_SIZE),
+            tight_layout=True,
+        )
 
-
-    venv = create_venv(1,seed,1)
-    state = maze.EnvState(venv.env.callmethod('get_state')[0])
-
-    patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=success_a_pos)
-    with hook.use_patches(patches):
-        patched_vfield = viz.vector_field(venv, hook.network)
-    img = viz.plot_vf_mpp(patched_vfield, ax=axd4['success_a'], save_img=False)
-
-    #viz.visualize_venv(venv, show_plot=True, render_padding=False)
-
-    u, v = linear_mapping(success_a_pos)
-    u, v = inner_grid_coords_from_full_grid_coords((u,v))
-    padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
-    viz.plot_pixel_dot(axd4['success_a'], u, v, hidden_padding=padding)
-    #viz.plot_red_dot(venv, axd4['success_a'], success_a_pos[0], success_a_pos[1])
-    axd4['success_a'].imshow(img)
-
-    fig4.show()
-    img = viz.plot_vf_mpp(patched_vfield, ax=ax4a, save_img=False)
-    viz.plot_pixel_dot(ax4a, u, v, hidden_padding=padding)
-    ax4a.imshow(img)
-    ax4a.set_xticks([])
-    ax4a.set_yticks([])
-    fig4a.show()
-
-    patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=success_b_pos)
-    with hook.use_patches(patches):
-        patched_vfield = viz.vector_field(venv, hook.network)
-    img = viz.plot_vf_mpp(patched_vfield, ax=axd4['success_b'], save_img=False)
-
-    u, v = linear_mapping(success_b_pos)
-    u, v = inner_grid_coords_from_full_grid_coords((u,v))
-    padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
-    viz.plot_pixel_dot(axd4['success_b'], u, v, hidden_padding=padding)
-    axd4['success_b'].imshow(img)
-
-    img = viz.plot_vf_mpp(patched_vfield, ax=ax4b, save_img=False)
-    viz.plot_pixel_dot(ax4b, u, v, hidden_padding=padding)
-    ax4b.imshow(img)
-    ax4b.set_xticks([])
-    ax4b.set_yticks([])
-
-    patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=success_c_pos)
-    with hook.use_patches(patches):
-        patched_vfield = viz.vector_field(venv, hook.network)
-    img = viz.plot_vf_mpp(patched_vfield, ax=axd4['success_c'], save_img=False)
-
-    u, v = linear_mapping(success_c_pos)
-    u, v = inner_grid_coords_from_full_grid_coords((u,v))
-    padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
-    viz.plot_pixel_dot(axd4['success_c'], u, v, hidden_padding=padding)
-    axd4['success_c'].imshow(img)
-
-    img = viz.plot_vf_mpp(patched_vfield, ax=ax4c, save_img=False)
-    viz.plot_pixel_dot(ax4c, u, v, hidden_padding=padding)
-    ax4c.imshow(img)
-    ax4c.set_xticks([])
-    ax4c.set_yticks([])
-
-    patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=fail)
-    with hook.use_patches(patches):
-        patched_vfield = viz.vector_field(venv, hook.network)
-    img = viz.plot_vf_mpp(patched_vfield, ax=axd4['fail'], save_img=False)
-
-    u, v = linear_mapping(fail)
-    u, v = inner_grid_coords_from_full_grid_coords((u,v))
-    padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
-    viz.plot_pixel_dot(axd4['fail'], u, v, hidden_padding=padding)
-    axd4['fail'].imshow(img)
+        # fig4a, ax4a = plt.subplots()
+        # fig4b, ax4b = plt.subplots()
+        # fig4c, ax4c = plt.subplots()
+        # fig4d, ax4d = plt.subplots()
 
 
-    img = viz.plot_vf_mpp(patched_vfield, ax=ax4d, save_img=False)
-    viz.plot_pixel_dot(ax4d, u, v, hidden_padding=padding)
-    ax4d.imshow(img)
-    ax4d.set_xticks([])
-    ax4d.set_yticks([])
+        venv = create_venv(1,seed,1)
+        state = maze.EnvState(venv.env.callmethod('get_state')[0])
 
-    fig4a.savefig('playground/paper_graphics/visualizations/fig_4a.pdf', bbox_inches="tight", format='pdf')
-    fig4b.savefig('playground/paper_graphics/visualizations/fig_4b.pdf', bbox_inches="tight", format='pdf')
-    fig4c.savefig('playground/paper_graphics/visualizations/fig_4c.pdf', bbox_inches="tight", format='pdf')
-    fig4d.savefig('playground/paper_graphics/visualizations/fig_4d.pdf', bbox_inches="tight", format='pdf')
+        patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=success_a_pos)
+        with hook.use_patches(patches):
+            patched_vfield = viz.vector_field(venv, hook.network)
+        img = viz.plot_vf_mpp(patched_vfield, ax=axd4['success_a'], save_img=False)
+
+        #viz.visualize_venv(venv, show_plot=True, render_padding=False)
+
+        u, v = linear_mapping(success_a_pos)
+        u, v = inner_grid_coords_from_full_grid_coords((u,v))
+        padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
+        viz.plot_pixel_dot(axd4['success_a'], u, v, hidden_padding=padding)
+        #viz.plot_red_dot(venv, axd4['success_a'], success_a_pos[0], success_a_pos[1])
+        axd4['success_a'].imshow(img)
+
+        # fig4.show()
+        # img = viz.plot_vf_mpp(patched_vfield, ax=ax4a, save_img=False)
+        # viz.plot_pixel_dot(ax4a, u, v, hidden_padding=padding)
+        # ax4a.imshow(img)
+        # ax4a.set_xticks([])
+        # ax4a.set_yticks([])
+        # fig4a.show()
+
+        patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=success_b_pos)
+        with hook.use_patches(patches):
+            patched_vfield = viz.vector_field(venv, hook.network)
+        img = viz.plot_vf_mpp(patched_vfield, ax=axd4['success_b'], save_img=False)
+
+        u, v = linear_mapping(success_b_pos)
+        u, v = inner_grid_coords_from_full_grid_coords((u,v))
+        padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
+        viz.plot_pixel_dot(axd4['success_b'], u, v, hidden_padding=padding)
+        axd4['success_b'].imshow(img)
+
+        # img = viz.plot_vf_mpp(patched_vfield, ax=ax4b, save_img=False)
+        # viz.plot_pixel_dot(ax4b, u, v, hidden_padding=padding)
+        # ax4b.imshow(img)
+        # ax4b.set_xticks([])
+        # ax4b.set_yticks([])
+
+        patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=success_c_pos)
+        with hook.use_patches(patches):
+            patched_vfield = viz.vector_field(venv, hook.network)
+        img = viz.plot_vf_mpp(patched_vfield, ax=axd4['success_c'], save_img=False)
+
+        u, v = linear_mapping(success_c_pos)
+        u, v = inner_grid_coords_from_full_grid_coords((u,v))
+        padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
+        viz.plot_pixel_dot(axd4['success_c'], u, v, hidden_padding=padding)
+        axd4['success_c'].imshow(img)
+
+        # img = viz.plot_vf_mpp(patched_vfield, ax=ax4c, save_img=False)
+        # viz.plot_pixel_dot(ax4c, u, v, hidden_padding=padding)
+        # ax4c.imshow(img)
+        # ax4c.set_xticks([])
+        # ax4c.set_yticks([])
+
+        patches = patch_utils.get_channel_pixel_patch(layer_name=default_layer,channel=55, value=5, coord=fail)
+        with hook.use_patches(patches):
+            patched_vfield = viz.vector_field(venv, hook.network)
+        img = viz.plot_vf_mpp(patched_vfield, ax=axd4['fail'], save_img=False)
+
+        u, v = linear_mapping(fail)
+        u, v = inner_grid_coords_from_full_grid_coords((u,v))
+        padding = maze.get_padding(maze.get_inner_grid_from_seed(seed))
+        viz.plot_pixel_dot(axd4['fail'], u, v, hidden_padding=padding)
+        axd4['fail'].imshow(img)
 
 
-    #plt.show()
-    #plt.savefig('playground/paper_graphics/visualizations/fig_4.pdf', bbox_inches="tight", format='pdf')
-#fig_4()
+        # img = viz.plot_vf_mpp(patched_vfield, ax=ax4d, save_img=False)
+        # viz.plot_pixel_dot(ax4d, u, v, hidden_padding=padding)
+        # ax4d.imshow(img)
+        # ax4d.set_xticks([])
+        # ax4d.set_yticks([])
+
+        # fig4a.savefig('playground/paper_graphics/visualizations/fig_4a.pdf', bbox_inches="tight", format='pdf')
+        # fig4b.savefig('playground/paper_graphics/visualizations/fig_4b.pdf', bbox_inches="tight", format='pdf')
+        # fig4c.savefig('playground/paper_graphics/visualizations/fig_4c.pdf', bbox_inches="tight", format='pdf')
+        # fig4d.savefig('playground/paper_graphics/visualizations/fig_4d.pdf', bbox_inches="tight", format='pdf')
+
+
+        #fig4.suptitle("Modifying a single activation", fontsize=24)
+        #plt.show()
+        plt.savefig(f'playground/paper_graphics/visualizations/fig_4_{seed}.pdf', bbox_inches="tight", format='pdf')
+fig_4()
 
 
 # ---------------------------------------------------- fig 5 ----------------------------------------------------
@@ -1576,7 +1638,7 @@ def fig_x1b():
 
 def fig_x1bv2():
     figx1, axdx1 = plt.subplot_mosaic(
-        [['seed_0_channel_55', 'seed_0_channel_all', 'seed_48_channel_55', 'seed_48_channel_all']],
+        [['seed_0_channel_all', 'seed_48_channel_all', 'seed_48_channel_55', 'seed_48_channel_cheese']],
         figsize=(AX_SIZE * 4, AX_SIZE*1.5), #increase y to fit titles
         tight_layout=True,
     )
@@ -1584,17 +1646,17 @@ def fig_x1bv2():
     # loading the data
 
     #give title to the axes
-    axdx1['seed_0_channel_55'].set_title("(a): Seed 0\n Channel 55", pad=8, fontsize=24)#, font="Times New Roman")
-    plot_heatmap(0, "55", axdx1['seed_0_channel_55'])
-
-    axdx1['seed_0_channel_all'].set_title("(b): Seed 0\n All Channels", pad=8, fontsize=24)#, font="Times New Roman")
+    axdx1['seed_0_channel_all'].set_title("(a): Seed 0\n All Channels", pad=8, fontsize=24)#, font="Times New Roman")
     plot_heatmap(0, "all", axdx1['seed_0_channel_all'])
+
+    axdx1['seed_48_channel_all'].set_title("(b): Seed 48\n All Channels", pad=8, fontsize=24)#, font="Times New Roman")
+    plot_heatmap(48, "all", axdx1['seed_48_channel_all'])
 
     axdx1['seed_48_channel_55'].set_title("(c): Seed 48\n Channel 55", pad=8, fontsize=24)#, font="Times New Roman")
     plot_heatmap(48, "55", axdx1['seed_48_channel_55'])
 
-    axdx1['seed_48_channel_all'].set_title("(d): Seed 48\n All Channels", pad=8, fontsize=24)#, font="Times New Roman")
-    plot_heatmap(48, "all", axdx1['seed_48_channel_all'])
+    axdx1['seed_48_channel_cheese'].set_title("(d): Seed 48\nCheese", pad=8, fontsize=24)#, font="Times New Roman")
+    plot_heatmap(48, "cheese", axdx1['seed_48_channel_cheese'])
 
     #plt.show()
     plt.savefig('playground/paper_graphics/visualizations/fig_x1bv2.pdf', bbox_inches="tight", format='pdf')
@@ -2140,7 +2202,7 @@ def cheese_vector_fig():
     #axs[0].set_yticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0],fontsize=30)
     axs[0].tick_params(labelsize=14)
     axs[0].set_ylabel("P(Cheese | Decision Square)", labelpad=5, fontsize=20)
-    axs[0].set_title("Cheese Vector", pad=10, fontsize=30)
+    axs[0].set_title("(a): Cheese Vector", pad=10, fontsize=30)
     axs[0].legend(handles=handles, loc='upper right', ncol=1, fontsize=18, handlelength=1)
     #axs[0].legend(bp1['boxes'][0], ['Original', 'Added Vector', 'Subtracted Vector'], loc='upper right', ncol=3, fontsize=18)
 
@@ -2173,7 +2235,7 @@ def cheese_vector_fig():
     axs[1].set_ylabel("P(Top Right | Decision Square)", labelpad=5, fontsize=20)
     axs[1].set_xticks([])
     axs[1].tick_params(labelsize=14)
-    axs[1].set_title("Top Right Vector", pad=10, fontsize=30)
+    axs[1].set_title("(b): Top Right Vector", pad=10, fontsize=30)
 
     #fig.legend(handles=handles, loc='lower center', ncol=3, fontsize=10, bbox_to_anchor=(0.5, -0.3))
     #fig.legend([bp1['boxes'][0], bp2['boxes'][0]], handles=handles, loc='upper center', bbox_to_anchor=(0.5, -0.1),
