@@ -419,8 +419,8 @@ def visualize_venv(
     render_mouse: bool = True,
     save_img: bool = False,
     save_img_dir: str = "playground/paper_graphics/visualizations",
-    top_right: bool = False,
-    decision_square: bool = False,
+    top_right: bool = True,
+    decision_square: bool = True,
     fudge: float = 0.0,
     filename: str = None
 ):

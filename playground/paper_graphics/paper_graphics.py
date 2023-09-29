@@ -438,8 +438,8 @@ def fig_1():
 
     axd1['orig_mpp'].set_title('(a): Original Behavior', pad=8, **font_dict)#, fontproperties=font_prop)
     axd1['orig_act'].set_title('(b): Original Activations', pad=8, **font_dict)
-    axd1['patch_act'].set_title('(c): Patched Activations', pad=8, **font_dict)
-    axd1['patch_mpp'].set_title('(d): Patched MPP', pad=8, **font_dict)
+    axd1['patch_act'].set_title('(c): Modified Activations', pad=8, **font_dict)
+    axd1['patch_mpp'].set_title('(d): Modified Behavior', pad=8, **font_dict)
 
 
     # norm = mpl.colors.Normalize(vmin=-1, vmax=1)
@@ -1382,7 +1382,7 @@ def fig_4():
         #fig4.suptitle("Modifying a single activation", fontsize=24)
         #plt.show()
         plt.savefig(f'playground/paper_graphics/visualizations/fig_4_{seed}.pdf', bbox_inches="tight", format='pdf')
-fig_4()
+#fig_4()
 
 
 # ---------------------------------------------------- fig 5 ----------------------------------------------------
@@ -1807,11 +1807,16 @@ def fig_x2_4():
     # print(heatmap_avg_per_size_55)
     # print(ratio_avg_per_size_55)
 
-    # # data hardcoded. starting with 3x3 up to 25x25.
+    # data hardcoded. starting with 3x3 up to 25x25.
     # heatmap_avg_per_size_all = [0.799889956501738, 0.7775709501219863, 0.7797912188517916, 0.7588451193811928, 0.7406733268789705, 0.6959504505843259, 0.6425305479030984, 0.6545479388988915, 0.5824753527436064, 0.5832421962896295, 0.6167109448569562, 0.5299525163283456]
     # heatmap_avg_per_size_effective = [0.7608124070512822, 0.7041304093124999, 0.76901413325, 0.7024797808854166, 0.7087437639591837, 0.7041753128385418, 0.6503412165784831, 0.6596821581796875, 0.6037907865088384, 0.6189248616309523, 0.6371125867599068, 0.5756655757924108]
     # heatmap_avg_per_size_55 = [0.700428774165744, 0.7370594442260178, 0.7010945262579837, 0.6721659938343914, 0.6751070216559201, 0.647880930832588, 0.5939934102651221, 0.6109084206556188, 0.540930443222974, 0.5470496808198526, 0.5846496184297417, 0.5023088997834109]
     # ratio_avg_per_size_effective = [1.8489007321794872, 3.4623849059999996, 1.7517762465, 2.7921403650173606, 1.8093523609387756, 2.8955814034765623, 2.458575891675485, 2.8985679961171877, 2.566675839248737, 2.5696256181845234, 3.013872167534965, 1.8687405686830356]
+    #
+    # #print out the data for 13x13 mazes. 3x3 5x5 7x7 9x9 11x11 13x13 = 5 in zero indexed
+    # print(heatmap_avg_per_size_all[5])
+    # print(heatmap_avg_per_size_effective[5])
+    # print(heatmap_avg_per_size_55[5])
     #
     # x_values = np.linspace(0, 1, len(heatmap_avg_per_size_all))
     # #x_labels = ['3x3', '5x5', '7x7', '9x9', '11x11', '13x13', '15x15', '17x17', '19x19', '21x21', '23x23', '25x25']
@@ -1821,14 +1826,22 @@ def fig_x2_4():
     # #initial box plots
     # fig, ax = plt.subplots()#1, 2, figsize=(AX_SIZE * 2, AX_SIZE), tight_layout=True)
     # #ax.boxplot([heatmap_avg_per_size_all.values(), heatmap_avg_per_size_effective.values(), heatmap_avg_per_size_55.values()], positions = [1, 2, 3], widths = 0.6)
-    # ax.plot(x_values, heatmap_avg_per_size_all, marker='o', markersize=6, color="black")
-    # ax.plot(x_values, heatmap_avg_per_size_effective, marker='x', markersize=6, color="red")
-    # ax.plot(x_values, heatmap_avg_per_size_55, marker='+', markersize=6, color="green")
+    # ax.plot(x_values, heatmap_avg_per_size_all, marker='o', markersize=6, color="black", label='All Cheese Channels')
+    # ax.plot(x_values, heatmap_avg_per_size_effective, marker='x', markersize=6, color="red", label='Effective Channels')
+    # ax.plot(x_values, heatmap_avg_per_size_55, marker='+', markersize=6, color="green", label='Channel 55')
     #
     # ax.set_xticks(x_values)
     # ax.set_xticklabels(x_labels)
+    # ax.set_ylabel("Average probability of retargetting success", fontsize=16)
+    # ax.set_xlabel("Maze size", fontsize=16)
     #
-    # plt.savefig('playground/paper_graphics/visualizations/heat_map_avg_bad_idea.png', bbox_inches="tight", format='png')
+    # #plt.legend()
+    # legend = ax.legend()
+    # legend.get_texts()[0].set_fontsize('16')
+    # legend.get_texts()[1].set_fontsize('16')
+    # legend.get_texts()[2].set_fontsize('16')
+    #
+    # plt.savefig('playground/paper_graphics/visualizations/effectiveness_of_intervention_by_channel_size.pdf', bbox_inches="tight", format='pdf')
     #
     # fig, ax = plt.subplots()
     # ax.plot(x_values, ratio_avg_per_size_effective, marker='x', markersize=6, color="red")
@@ -1882,11 +1895,13 @@ def fig_x2_4():
 
     # Redo this plot for probability of successful retargeting vs. distance from top right path
     tr_path_by_probs = {i: [] for i in range(51)}
+    tr_path_by_probs_ratios = {i: [] for i in range(51)}
 
     for seed in range(100):
-        data = heatmap_data_by_seed_and_prob_type(seed, "all")
+        data = heatmap_data_by_seed_and_prob_type(seed, "effective")
         tr_path_dist = data['topright_path_divergence']
         probs = data['probability']
+        ratios = data['ratio']
 
         if len(tr_path_dist) != len(probs):
             raise Exception("path distance and ratios are not the same length")
@@ -1897,6 +1912,7 @@ def fig_x2_4():
             # print(ratios[i][1])
             if tr_path_dist.values[i] <= 50:
                 tr_path_by_probs[tr_path_dist.values[i]].append(probs.values[i])
+                tr_path_by_probs_ratios[tr_path_dist.values[i]].append(ratios.values[i])
             #path_distance_ratios[path_distance.values[i]].append(ratios.values[i])
 
     #     print()
@@ -1910,6 +1926,13 @@ def fig_x2_4():
         else:
             tr_path_by_probs[i] = 0
 
+    for i in tr_path_by_probs_ratios.keys():
+        #if isinstance(path_distance_ratios[i], list):
+        if len(tr_path_by_probs_ratios[i]) != 0:
+            tr_path_by_probs_ratios[i] = np.mean(tr_path_by_probs_ratios[i])
+        else:
+            tr_path_by_probs_ratios[i] = 0
+
     print()
 
 
@@ -1921,6 +1944,15 @@ def fig_x2_4():
     #ax.set_xticks(x_values)
     #ax.set_xticklabels(x_labels)
     plt.savefig('playground/paper_graphics/visualizations/tr_path_dist_v_retargetability.pdf', bbox_inches="tight", format='pdf')
+    #plt.show()
+
+    fig, ax = plt.subplots()
+    ax.plot(tr_path_by_probs_ratios.keys(), tr_path_by_probs_ratios.values(), marker='x', markersize=6, color="red")
+    ax.set_xlabel("Distance from Top Right Path", fontsize=14)
+    ax.set_ylabel("Ratio of Successful Retargeting", fontsize=14)
+    #ax.set_xticks(x_values)
+    #ax.set_xticklabels(x_labels)
+    plt.savefig('playground/paper_graphics/visualizations/tr_path_dist_v_ratio.pdf', bbox_inches="tight", format='pdf')
     #plt.show()
 
 
