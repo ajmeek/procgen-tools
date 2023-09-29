@@ -1638,7 +1638,7 @@ def fig_x1b():
 
 def fig_x1bv2():
     figx1, axdx1 = plt.subplot_mosaic(
-        [['seed_0_channel_all', 'seed_48_channel_all', 'seed_48_channel_55', 'seed_48_channel_cheese']],
+        [['seed_0_channel_all', 'seed_48_channel_55', 'seed_48_channel_all', 'seed_48_channel_cheese']],
         figsize=(AX_SIZE * 4, AX_SIZE*1.5), #increase y to fit titles
         tight_layout=True,
     )
@@ -1646,22 +1646,22 @@ def fig_x1bv2():
     # loading the data
 
     #give title to the axes
-    axdx1['seed_0_channel_all'].set_title("(a): Seed 0\n All Channels", pad=8, fontsize=24)#, font="Times New Roman")
-    plot_heatmap(0, "all", axdx1['seed_0_channel_all'])
+    axdx1['seed_0_channel_all'].set_title("(a): Base Probability", pad=8, fontsize=24)#, font="Times New Roman")
+    plot_heatmap(48, "normal", axdx1['seed_0_channel_all'])
 
-    axdx1['seed_48_channel_all'].set_title("(b): Seed 48\n All Channels", pad=8, fontsize=24)#, font="Times New Roman")
+    axdx1['seed_48_channel_all'].set_title("(b): All Channels", pad=8, fontsize=24)#, font="Times New Roman")
     plot_heatmap(48, "all", axdx1['seed_48_channel_all'])
 
-    axdx1['seed_48_channel_55'].set_title("(c): Seed 48\n Channel 55", pad=8, fontsize=24)#, font="Times New Roman")
+    axdx1['seed_48_channel_55'].set_title("(c): Channel 55", pad=8, fontsize=24)#, font="Times New Roman")
     plot_heatmap(48, "55", axdx1['seed_48_channel_55'])
 
-    axdx1['seed_48_channel_cheese'].set_title("(d): Seed 48\nCheese", pad=8, fontsize=24)#, font="Times New Roman")
+    axdx1['seed_48_channel_cheese'].set_title("(d): Cheese", pad=8, fontsize=24)#, font="Times New Roman")
     plot_heatmap(48, "cheese", axdx1['seed_48_channel_cheese'])
 
     #plt.show()
-    plt.savefig('playground/paper_graphics/visualizations/fig_x1bv2.pdf', bbox_inches="tight", format='pdf')
+    plt.savefig('playground/paper_graphics/visualizations/fig_x1bv3.pdf', bbox_inches="tight", format='pdf')
 
-#fig_x1bv2()
+fig_x1bv2()
 
 # -------------------------------------------------- fig 6 ----------------------------------------------------
 """
