@@ -1081,7 +1081,7 @@ def fig_3():
         #if key == '3x3' or key == '5x5' or key == '7x7' or key == '9x9':
         #    continue
         #for i in value:
-    for i in [52]:
+    for i in [51]:
         try:
             fig3, axd3 = plt.subplot_mosaic(
                 [['original', 'same_loc', 'dif_loc_historic', 'dif_loc_bottom_right']],
@@ -1168,7 +1168,7 @@ def fig_3():
             # add title
             # plt.suptitle(f'Seed {seed}')
             # plt.show()
-            plt.savefig(f'playground/paper_graphics/visualizations/fig_3_by_size/{maze.get_inner_grid_from_seed(i).shape[0]}_fig_3_{i}.pdf', bbox_inches="tight", format='pdf')
+            plt.savefig(f'playground/paper_graphics/visualizations/fig_3_by_size/{maze.get_inner_grid_from_seed(i).shape[0]}_fig_3_{i}.svg', bbox_inches="tight", format='svg')
             plt.close()
         except:
             print(f"Failed on seed {i} for size {maze.get_inner_grid_from_seed(i).shape[0]}")
@@ -1264,7 +1264,7 @@ def fig_3():
     # #     pass
 
 
-#fig_3()
+fig_3()
 
 
 # ---------------------------------------------------- fig 4 ----------------------------------------------------
