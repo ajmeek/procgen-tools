@@ -1,5 +1,7 @@
 # %% [markdown]
-# One particularly interesting channel in `block2.res1.resadd_out` is _channel 55_. In this notebook, we will: 
+# ANONYMIZED
+#
+# One particularly interesting channel in `block2.res1.resadd_out` is _channel 55_. In this notebook, we will:
 # 1. Visualize channel 55 and demonstrate **that it positively activates on cheese and weakly negatively activates elsewhere**, 
 # 2. Demonstrate how the agent can sometimes be retargeted using a simple synthetic activation patch, and
 # 3. Show that this channel can weakly increase cheese-seeking (multiply by >1), decrease cheese-seeking (zero- or mean-ablate), strongly promote cheese-avoidance (multiply by < -1), and promote no-ops (multiply by << -1). 
@@ -14,7 +16,7 @@
 try:
     import procgen_tools
 except ImportError or ModuleNotFoundError:
-    get_ipython().run_line_magic(magic_name='pip', line='install -U git+https://github.com/ulissemini/procgen-tools')
+    get_ipython().run_line_magic(magic_name='pip', line='install -U git+ANONYMIZED')
 
 from procgen_tools.utils import setup
 

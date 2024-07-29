@@ -1,9 +1,11 @@
+# ANONYMIZED
+
 try:
     import procgen_tools
 except ImportError:
     get_ipython().run_line_magic(
         magic_name="pip",
-        line="install -U git+https://github.com/ulissemini/procgen-tools",
+        line="install -U git+ANONYMIZED",
     )
 
 from procgen_tools.utils import setup

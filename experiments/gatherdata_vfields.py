@@ -1,10 +1,13 @@
 # %%
+
+# ANONYMIZED
+
 # Imports
 import torch as t
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
-import circrl.module_hook as cmh
+import ANONYMIZED as cmh
 
 import procgen_tools.models as models
 from procgen_tools import maze, patch_utils

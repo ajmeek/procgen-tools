@@ -1,5 +1,7 @@
 # %%[markdown]
-# The goal of this experiment is to identify (sparse?) directions in activation 
+# ANONYMIZED
+
+# The goal of this experiment is to identify (sparse?) directions in activation
 # space in different layers that can accurately predict whether the agent will
 # take the cheese or go to the corner instead.  Steps:
 # - Generate a bunch of data: 

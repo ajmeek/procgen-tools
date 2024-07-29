@@ -1,4 +1,7 @@
 # %%
+
+# ANONYMIZED
+
 %reload_ext autoreload
 %autoreload 2
 
@@ -7,7 +10,7 @@
 try:
     import procgen_tools
 except ImportError or ModuleNotFoundError:
-    get_ipython().run_line_magic(magic_name='pip', line='install -U git+https://github.com/ulissemini/procgen-tools')
+    get_ipython().run_line_magic(magic_name='pip', line='install -U git+ANONYMIZED')
 
 from procgen_tools.utils import setup
 

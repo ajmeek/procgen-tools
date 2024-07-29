@@ -1,5 +1,7 @@
 # %% [markdown]
-# This notebook is for taking statistics over thousands of runs, in order to analyze which maze features (e.g. distance to cheese) tend to affect decision-making. 
+# ANONYMIZED
+#
+# This notebook is for taking statistics over thousands of runs, in order to analyze which maze features (e.g. distance to cheese) tend to affect decision-making.
 
 # %%
 %load_ext autoreload
@@ -8,7 +10,7 @@
 try:
     import procgen_tools
 except ImportError:
-    get_ipython().run_line_magic(magic_name='pip', line='install -U git+https://github.com/ulissemini/procgen-tools')
+    get_ipython().run_line_magic(magic_name='pip', line='install -U git+ANONYMIZED')
 
 from procgen_tools.utils import setup
 
