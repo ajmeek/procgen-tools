@@ -1,8 +1,10 @@
+# ANONYMIZED
+
 # %%
 
 import matplotlib.pyplot as plt
-from procgen_tools import maze, models, vfield
-import circrl.module_hook as cmh
+from ANONYMIZED import maze, models, vfield
+import ANONYMIZED as cmh
 import torch as t
 from ipywidgets import interact
 from ipywidgets.widgets import IntSlider, Dropdown
@@ -15,7 +17,7 @@ default_model = next(f for f in model_files if 'rand_region_5' in f)
 
 def _get_timestep(checkpoint: str):
     return int(checkpoint.split('_')[-1].split('.')[0])
-checkpoints = sorted(glob('/home/uli/2023-02-02__17-29-21__seed_870/*.pth'), key=lambda x: int(_get_timestep(x)))
+checkpoints = sorted(glob('ANONYMIZED/2023-02-02__17-29-21__seed_870/*.pth'), key=lambda x: int(_get_timestep(x)))
 
 # %%
 

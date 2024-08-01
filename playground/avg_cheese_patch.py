@@ -1,10 +1,10 @@
 # %%
 
 import matplotlib.pyplot as plt
-from procgen_tools import models, maze, vfield
-import procgen_tools.patch_utils as patch_utils
+from ANONYMIZED import models, maze, vfield
+import ANONYMIZED.patch_utils as patch_utils
 from glob import glob
-import circrl.module_hook as cmh
+import ANONYMIZED as cmh
 import numpy as np
 import torch as t
 from ipywidgets import interact, IntSlider, Dropdown

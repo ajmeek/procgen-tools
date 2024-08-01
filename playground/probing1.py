@@ -1,3 +1,5 @@
+# ANONYMIZED
+
 # %%
 # Imports
 %reload_ext autoreload
@@ -21,14 +23,14 @@ from IPython.display import Video, display
 from tqdm.auto import tqdm
 import warnings
 
-# NOTE: this is Monte's RL hooking code (and other stuff will be added in the future)
-# Install normally with: pip install circrl
-import circrl.module_hook as cmh
-import circrl.rollouts as cro
-import circrl.probing as cpr
+# NOTE: this is ANONYMIZED's RL hooking code (and other stuff will be added in the future)
+# Install normally with: pip install ANONYMIZED
+import ANONYMIZED as cmh
+import ANONYMIZED as cro
+import ANONYMIZED as cpr
 
-import procgen_tools.models as models
-import procgen_tools.maze as maze
+import ANONYMIZED.models as models
+import ANONYMIZED.maze as maze
 
 warnings.filterwarnings("ignore", message=r'.*labels with no predicted samples.*')
 
@@ -195,7 +197,7 @@ _ = hook.run_with_input(obs_all)
 #                 'embedder.block3.res1.resadd_out',
 #                 'embedder.block3.res2.resadd_out']
 
-# The layer Peli highlighted on 2023-02-03, and it's relu 
+# The layer ANONYMIZED highlighted on 2023-02-03, and it's relu
 # value_labels = ['embedder.block2.res1.conv1_out', 'embedder.block2.res1.relu2_out']
 
 # All the conv layers!
@@ -249,7 +251,7 @@ value_labels = [
 
 
 # %% 
-# Try the circrl probing, probe for left, right, down, up neighbour status
+# Try the ANONYMIZED probing, probe for left, right, down, up neighbour status
 # as a demo of functionality
 
 value_labels_to_plot = [

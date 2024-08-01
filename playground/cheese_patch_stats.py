@@ -1,3 +1,5 @@
+# ANONYMIZED
+
 # %%
 # Imports and initial setup
 %reload_ext autoreload
@@ -25,11 +27,11 @@ from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
 import matplotlib.pyplot as plt 
 plt.ioff() # disable interactive plotting, so that we can control where figures show up when refreshed by an ipywidget
 
-import circrl.module_hook as cmh
-import procgen_tools.models as models
-import procgen_tools.maze as maze
-import procgen_tools.patch_utils as patch_utils
-import procgen_tools.vfield as vfield
+import ANONYMIZED as cmh
+import ANONYMIZED.models as models
+import ANONYMIZED.maze as maze
+import ANONYMIZED.patch_utils as patch_utils
+import ANONYMIZED.vfield as vfield
 from procgen import ProcgenGym3Env
 
 path_prefix = '../'

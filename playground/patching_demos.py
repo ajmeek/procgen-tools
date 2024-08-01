@@ -1,3 +1,5 @@
+# ANONYMIZED
+
 # %%
 # Imports
 %reload_ext autoreload
@@ -13,13 +15,13 @@ from tqdm import tqdm
 from einops import rearrange
 from IPython.display import Video, display
 
-# NOTE: this is Monte's RL hooking code (and other stuff will be added in the future)
-# Install normally with: pip install circrl
-import circrl.module_hook as cmh
-import circrl.rollouts as cro
+# NOTE: this is ANONYMIZED's RL hooking code (and other stuff will be added in the future)
+# Install normally with: pip install ANONYMIZED
+import ANONYMIZED as cmh
+import ANONYMIZED as cro
 
-import procgen_tools.models as models
-from procgen_tools.maze import create_venv
+import ANONYMIZED.models as models
+from ANONYMIZED.maze import create_venv
 
 # %%
 # The patching feature of ModuleHook can be used in two main ways:

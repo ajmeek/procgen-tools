@@ -1,3 +1,5 @@
+# ANONYMIZED
+
 #!/bin/bash
 
 python3 experiments/collect_retargeting_data.py --num_levels=100 --intervention="normal" &

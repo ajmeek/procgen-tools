@@ -1,3 +1,5 @@
+# ANONYMIZED
+
 # %% [markdown]
 # # Visualizing details of the goal misgeneralization nets
 # Let's understand lots of details about [the goal misgeneralization paper](https://arxiv.org/abs/2105.14111). In particular, we'll be looking at the cheese-maze task from the goal misgeneralization task, for which cheese was spawned in the 5x5 top-right corner of the maze. 
@@ -13,13 +15,13 @@
 
 # %%
 # Super-long import code!
-from procgen_tools.imports import *
-from procgen_tools.procgen_imports import *
+from ANONYMIZED.imports import *
+from ANONYMIZED.procgen_imports import *
 
 # %% [markdown]
 # Let's visualize the network structure. Here's a Mermaid diagram. 
 # 
-# ![](https://i.imgur.com/acsV4aD.png) 
+# ANONYMIZED
 
 # %% [markdown]
 # And here's a more dynamic view; small nodes are activations, and large nodes are `nn.Module`s.

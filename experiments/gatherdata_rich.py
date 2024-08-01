@@ -10,8 +10,8 @@ from tqdm.auto import tqdm
 import circrl.module_hook as cmh
 import circrl.rollouts as cro
 
-import procgen_tools.models as models
-import procgen_tools.maze as maze
+import ANONYMIZED.models as models
+import ANONYMIZED.maze as maze
 from argparse import ArgumentParser
 
 # Custom predict function to match rollout expected interface

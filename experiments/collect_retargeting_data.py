@@ -1,19 +1,19 @@
 # ANONYMIZED
 
 try:
-    import procgen_tools
+    import ANONYMIZED
 except ImportError:
     get_ipython().run_line_magic(
         magic_name="pip",
         line="install -U git+ANONYMIZED",
     )
 
-from procgen_tools.utils import setup
+from ANONYMIZED.utils import setup
 
 setup()  # create directory structure and download data
 
-from procgen_tools.imports import *
-from procgen_tools import maze, visualization, models, patch_utils
+from ANONYMIZED.imports import *
+from ANONYMIZED import maze, visualization, models, patch_utils
 from typing import Tuple, Dict, List, Optional, Union
 from ipywidgets import interact, interactive, fixed, interact_manual
 import ipywidgets as widgets

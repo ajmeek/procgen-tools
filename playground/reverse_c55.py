@@ -1,20 +1,22 @@
+# ANONYMIZED
+
 # %% Don't have to restart kernel and reimport each time you modify a dependency
 %reload_ext autoreload
 %autoreload 2
 
 # %%
 try:
-    import procgen_tools
+    import ANONYMIZED
 except ImportError:
-    get_ipython().run_line_magic(magic_name='pip', line='install -U git+https://github.com/ulissemini/procgen-tools')
+    get_ipython().run_line_magic(magic_name='pip', line='install -U git+ANONYMIZED')
 
-from procgen_tools.utils import setup
+from ANONYMIZED.utils import setup
 
 setup() # create directory structure and download data 
 
 # %% 
-from procgen_tools.imports import *
-from procgen_tools import visualization, patch_utils, maze, vfield
+from ANONYMIZED.imports import *
+from ANONYMIZED import visualization, patch_utils, maze, vfield
 
 SAVE_DIR = 'playground/visualizations'
 AX_SIZE = 6
@@ -115,7 +117,7 @@ seed_slider = IntSlider(min=0, max=100, step=1, value=0)
 layer_slider = Dropdown(options=labels, value=default_layer)
 channel_slider = IntSlider(min=-1, max=127, step=1, value=55)
 
-from procgen_tools import models
+from ANONYMIZED import models
 def random_channel_patch(seed : int, layer_name : str, channel : int):
     """ Replace the given channel's activations with values from a randomly sampled observation. This invokes patch_utils.get_random_patch from patch_utils. If channel=-1, then all channels are replaced. """
     channel_slider.max = models.num_channels(hook, layer_name) -1

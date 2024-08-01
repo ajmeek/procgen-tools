@@ -8,11 +8,11 @@
 %autoreload 2
 # %%
 try:
-    import procgen_tools
+    import ANONYMIZED
 except ImportError:
     get_ipython().run_line_magic(magic_name='pip', line='install -U git+ANONYMIZED')
 
-from procgen_tools.utils import setup
+from ANONYMIZED.utils import setup
 
 setup() # create directory structure and download data 
 
@@ -22,10 +22,10 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 from procgen import ProcgenGym3Env
-from procgen_tools import maze
-from procgen_tools.models import load_policy
-from procgen_tools.metrics import metrics, decision_square 
-from procgen_tools.data_utils import load_episode
+from ANONYMIZED import maze
+from ANONYMIZED.models import load_policy
+from ANONYMIZED.metrics import metrics, decision_square
+from ANONYMIZED.data_utils import load_episode
 from data_util import load_episode
 
 from IPython import display

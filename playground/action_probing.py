@@ -1,3 +1,5 @@
+# ANONYMIZED
+
 # %%[markdown]
 # # Training Probes to Predict Next Cheese Action
 # 
@@ -40,14 +42,14 @@ plt.ioff() # disable interactive plotting, so that we can control where figures 
 import lovely_tensors as lt
 lt.monkey_patch()
 
-import circrl.module_hook as cmh
-import circrl.rollouts as cro
-import circrl.probing as cpr
-import procgen_tools.models as models
-import procgen_tools.maze as maze
-import procgen_tools.patch_utils as patch_utils
-import procgen_tools.vfield as vfield
-import procgen_tools.rollout_utils as rollout_utils
+import ANONYMIZED as cmh
+import ANONYMIZED as cro
+import ANONYMIZED as cpr
+import ANONYMIZED.models as models
+import ANONYMIZED.maze as maze
+import ANONYMIZED.patch_utils as patch_utils
+import ANONYMIZED.vfield as vfield
+import ANONYMIZED.rollout_utils as rollout_utils
 from procgen import ProcgenGym3Env
 
 from action_probing_obsproc import load_value
@@ -221,7 +223,7 @@ print(probe_result_logits['train_score'], probe_result_logits['test_score'])
 # RESULT: so far, the resulting policy performs quite badly, which is suprising as
 # it predicts the correct "next action towards cheese" better than the actual policy!
 # I think this is worth some debugging...
-# 2023-03-04: we can get 90% cheese-action accuracy learning a single linear map from the 
+# 2023-03-04: we can get 90% cheese-action accuracy learning a single linear map from the
 # flattened conv layer output, but even so it looks like we still get stuck sometimes?
 # Level 2: it seems like it's *trying* to get the cheese, but it can't quite
 # overcome the resistence to going up the cheese-holding branch.  I wonder if there's 

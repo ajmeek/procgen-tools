@@ -1,3 +1,5 @@
+# ANONYMIZED
+
 # %%
 # Imports
 %reload_ext autoreload
@@ -20,14 +22,14 @@ from einops import rearrange
 from IPython.display import Video, display
 from tqdm.auto import tqdm
 
-# NOTE: this is Monte's RL hooking code (and other stuff will be added in the future)
-# Install normally with: pip install circrl
-import circrl.module_hook as cmh
-import circrl.rollouts as cro
-import circrl.probing as cpr
+# NOTE: this is ANONYMIZED's RL hooking code (and other stuff will be added in the future)
+# Install normally with: pip install ANONYMIZED
+import ANONYMIZED as cmh
+import ANONYMIZED as cro
+import ANONYMIZED as cpr
 
-import procgen_tools.models as models
-import procgen_tools.maze as maze
+import ANONYMIZED.models as models
+import ANONYMIZED.maze as maze
 
 # %%
 # Functions

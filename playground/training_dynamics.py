@@ -1,8 +1,10 @@
+# ANONYMIZED
+
 # %%
 
 %matplotlib inline
 import matplotlib.pyplot as plt
-from procgen_tools import vfield, maze, models
+from ANONYMIZED import vfield, maze, models
 from tqdm import tqdm
 from glob import glob
 from IPython.display import HTML, display, clear_output
@@ -23,13 +25,13 @@ import value_fn
 # Create animated video of vector field using imageio
 
 import imageio
-from procgen_tools import vfield, maze, models
+from ANONYMIZED import vfield, maze, models
 import numpy as np
 
 with imageio.get_writer('vfield.mp4', fps=30) as writer:
     def _get_timestep(checkpoint: str):
         return int(checkpoint.split('_')[-1].split('.')[0])
-    files = sorted(glob('/home/uli/2023-02-02__17-29-21__seed_870/*.pth'), key=lambda x: int(_get_timestep(x)))
+    files = sorted(glob('ANONYMIZED/2023-02-02__17-29-21__seed_870/*.pth'), key=lambda x: int(_get_timestep(x)))
 
     for model_file in tqdm(files):
         policy = models.load_policy(model_file, 15, 'cpu')

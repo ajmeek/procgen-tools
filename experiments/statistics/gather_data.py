@@ -6,9 +6,9 @@ import pickle
 from argparse import ArgumentParser
 
 from procgen import ProcgenGym3Env
-from procgen_tools.data_utils import Episode
-from procgen_tools import maze
-from procgen_tools.models import load_policy
+from ANONYMIZED.data_utils import Episode
+from ANONYMIZED import maze
+from ANONYMIZED.models import load_policy
 
 
 def create_venv(num_levels=1, start_level=0):

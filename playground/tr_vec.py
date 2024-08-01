@@ -1,23 +1,25 @@
+# ANONYMIZED
+
 # %%
 try:
-    import procgen_tools
+    import ANONYMIZED
 except ImportError:
     commit = ""
     get_ipython().run_line_magic(
         magic_name="pip",
         line=(
             "install -U"
-            f" git+https://github.com/ulissemini/procgen-tools.git@{commit}"
+            f" git+ANONYMIZED@{commit}"
         ),
     )
 
-from procgen_tools.utils import setup
+from ANONYMIZED.utils import setup
 
 setup()  # create directory structure
 
 # %%
-from procgen_tools.imports import *
-from procgen_tools import visualization, patch_utils, maze, vfield
+from ANONYMIZED.imports import *
+from ANONYMIZED import visualization, patch_utils, maze, vfield
 
 # %%
 AX_SIZE = 5.5

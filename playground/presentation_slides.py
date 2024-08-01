@@ -1,13 +1,15 @@
+# ANONYMIZED
+
 # %%
 
 import matplotlib.pyplot as plt
 import random
-import procgen_tools.maze as maze
-from procgen_tools.maze import EnvState, create_venv, render_inner_grid
+import ANONYMIZED.maze as maze
+from ANONYMIZED.maze import EnvState, create_venv, render_inner_grid
 import numpy as np
 import torch as t
-import procgen_tools.patch_utils as pu
-from procgen_tools.imports import hook, default_layer
+import ANONYMIZED.patch_utils as pu
+from ANONYMIZED.imports import hook, default_layer
 
 AX_SIZE = 3.5
 

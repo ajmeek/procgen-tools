@@ -1,3 +1,5 @@
+# ANONYMIZED
+
 # %%
 # Imports and initial setup
 %reload_ext autoreload
@@ -29,12 +31,12 @@ plt.ioff() # disable interactive plotting, so that we can control where figures 
 import lovely_tensors as lt
 lt.monkey_patch()
 
-import circrl.module_hook as cmh
-import circrl.rollouts as cro
-import procgen_tools.models as models
-import procgen_tools.maze as maze
-import procgen_tools.patch_utils as patch_utils
-import procgen_tools.vfield as vfield
+import ANONYMIZED as cmh
+import ANONYMIZED as cro
+import ANONYMIZED.models as models
+import ANONYMIZED.maze as maze
+import ANONYMIZED.patch_utils as patch_utils
+import ANONYMIZED.vfield as vfield
 from procgen import ProcgenGym3Env
 
 path_prefix = '../'

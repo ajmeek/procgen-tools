@@ -8,7 +8,7 @@ pretrained models are available in [this Google Drive
 folder](https://drive.google.com/drive/folders/1Ig7bzRlieyYFcdKL_PM-guSWR8WryDOL?usp=sharing)
 (we analyzed the `maze_I/*.pth` models).
 
-This repository was initially created by the shard theory team during the SERI MATS 3.0 research fellowship program.
+This repository was initially created by the ANONYMIZED team during ANONYMIZED.
 
 **Disclaimers:** *this repository is a work-in-progress research codebase
 built to produce results quickly. It lacks tests and proper
@@ -25,7 +25,7 @@ activations by resampling activations.*
 The repository is organized as follows:
 - `experiments` contains research materials considered interesting or significant enough to (eventually) be documented and shared.
 - `playground` contains early-stage or work-in-progress research, or archival materials for discontinued research threads.
-- `procgen_tools` is a Python package containing the shared tooling used by the above research.  It can be installed from local source using `pip install -e procgen-tools`
+- `ANONYMIZED` is a Python package containing the shared tooling used by the above research.  It can be installed from local source using `pip install -e procgen-tools`
 
 Required dependencies should be installed using `pip install -r requirements.txt`.  
 
@@ -64,7 +64,7 @@ Create an environment, parse the state and show all the accessible state variabl
 
 ```python
 import matplotlib.pyplot as plt
-from procgen_tools import maze
+from ANONYMIZED import maze
 # Create a maze environment
 venv = maze.create_venv(1, start_level=0, num_levels=1)
 # Parse the environment state
@@ -107,7 +107,7 @@ plt.show()
 
 #### Interpretable, Parameter-Compatible Implementations of IMPALA Models
 
-We use the `circrl` library to automatically apply forward hooks to pre-trained models, provide access to internal activations at all hidden layers, and apply activation edits and ablations of various kinds.  This library uses the pytorch `named_modules()` function to label and hook hidden layers.  The pretrained IMPALA models from the Goal Misgeneralization paper were implemented in such a way that certain important parameter-free modules (e.g. `ReLU()`s) were newly created at each forward call, making it difficult to apply hooks to extract the activations of these layers.  We implemented modified versions of these [models](procgen_tools/models.py) that create and name all modules during construction to facilitate later interpretability work.  The resulting model classes are parameter-compatible with the original pretrained models so `state_dict`s can be loaded unchanged.
+We use the ANONYMIZED library to automatically apply forward hooks to pre-trained models, provide access to internal activations at all hidden layers, and apply activation edits and ablations of various kinds.  This library uses the pytorch `named_modules()` function to label and hook hidden layers.  The pretrained IMPALA models from the Goal Misgeneralization paper were implemented in such a way that certain important parameter-free modules (e.g. `ReLU()`s) were newly created at each forward call, making it difficult to apply hooks to extract the activations of these layers.  We implemented modified versions of these [models](ANONYMIZED/models.py) that create and name all modules during construction to facilitate later interpretability work.  The resulting model classes are parameter-compatible with the original pretrained models so `state_dict`s can be loaded unchanged.
 
 #### Vector Field Visualizations
 
@@ -116,7 +116,7 @@ A key visualization that is used extensively in this research is the "vector fie
 
 ```python
 import torch as t
-from procgen_tools import maze, vfield, models
+from ANONYMIZED import maze, vfield, models
 
 # Load pretrained policy
 policy = models.load_policy('trained_models/maze_I/model_rand_region_5.pth', 15, t.device('cpu'))
@@ -138,7 +138,7 @@ Support is also provided for "vector field diff" visualizations, a tool for visu
 
 
 ```python
-import circrl.module_hook as cmh
+import ANONYMIZED as cmh
 hook = cmh.ModuleHook(policy)
 hooks = {'embedder.block2.res1.resadd_out': lambda outp: outp + 0.2*t.randn_like(outp)}
 venv = maze.create_venv(1, start_level=0, num_levels=1)
@@ -156,6 +156,6 @@ plt.show()
 
 
 #### Misc
-- [Procgen wrappers](procgen_tools/procgen_wrappers.py) similifies environment-related dependencies
-- [Patching utilities](procgen_tools/patch_utils.py) provides various patching-related utility functions
-- [Rollout utilities](procgen_tools/rollout_utils.py) provides code to e.g. render side-by-side rollout videos
+- [Procgen wrappers](ANONYMIZED/procgen_wrappers.py) similifies environment-related dependencies
+- [Patching utilities](ANONYMIZED/patch_utils.py) provides various patching-related utility functions
+- [Rollout utilities](ANONYMIZED/rollout_utils.py) provides code to e.g. render side-by-side rollout videos

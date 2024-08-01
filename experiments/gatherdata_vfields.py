@@ -9,12 +9,12 @@ import matplotlib.pyplot as plt
 
 import ANONYMIZED as cmh
 
-import procgen_tools.models as models
-from procgen_tools import maze, patch_utils
+import ANONYMIZED.models as models
+from ANONYMIZED import maze, patch_utils
 
 # %%
 # Load two levels and get values
-from procgen_tools.patch_utils import *
+from ANONYMIZED.patch_utils import *
 
 # %%
 # Save vector fields and figures for a bunch of (seed, coeff) pairs; run

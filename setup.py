@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='procgen-tools',
+    name='ANONYMIZED',
     description='Tools for working with Procgen environments',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
@@ -19,7 +19,7 @@ setup(
         "bidict>=0.22.0",
         "requests==2.28.*",
         "pandas>=1.5.3",
-        "circrl>=0.4.0",
+        "ANONYMIZED>=0.4.0",
         "plotly>=5.13.0",
         "networkx>=3.0",
         "scipy==1.10.0",

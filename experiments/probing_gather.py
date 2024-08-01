@@ -27,8 +27,8 @@ import pandas as pd
 import torch as t
 from argparse import ArgumentParser
 
-import procgen_tools.models as models
-import procgen_tools.maze as maze
+import ANONYMIZED.models as models
+import ANONYMIZED.maze as maze
 import gatherdata
 import gatherdata_rich
 

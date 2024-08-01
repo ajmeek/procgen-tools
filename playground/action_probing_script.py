@@ -1,3 +1,5 @@
+# ANONYMIZED
+
 # Imports and initial setup
 from typing import List, Tuple, Dict, Union, Optional, Callable
 import random
@@ -29,13 +31,13 @@ from argparse import ArgumentParser
 import lovely_tensors as lt
 lt.monkey_patch()
 
-import circrl.module_hook as cmh
-import circrl.rollouts as cro
-import circrl.probing as cpr
-import procgen_tools.models as models
-import procgen_tools.maze as maze
-import procgen_tools.vfield as vfield
-import procgen_tools.rollout_utils as rollout_utils
+import ANONYMIZED as cmh
+import ANONYMIZED as cro
+import ANONYMIZED as cpr
+import ANONYMIZED.models as models
+import ANONYMIZED.maze as maze
+import ANONYMIZED.vfield as vfield
+import ANONYMIZED.rollout_utils as rollout_utils
 
 path_prefix = '../'
 
