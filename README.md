@@ -1,4 +1,4 @@
-## procgen-tools
+## ANONYMIZED
 
 Code for a series of experiments and associated tools for interpreting
 agents trained on _procgen_, specifically the `maze` environment as used
