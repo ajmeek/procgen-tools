@@ -11,9 +11,9 @@ scipy==1.10.0
 networkx==3.0
 # einops # aspirational
 
-# Monte's code
+# ANONYMIZED's code
 pandas>=1.5.3
-git+https://github.com/UlisseMini/circrl # temp until fixed for python 3.8
+git+ANONYMIZED # temp until fixed for python 3.8
 plotly>=5.13.0
 networkx>=3.0
 
@@ -22,8 +22,8 @@ networkx>=3.0
 statsmodels
 prettytable
 
-# Build procgenAISC, not needed for now
+# Build ANONYMIZED, not needed for now
 
-# pyqt5 # procgen build gets mad if this isn't here
-# must be lauro branch. master is not supported (different parsing would be required)
-# git+https://github.com/UlisseMini/procgenAISC@lauro
+# pyqt5 # ANONYMIZED build gets mad if this isn't here
+# must be ANONYMIZED branch. master is not supported (different parsing would be required)
+# git+ANONYMIZED
